@@ -82,11 +82,12 @@ trait TransformIntegrationTest extends ScalaFutures {
         } yield {
           block(application)
         }
+      f
 
       // We need to force the assertion to resolve here.
       // Otherwise, the test block may never be run at all.
-      val assertion = Await.result(f, Duration.Inf)
-      Future.successful(assertion)
+//      val assertion = Await.result(f, Duration.Inf)
+//      Future.successful(assertion)
     }
     finally {
       Play.stop(application)
