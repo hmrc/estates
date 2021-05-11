@@ -29,7 +29,7 @@ import models.ApiResponse._
 import models.requests.IdentifierRequest
 import utils.Session
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +44,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     val retrievals = Retrievals.internalId and
                      Retrievals.affinityGroup
 
-    implicit val hc : HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc : HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised().retrieve(retrievals) {
       case Some(internalId) ~ Some(Agent) =>

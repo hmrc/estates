@@ -5,10 +5,10 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     "org.reactivemongo"          %% "play2-reactivemongo"       % "0.18.8-play27",
-    "uk.gov.hmrc"                %% "logback-json-logger"       % "4.8.0",
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-27" % "2.25.0",
+    "uk.gov.hmrc"                %% "logback-json-logger"       % "5.1.0",
+    "uk.gov.hmrc"                %% "bootstrap-backend-play-27" % "4.3.0",
     "com.github.java-json-tools" % "json-schema-validator"      % "2.2.14",
-    "uk.gov.hmrc"                %% "tax-year"                  % "1.1.0"
+    "uk.gov.hmrc"                %% "tax-year"                  % "1.3.0"
   )
 
   val test: Seq[ModuleID] = Seq(

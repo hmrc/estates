@@ -45,7 +45,7 @@ class TaxEnrolmentConnectorImpl @Inject()(http: HttpClient, config: AppConfig) e
       etmpId = subscriptionId)
 
     val response = http.PUT[JsValue, TaxEnrolmentSubscriberResponse](taxEnrolmentsEndpoint, Json.toJson(taxEnrolmentSubscriptionRequest))
-    (Writes.JsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers, global)
+    (Writes.JsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, global)
     response
   }
 
