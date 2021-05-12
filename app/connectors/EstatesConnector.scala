@@ -45,7 +45,6 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
   // So this must remain "trusts" even though we're reading an estate.
   private lazy val getEstateUrl: String =  s"${config.getEstateBaseUrl}/trusts"
 
-  private def create4MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/$utr"
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
   private lazy val estateVariationsEndpoint : String = s"${config.varyEstateBaseUrl}/estates/variation"
@@ -102,13 +101,7 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: $correlationId")
 
-    estates5MLDService.is5mldEnabled.flatMap { is5MLD =>
-      if (is5MLD) {
-        http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), global)
-      } else {
-        http.GET[GetEstateResponse](create4MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), global)
-      }
-    }
+    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), global)
   }
 
   def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {

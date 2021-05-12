@@ -73,12 +73,10 @@ class RegistrationService @Inject()(repository: TransformationRepository,
   def submit(declaration: RegistrationDeclaration)
             (implicit request: IdentifierRequest[_], hc: HeaderCarrier): Future[RegistrationResponse] = {
 
-    estates5MLDService.is5mldEnabled() flatMap { is5mld =>
-
       repository.get(request.identifier) flatMap {
         case Some(transforms) =>
 
-          buildSubmissionFromTransforms(declaration.name, transforms, is5mld) match {
+          buildSubmissionFromTransforms(declaration.name, transforms, true) match {
             case JsSuccess(json, _) =>
 
               json.asOpt[EstateRegistration] match {
@@ -122,8 +120,6 @@ class RegistrationService @Inject()(repository: TransformationRepository,
           Future.failed(new RuntimeException(reason))
       }
 
-    }
-
   }
 
   private def submitAndAuditResponse(payload: EstateRegistration)
@@ -152,13 +148,13 @@ class RegistrationService @Inject()(repository: TransformationRepository,
     } yield result
   }
 
-  def buildSubmissionFromTransforms(name: NameType, transforms: ComposedDeltaTransform, is5mld: Boolean)
+  def buildSubmissionFromTransforms(name: NameType, transforms: ComposedDeltaTransform, applySubmissionDate: Boolean)
                                    (implicit request: IdentifierRequest[_]): JsResult[JsValue] = {
     for {
       transformsApplied <- applyTransforms(transforms)
       declarationTransformsApplied <- applyTransformsForDeclaration(transforms, transformsApplied)
       result <- applyDeclarationAddressTransform(declarationTransformsApplied, request.affinityGroup, name)
-      resultWithSubmissionDate <- estates5MLDService.applySubmissionDate(result, is5mld)
+      resultWithSubmissionDate <- estates5MLDService.applySubmissionDate(result, applySubmissionDate)
     } yield {
       resultWithSubmissionDate
     }
