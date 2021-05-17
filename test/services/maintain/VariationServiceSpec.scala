@@ -48,12 +48,11 @@ class VariationServiceSpec extends BaseConnectorSpec {
   val variationsTransformationService = mock[VariationsTransformationService]
   val auditService = mock[AuditService]
   val transformer = mock[VariationDeclarationService]
-  val estatesStoreService = mock[EstatesStoreService]
 
-  val estates5MLDService = new Estates5MLDService(estatesStoreService)
+  val estates5MLDService = new Estates5MLDService()
 
   before {
-    reset(estateService, variationsTransformationService, auditService, transformer, estatesStoreService)
+    reset(estateService, variationsTransformationService, auditService, transformer)
   }
 
   def service = new VariationService(
@@ -66,49 +65,13 @@ class VariationServiceSpec extends BaseConnectorSpec {
 
   "submitDeclaration" should {
 
-    "submit data correctly when the version matches, and then reset the cache" when {
-      "4mld" in {
+    "submit data correctly when the version matches, and then reset the cache" in {
 
         val successfulResponse = VariationSuccessResponse("TVN34567890")
 
         val response = setupForTest(successfulResponse)
 
         val responseHeader = ResponseHeader("Processed", formBundleNo)
-
-        whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse => {
-
-          variationResponse mustBe successfulResponse
-
-
-          verify(variationsTransformationService, times( 1))
-            .applyDeclarationTransformations(equalTo(utr), equalTo(internalId), equalTo(estateInfoJson))(any[HeaderCarrier])
-
-          verify(transformer, times(1))
-            .transform(equalTo(transformedEtmpResponseJson), equalTo(responseHeader), equalTo(response.getEstate), equalTo(declaration))
-
-          verify(auditService).auditVariationSubmitted(
-            equalTo(internalId),
-            equalTo(transformedJson),
-            equalTo(successfulResponse))(any())
-
-          val arg: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
-
-          verify(estateService, times(1)).estateVariation(arg.capture())
-
-          arg.getValue mustBe transformedJson
-        }}
-      }
-
-      "5mld" in {
-
-        val successfulResponse = VariationSuccessResponse("TVN34567890")
-
-        val response = setupForTest(successfulResponse)
-
-        val responseHeader = ResponseHeader("Processed", formBundleNo)
-
-        when(estatesStoreService.isFeatureEnabled(equalTo("5mld"))(any(), any()))
-          .thenReturn(Future.successful(true))
 
         whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse => {
 
@@ -131,7 +94,7 @@ class VariationServiceSpec extends BaseConnectorSpec {
 
           arg.getValue mustBe transformedJsonWithSubmission
         }}
-      }
+
     }
     "audit error when submission fails" in {
 
@@ -145,7 +108,7 @@ class VariationServiceSpec extends BaseConnectorSpec {
 
         verify(auditService).auditVariationFailed(
           equalTo(internalId),
-          equalTo(transformedJson),
+          equalTo(transformedJsonWithSubmission),
           equalTo(failedResponse))(any())
       }}
     }
@@ -153,9 +116,6 @@ class VariationServiceSpec extends BaseConnectorSpec {
 
 
   private def setupForTest(variationResponse: VariationResponse) = {
-
-    when(estatesStoreService.isFeatureEnabled(equalTo("5mld"))(any(), any()))
-      .thenReturn(Future.successful(false))
 
     when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
       .thenReturn(JsSuccess(estateInfoJson))

@@ -17,19 +17,14 @@
 package services
 
 import play.api.libs.json._
-import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
-class Estates5MLDService @Inject()(estatesStoreService: EstatesStoreService){
+class Estates5MLDService @Inject()(){
 
-  def is5mldEnabled()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
-    estatesStoreService.isFeatureEnabled("5mld")
-
-  def applySubmissionDate(registration: JsValue, is5mld: Boolean): JsResult[JsValue] = {
-    if (is5mld) {
+  def applySubmissionDate(registration: JsValue, applySubmissionDate: Boolean = false): JsResult[JsValue] = {
+    if (applySubmissionDate) {
       registration.transform(
         __.json.update((__ \ 'submissionDate).json.put(Json.toJson(LocalDate.now())))
       )

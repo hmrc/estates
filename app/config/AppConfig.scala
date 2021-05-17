@@ -53,7 +53,6 @@ class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig)
 
   val delayToConnectTaxEnrolment : Int = loadConfig("microservice.services.estates.delayToConnectTaxEnrolment").toInt
 
-  val estatesApiRegistrationSchema : String  = "/resources/schemas/4MLD/estates-api-schema-5.0.json"
   val variationsApiSchema: String = "/resources/schemas/4MLD/variations-api-schema-4.0.json"
 
   val maxRetry : Int = loadConfig("microservice.services.estates.maxRetry").toInt

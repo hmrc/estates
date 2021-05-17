@@ -83,7 +83,6 @@ class VariationService @Inject()(
                                      responseHeader: ResponseHeader)
                                     (implicit hc: HeaderCarrier): Future[VariationResponse] = {
 
-    estates5MLDService.is5mldEnabled() flatMap { is5mld =>
       transformationService.applyDeclarationTransformations(utr, internalId, cachedWithAmendedPerRepAddress) flatMap {
         case JsSuccess(transformedDocument, _) =>
           declarationService.transform(
@@ -92,7 +91,7 @@ class VariationService @Inject()(
             cachedWithAmendedPerRepAddress,
             declaration
           ) flatMap { value =>
-            estates5MLDService.applySubmissionDate(value, is5mld)
+            estates5MLDService.applySubmissionDate(value, true)
           } match {
             case JsSuccess(value, _) =>
               logger.debug(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
@@ -118,7 +117,6 @@ class VariationService @Inject()(
             s" Failed to transform estate info ${JsError.toJson(e)}")
           Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
       }
-    }
   }
 
   private def getCachedEstateData(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] = {
