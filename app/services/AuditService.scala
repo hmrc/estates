@@ -22,7 +22,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import config.AppConfig
 import models.{EstateRegistration, EstateRegistrationNoDeclaration, RegistrationFailureResponse}
 import models.auditing.EstatesAuditData
-import models.getEstate.GetEstateProcessedResponse
+import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.requests.IdentifierRequest
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
 import transformers.ComposedDeltaTransform
@@ -84,7 +84,7 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
       AuditEvent.GET_VARIATION,
       Json.obj("utr" -> utr),
       request.identifier,
-      Json.toJson(result)
+      Json.toJson[GetEstateResponse](result)
     )
 
   def auditGetVariationFailed(utr: String, errorReason: JsValue)

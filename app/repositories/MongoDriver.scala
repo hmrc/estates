@@ -18,12 +18,15 @@ package repositories
 
 import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
-import play.modules.reactivemongo.ReactiveMongoApi
+import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.DB
 
 @Singleton
-class EstatesMongoDriver @Inject()(val api : ReactiveMongoApi) extends MongoDriver
+class EstatesMongoDriver @Inject()(val component: ReactiveMongoComponent) extends MongoDriver
 
 @ImplementedBy(classOf[EstatesMongoDriver])
 sealed trait MongoDriver {
-  val api : ReactiveMongoApi
+  protected val component: ReactiveMongoComponent
+
+  lazy val api: DB = component.mongoConnector.db()
 }

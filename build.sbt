@@ -8,6 +8,7 @@ lazy val IntegrationTest = config("it") extend(Test)
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(inConfig(Test)(testSettings))
   .settings(
     scalaVersion := "2.12.12",
     SilencerSettings(),
@@ -33,4 +34,12 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
     ),
     parallelExecution            := false,
     fork                         := true
+)
+
+lazy val testSettings: Seq[Def.Setting[_]] = Seq(
+    fork        := true,
+    javaOptions ++= Seq(
+        "-Dconfig.resource=test.application.conf",
+        "-Dlogger.resource=logback-test.xml"
+    )
 )

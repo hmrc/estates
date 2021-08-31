@@ -4,11 +4,12 @@ import sbt._
 object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
-    "org.reactivemongo"          %% "play2-reactivemongo"       % "0.18.8-play27",
+    "uk.gov.hmrc"               %% "simple-reactivemongo"       % "8.0.0-play-28",
     "uk.gov.hmrc"                %% "logback-json-logger"       % "5.1.0",
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-27" % "5.8.0",
+    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "5.10.0",
     "com.github.java-json-tools" %  "json-schema-validator"     % "2.2.14",
-    "uk.gov.hmrc"                %% "tax-year"                  % "1.3.0"
+    "uk.gov.hmrc"                %% "tax-year"                  % "1.4.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.12.4"
   )
 
   val test: Seq[ModuleID] = Seq(

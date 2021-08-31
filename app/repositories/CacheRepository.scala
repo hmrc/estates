@@ -43,7 +43,7 @@ class CacheRepositoryImpl @Inject()(
   private def collection: Future[JSONCollection] =
     for {
       _ <- ensureIndexes
-      res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+      res <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
     } yield res
 
 
@@ -61,8 +61,8 @@ class CacheRepositoryImpl @Inject()(
   private lazy val ensureIndexes = {
     logger.info("Ensuring collection indexes")
     for {
-      collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
-      createdLastUpdatedIndex <- collection.indexesManager.ensure(lastUpdatedIndex)
+      collection              <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
+        createdLastUpdatedIndex <- collection.indexesManager.ensure(lastUpdatedIndex)
       createdIdIndex          <- collection.indexesManager.ensure(idIndex)
     } yield createdLastUpdatedIndex && createdIdIndex
   }

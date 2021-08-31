@@ -74,7 +74,7 @@ class GetEstateController @Inject()(identify: IdentifierAction,
 
   private def statusResponse(utr: String, status: GetEstateStatusResponse)
                             (implicit request: IdentifierRequest[AnyContent]): Unit = {
-    auditService.auditGetVariationFailed(utr, Json.obj("status" -> Json.toJson(status)))
+    auditService.auditGetVariationFailed(utr, Json.obj("status" -> Json.toJson[GetEstateResponse](status)))
   }
 
   private def processedResponse(utr: String, processed: GetEstateProcessedResponse)
