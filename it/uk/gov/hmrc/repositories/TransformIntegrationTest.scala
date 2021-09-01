@@ -23,7 +23,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.stubControllerComponents
 import play.api.{Application, Play}
-import reactivemongo.api.{DefaultDB, MongoConnection}
+import reactivemongo.api.{AsyncDriver, DefaultDB, MongoConnection}
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import repositories.MongoDriver
@@ -43,11 +43,10 @@ trait TransformIntegrationTest extends ScalaFutures {
     Await.result(connection.database("estates-integration"), Duration.Inf)
   }
 
-  def getConnection(application: Application): Try[MongoConnection] = {
-    val mongoDriver = application.injector.instanceOf[MongoDriver]
+  private def getConnection(): Future[MongoConnection] = {
     for {
-      uri <- MongoConnection.parseURI(connectionString)
-      connection: MongoConnection <- mongoDriver.api.driver.connection(uri, strictUri = true)
+      uri <- Future.fromTry(MongoConnection.parseURI(connectionString))
+      connection <- AsyncDriver().connect(uri)
     } yield connection
   }
 
@@ -77,7 +76,7 @@ trait TransformIntegrationTest extends ScalaFutures {
     try {
 
       val f: Future[Assertion] = for {
-          connection <- Future.fromTry(getConnection(application))
+          connection <- getConnection()
           _ = dropTheDatabase(connection)
         } yield {
           block(application)

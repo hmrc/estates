@@ -17,10 +17,8 @@
 package transforms.variations
 
 import java.time.LocalDate
-
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.{AsyncFreeSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -33,12 +31,14 @@ import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import models.getEstate.GetEstateResponse
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{AddressType, IdentificationType, NameType}
+import org.scalatest.freespec.AsyncFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AmendPersonalRepSpec extends AsyncFreeSpec with MustMatchers with MockitoSugar with TransformIntegrationTest {
+class AmendPersonalRepSpec extends AsyncFreeSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   val getEstateResponseFromDES: GetEstateResponse = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
   val expectedInitialGetJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")

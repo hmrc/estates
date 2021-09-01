@@ -18,10 +18,12 @@ package uk.gov.hmrc.repositories
 
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AsyncFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 import repositories.CacheRepository
 
-class CacheRepositorySpec extends AsyncFreeSpec with MustMatchers
+class CacheRepositorySpec extends AsyncFreeSpec with Matchers
   with ScalaFutures with OptionValues with Inside with TransformIntegrationTest with EitherValues {
 
   "a cache repository" - {
