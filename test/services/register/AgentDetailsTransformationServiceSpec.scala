@@ -19,16 +19,18 @@ package services.register
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import org.scalatestplus.mockito.MockitoSugar
 import models.{AddressType, AgentDetails}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AgentDetailsTransform
 
 import scala.concurrent.Future
 
-class AgentDetailsTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
+class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   private val agentDetails = AgentDetails(
     arn = "SARN1234567",

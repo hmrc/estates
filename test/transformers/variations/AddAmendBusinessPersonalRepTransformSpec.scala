@@ -17,13 +17,13 @@
 package transformers.variations
 
 import java.time.LocalDate
-
-import org.scalatest.{FreeSpec, MustMatchers}
 import models.IdentificationOrgType
 import models.variation.EstatePerRepOrgType
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class AddAmendBusinessPersonalRepTransformSpec extends FreeSpec with MustMatchers {
+class AddAmendBusinessPersonalRepTransformSpec extends AnyFreeSpec with Matchers {
 
   "the modify business personal rep transformer should" - {
     "successfully set a new business personal rep details" in {

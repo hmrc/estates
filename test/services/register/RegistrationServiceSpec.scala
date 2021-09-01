@@ -21,7 +21,7 @@ import base.BaseSpec
 import org.mockito.Matchers.{any, eq => mockEq}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
@@ -31,8 +31,7 @@ import models.register.{RegistrationDeclaration, TaxAmount}
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentCaptor
 import repositories.TransformationRepository
-import services.{AuditService, EstatesService, Estates5MLDService}
-
+import services.{AuditService, Estates5MLDService, EstatesService}
 import transformers.ComposedDeltaTransform
 import transformers.register._
 import utils.JsonUtils
@@ -40,7 +39,7 @@ import utils.JsonUtils
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
+class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures with OptionValues {
 
   val mockTransformationRepository: TransformationRepository = mock[TransformationRepository]
   val mockEstateService: EstatesService = mock[EstatesService]

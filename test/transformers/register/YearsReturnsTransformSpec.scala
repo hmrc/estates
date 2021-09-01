@@ -16,12 +16,14 @@
 
 package transformers.register
 
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import play.api.libs.json.Json
 import models.{YearReturnType, YearsReturns}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class YearsReturnsTransformSpec extends FreeSpec with MustMatchers with OptionValues {
+class YearsReturnsTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   private val yearsReturns: YearsReturns = YearsReturns(
     List(

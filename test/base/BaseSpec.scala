@@ -18,11 +18,12 @@ package base
 
 import java.time.LocalDate
 import java.util.UUID
-
 import config.AppConfig
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, Inside, MustMatchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfter, Inside}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.bind
@@ -37,8 +38,8 @@ import utils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BaseSpec extends WordSpec
-  with MustMatchers
+class BaseSpec extends AnyWordSpec
+  with Matchers
   with ScalaFutures
   with MockitoSugar
   with JsonRequests

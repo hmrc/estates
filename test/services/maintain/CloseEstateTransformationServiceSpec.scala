@@ -17,11 +17,11 @@
 package services.maintain
 
 import java.time.LocalDate
-
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import services.VariationsTransformationService
 import transformers.variations.AddCloseEstateTransform
@@ -30,7 +30,7 @@ import utils.JsonRequests
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CloseEstateTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with JsonRequests {
+class CloseEstateTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
 
   private val fakeUtr: String = "utr"
   private val internalId: String = "id"

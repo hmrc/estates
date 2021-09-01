@@ -19,7 +19,6 @@ package controllers.transform.register
 import base.BaseSpec
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import org.scalatest.MustMatchers
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -33,7 +32,7 @@ import services.register.YearsReturnsTransformationService
 
 import scala.concurrent.Future
 
-class YearsReturnsTransformationControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class YearsReturnsTransformationControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits._
 

@@ -19,16 +19,18 @@ package services.register
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import org.scalatestplus.mockito.MockitoSugar
 import models.{YearReturnType, YearsReturns}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.YearsReturnsTransform
 
 import scala.concurrent.Future
 
-class YearsReturnsTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
+class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   "YearsReturnsTransformationService" - {
 

@@ -16,12 +16,14 @@
 
 package transformers.register
 
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import play.api.libs.json.Json
 import models.{AddressType, AgentDetails}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class AgentDetailsTransformSpec extends FreeSpec with MustMatchers with OptionValues {
+class AgentDetailsTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   private def agentDetails(phoneNumber: String) = AgentDetails(
     arn = "SARN1234567",

@@ -17,13 +17,13 @@
 package transformers.variations
 
 import java.time.LocalDate
-
-import org.scalatest.{FreeSpec, MustMatchers}
 import models.{IdentificationType, NameType}
 import models.variation.EstatePerRepIndType
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class AddAmendIndividualPersonalRepTransformSpec extends FreeSpec with MustMatchers {
+class AddAmendIndividualPersonalRepTransformSpec extends AnyFreeSpec with Matchers {
   "the modify individual personal rep transformer should" - {
     "successfully set a new ind individual personal rep details" in {
       val beforeJson = JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-before.json")

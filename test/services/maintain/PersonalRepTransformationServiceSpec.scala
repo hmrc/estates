@@ -17,15 +17,15 @@
 package services.maintain
 
 import java.time.LocalDate
-
 import models.variation.{EstatePerRepIndType, EstatePerRepOrgType, PersonalRepresentativeType}
 import models.{IdentificationOrgType, IdentificationType, NameType}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
-import org.scalatest.{FreeSpec, MustMatchers}
 import services.VariationsTransformationService
 import transformers.variations.AddAmendIndividualPersonalRepTransform
 import utils.JsonRequests
@@ -33,7 +33,7 @@ import utils.JsonRequests
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PersonalRepTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with JsonRequests {
+class PersonalRepTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
   private implicit val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
 
   val newPersonalRepIndInfo = EstatePerRepIndType(
