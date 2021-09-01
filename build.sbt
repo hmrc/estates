@@ -8,7 +8,6 @@ lazy val IntegrationTest = config("it") extend(Test)
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .settings(inConfig(Test)(testSettings))
   .settings(
     scalaVersion := "2.12.12",
     SilencerSettings(),
@@ -24,6 +23,7 @@ lazy val microservice = Project(appName, file("."))
     ScoverageKeys.coverageHighlighting := true
   )
   .settings(publishingSettings: _*)
+  .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
@@ -33,12 +33,17 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
         baseDirectory.value / "it"
     ),
     parallelExecution            := false,
-    fork                         := true
+    fork                         := true,
+    javaOptions ++= Seq(
+        "-Dconfig.resource=test.application.conf",
+        "-Dlogger.resource=logback-test.xml"
+    )
 )
 
 lazy val testSettings: Seq[Def.Setting[_]] = Seq(
     fork        := true,
     javaOptions ++= Seq(
+        "-Dconfig.resource=test.application.conf",
         "-Dlogger.resource=logback-test.xml"
     )
 )
