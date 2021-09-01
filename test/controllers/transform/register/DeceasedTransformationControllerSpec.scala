@@ -21,7 +21,6 @@ import java.time.LocalDate
 import base.BaseSpec
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import org.scalatest.MustMatchers
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -37,7 +36,7 @@ import transformers.register.DeceasedTransform
 
 import scala.concurrent.Future
 
-class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits._
 

@@ -17,14 +17,15 @@
 package services.maintain
 
 import java.time.LocalDate
-
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import models._
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.LocalDateService
 import utils.JsonUtils
 
-class VariationDeclarationServiceSpec extends FreeSpec with MustMatchers with OptionValues {
+class VariationDeclarationServiceSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   object LocalDateServiceStub extends LocalDateService {
     override def now: LocalDate = LocalDate.of(2020, 5, 10)

@@ -16,9 +16,10 @@
 
 package transforms.variations
 
-import java.time.LocalDate
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
-import org.scalatest.{AsyncWordSpec, MustMatchers}
+import java.time.LocalDate
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
@@ -26,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class CloseEstateSpec extends AsyncWordSpec with MustMatchers with MockitoSugar with TransformIntegrationTest {
+class CloseEstateSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   val closeDate1: LocalDate = LocalDate.parse("2000-01-01")
   val closeDate2: LocalDate = LocalDate.parse("2009-12-31")

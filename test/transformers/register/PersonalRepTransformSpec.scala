@@ -17,13 +17,14 @@
 package transformers.register
 
 import java.time.LocalDate
-
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import play.api.libs.json.{JsError, Json}
 import models._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class PersonalRepTransformSpec extends FreeSpec with MustMatchers with OptionValues {
+class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   val newPersonalRepInd = EstatePerRepIndType(
     name =  NameType("Alister", None, "Mc'Lovern"),

@@ -17,16 +17,16 @@
 package transforms
 
 import java.time.LocalDate
-
-import org.scalatest.{AsyncWordSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import models.{AddressType, EstatePerRepIndType, IdentificationType, NameType}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AmendPersonalRepIndSpec extends AsyncWordSpec with MustMatchers with MockitoSugar with TransformIntegrationTest {
+class AmendPersonalRepIndSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   "an amend personal rep call" must {
     "return amended data in a subsequent 'get' call" in assertMongoTest(createApplication) { app =>

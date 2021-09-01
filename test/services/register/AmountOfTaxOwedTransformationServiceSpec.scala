@@ -19,17 +19,19 @@ package services.register
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import org.scalatestplus.mockito.MockitoSugar
 import models.register.AmountOfTaxOwed
 import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AmountOfTaxOwedTransform
 
 import scala.concurrent.Future
 
-class AmountOfTaxOwedTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with OptionValues {
+class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   "AmountOfTaxTransformationService" - {
 

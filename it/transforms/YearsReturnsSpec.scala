@@ -16,16 +16,17 @@
 
 package transforms
 
-import org.scalatest.{AsyncWordSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import models.{YearReturnType, YearsReturns}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class YearsReturnsSpec extends AsyncWordSpec with MustMatchers with MockitoSugar with TransformIntegrationTest {
+class YearsReturnsSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   private val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
   private val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)

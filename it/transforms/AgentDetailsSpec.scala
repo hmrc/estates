@@ -16,15 +16,16 @@
 
 package transforms
 
-import org.scalatest.{AsyncWordSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import models.{AddressType, AgentDetails}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AgentDetailsSpec extends AsyncWordSpec with MustMatchers with MockitoSugar with TransformIntegrationTest {
+class AgentDetailsSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   private val agentDetails = AgentDetails(
     arn = "SARN1234567",

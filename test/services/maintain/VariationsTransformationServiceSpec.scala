@@ -17,17 +17,17 @@
 package services.maintain
 
 import java.time.LocalDate
-
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
-import org.scalatest.{FreeSpec, MustMatchers}
 import play.api.libs.json.{JsResult, JsValue, Json}
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.variation.EstatePerRepIndType
 import models.{AddressType, IdentificationType, NameType}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import repositories.VariationsTransformationRepositoryImpl
 import services.{AuditService, EstatesService, VariationsTransformationService}
 import transformers.ComposedDeltaTransform
@@ -37,7 +37,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class VariationsTransformationServiceSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers with JsonRequests {
+class VariationsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
   private implicit val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
 
 

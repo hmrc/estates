@@ -4,23 +4,26 @@ import sbt._
 object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
-    "org.reactivemongo"          %% "play2-reactivemongo"       % "0.18.8-play27",
+    "uk.gov.hmrc"               %% "simple-reactivemongo"       % "8.0.0-play-28",
     "uk.gov.hmrc"                %% "logback-json-logger"       % "5.1.0",
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-27" % "5.8.0",
+    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "5.10.0",
     "com.github.java-json-tools" %  "json-schema-validator"     % "2.2.14",
-    "uk.gov.hmrc"                %% "tax-year"                  % "1.3.0"
+    "uk.gov.hmrc"                %% "tax-year"                  % "1.4.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala"    % "2.12.4"
   )
 
   val test: Seq[ModuleID] = Seq(
-    "org.scalatest"               %% "scalatest"              % "3.0.8",
-    "org.scalatestplus.play"      %% "scalatestplus-play"     % "4.0.3",
+    "uk.gov.hmrc"                 %% "bootstrap-test-play-28" % "5.3.0",
+    "org.scalatest"               %% "scalatest"              % "3.2.9",
+    "org.scalatestplus.play"      %% "scalatestplus-play"     % "5.1.0",
     "org.pegdown"                 %  "pegdown"                % "1.6.0",
     "org.jsoup"                   %  "jsoup"                  % "1.12.1",
     "com.typesafe.play"           %% "play-test"              % PlayVersion.current,
     "org.mockito"                 %  "mockito-all"            % "1.10.19",
-    "org.scalacheck"              %% "scalacheck"             % "1.14.3",
-    "wolfendale"                  %% "scalacheck-gen-regexp"  % "0.1.2",
-    "com.github.tomakehurst"      %  "wiremock-standalone"    % "2.27.2"
+    "org.scalatestplus"           %% "scalacheck-1-15"        % "3.2.9.0",
+    "org.scalatestplus"           %% "scalatestplus-mockito"  % "1.0.0-M2",
+    "com.github.tomakehurst"      %  "wiremock-standalone"    % "2.27.2",
+    "com.vladsch.flexmark"        % "flexmark-all"            % "0.35.10",
   ).map(_ % "test, it")
 
   val akkaVersion = "2.6.7"

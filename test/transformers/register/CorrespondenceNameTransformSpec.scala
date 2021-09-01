@@ -16,11 +16,13 @@
 
 package transformers.register
 
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
 import play.api.libs.json.JsString
 import utils.JsonUtils
 
-class CorrespondenceNameTransformSpec extends FreeSpec with MustMatchers with OptionValues {
+class CorrespondenceNameTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   val newEstateName = JsString("New Estate Name")
 

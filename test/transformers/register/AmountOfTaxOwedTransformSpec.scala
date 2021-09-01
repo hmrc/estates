@@ -16,12 +16,14 @@
 
 package transformers.register
 
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
+import org.scalatest.OptionValues
 import play.api.libs.json.Json
 import models.register.TaxAmount.AmountMoreThanTwoFiftyThousand
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
 
-class AmountOfTaxOwedTransformSpec extends FreeSpec with MustMatchers with OptionValues {
+class AmountOfTaxOwedTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   "the amount of tax transform should" - {
 

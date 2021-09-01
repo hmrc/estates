@@ -17,16 +17,17 @@
 package uk.gov.hmrc.repositories
 
 import java.time.LocalDate
-
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import models.variation.EstatePerRepIndType
 import models.{IdentificationType, NameType}
+import org.scalatest.freespec.AsyncFreeSpec
+import org.scalatest.matchers.must.Matchers
 import repositories.VariationsTransformationRepository
 import transformers.ComposedDeltaTransform
 import transformers.variations.AddAmendIndividualPersonalRepTransform
 
-class VariationsTransformRepositorySpec extends AsyncFreeSpec with MustMatchers
+class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers
   with ScalaFutures with OptionValues with Inside with TransformIntegrationTest with EitherValues {
 
   "a variations repository" - {

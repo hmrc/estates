@@ -16,12 +16,13 @@
 
 package transformers.variations
 
-import java.time.LocalDate
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-import org.scalatest.{FreeSpec, MustMatchers}
+import java.time.LocalDate
 import play.api.libs.json.Json
 
-class AddCloseEstateTransformSpec extends FreeSpec with MustMatchers {
+class AddCloseEstateTransformSpec extends AnyFreeSpec with Matchers {
 
   "the close estate transformer should" - {
 

@@ -19,19 +19,20 @@ package controllers.transform.variations
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, _}
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import controllers.actions.FakeIdentifierAction
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.VariationsTransformationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ClearTransformationsControllerSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class ClearTransformationsControllerSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {
 
   private val cc = stubControllerComponents()
   val identifierAction = new FakeIdentifierAction(cc.parsers.default, Agent)

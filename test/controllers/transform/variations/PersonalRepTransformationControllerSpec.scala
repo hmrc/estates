@@ -17,12 +17,10 @@
 package controllers.transform.variations
 
 import java.time.LocalDate
-
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, MustMatchers}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, _}
@@ -30,12 +28,14 @@ import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import controllers.actions.FakeIdentifierAction
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{IdentificationType, NameType, Success}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import services.maintain.PersonalRepTransformationService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PersonalRepTransformationControllerSpec extends FreeSpec with MockitoSugar with ScalaFutures with MustMatchers {
+class PersonalRepTransformationControllerSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {
   private val cc = stubControllerComponents()
 
   val identifierAction = new FakeIdentifierAction(cc.parsers.default, Agent)
