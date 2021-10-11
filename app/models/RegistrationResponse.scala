@@ -55,27 +55,24 @@ object RegistrationResponse extends Logging {
 
   }
 
-  implicit lazy val httpReads: HttpReads[RegistrationResponse] =
-    new HttpReads[RegistrationResponse] {
-      override def read(method: String, url: String, response: HttpResponse): RegistrationResponse = {
-        logger.info(s"Response status received from des: ${response.status}")
-        response.status match {
-          case OK =>
-            response.json.as[RegistrationTrnResponse]
-          case FORBIDDEN =>
-            response.body match {
-              case x if x.contains(ALREADY_REGISTERED_CODE) =>
-                logger.info(s"Already registered response from des.")
-                AlreadyRegisteredResponse
-              case x if x.contains(NO_MATCH_CODE) =>
-                logger.info(s"No match response from des.")
-                NoMatchResponse
-              case _ =>
-                logger.error("Forbidden response from des.")
-                RegistrationFailureResponse(response.status)
-            }
-          case _ => RegistrationFailureResponse(response.status)
-        }
+  implicit lazy val httpReads: HttpReads[RegistrationResponse] = (method: String, url: String, response: HttpResponse) => {
+      logger.info(s"Response status received from des: ${response.status}")
+      response.status match {
+        case OK =>
+          response.json.as[RegistrationTrnResponse]
+        case FORBIDDEN =>
+          response.body match {
+            case x if x.contains(ALREADY_REGISTERED_CODE) =>
+              logger.info(s"Already registered response from des.")
+              AlreadyRegisteredResponse
+            case x if x.contains(NO_MATCH_CODE) =>
+              logger.info(s"No match response from des.")
+              NoMatchResponse
+            case _ =>
+              logger.error("Forbidden response from des.")
+              RegistrationFailureResponse(response.status)
+          }
+        case _ => RegistrationFailureResponse(response.status)
       }
     }
 

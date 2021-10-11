@@ -81,12 +81,12 @@ class BaseSpec extends AnyWordSpec
 
   def postRequestWithPayload(payload: JsValue, withDraftId: Boolean = true): FakeRequest[JsValue] = {
     if (withDraftId) {
-      FakeRequest("POST", "/trusts/register")
+      FakeRequest("POST", "/estates/register")
         .withHeaders(CONTENT_TYPE -> "application/json")
         .withHeaders(Headers.DraftRegistrationId -> UUID.randomUUID().toString)
         .withBody(payload)
     } else {
-      FakeRequest("POST", "/trusts/register")
+      FakeRequest("POST", "/estates/register")
         .withHeaders(CONTENT_TYPE -> "application/json")
         .withBody(payload)
     }

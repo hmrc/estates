@@ -5,6 +5,42 @@ val appName = "estates"
 
 lazy val IntegrationTest = config("it") extend(Test)
 
+val excludedPackages = Seq(
+    "<empty>",
+    ".*Reverse.*",
+    ".*Routes.*",
+    ".*standardError*.*",
+    ".*main_template*.*",
+    "uk.gov.hmrc.BuildInfo",
+    "app.*",
+    "prod.*",
+    ".*testOnlyDoNotUseInAppConf.*",
+    "views.html.*",
+    "testOnly.*",
+    "com.kenshoo.play.metrics*.*",
+    ".*repositories.*",
+    ".*LanguageSwitchController",
+    ".*GuiceInjector",
+    ".*models.Mode",
+    ".*filters.*",
+    ".*handlers.*",
+    ".*components.*",
+    ".*FrontendAuditConnector.*",
+    ".*javascript.*",
+    ".*ControllerConfiguration",
+    ".*mapping.Constants.*",
+    ".*pages.*",
+    ".*viewmodels.*",
+    ".*Message.*",
+    ".*config.*",
+    ".*models.RegistrationResponse.*",
+    ".*LocalDateService.*",
+    ".*GetEstateErrorResponse.*",
+    ".*JsonOperations.*",
+    ".*EstateVariationModels.*",
+    ".*AuditService.*"
+)
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
@@ -15,12 +51,10 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides              ++= AppDependencies.overrides,
     PlayKeys.playDefaultPort := 8832,
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*filters.*;.*handlers.*;.*components.*;.*repositories.*;" +
-      ".*BuildInfo.*;.*Routes.*;.*GuiceInjector;" +
-      ".*ControllerConfiguration;.*LanguageSwitchController",
-    ScoverageKeys.coverageMinimum := 60,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true
+      ScoverageKeys.coverageExcludedFiles := excludedPackages.mkString(";"),
+      ScoverageKeys.coverageMinimum := 80,
+      ScoverageKeys.coverageFailOnMinimum := true,
+      ScoverageKeys.coverageHighlighting := true
   )
   .settings(publishingSettings: _*)
   .settings(inConfig(Test)(testSettings))

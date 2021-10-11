@@ -25,6 +25,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import config.AppConfig
+import models.RegistrationFailureResponse
 import models.getEstate._
 import services.{AuditService, EstatesService, VariationsTransformationService}
 import utils.JsonRequests
@@ -125,6 +126,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
     }
 
     "return 500 - InternalServerError" when {
+
       "the get endpoint returns a BadRequestResponse" in {
 
         val application = applicationBuilder().overrides(
@@ -212,6 +214,32 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
           status(result) mustBe INTERNAL_SERVER_ERROR
         }
       }
+
+      "response does not contain enough data" in {
+        val application = applicationBuilder().overrides(
+          bind[EstatesService].toInstance(mockEstatesService),
+          bind[AuditService].toInstance(mockAuditService)
+        ).build()
+
+        val json = Json.parse("{}")
+        val errors = Json.parse("""{"errors": [{}]}""".stripMargin)
+
+        when(mockEstatesService.getEstateInfo(any(), any())(any())).thenReturn(Future.successful(NotEnoughDataResponse(json, errors)))
+
+        val controller = application.injector.instanceOf[GetEstateController]
+
+        val utr = "1234567890"
+        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+
+        whenReady(result) { _ =>
+          verify(mockAuditService).auditGetVariationFailed(
+            mockEq(utr),
+            any[JsValue])(any(), any())
+
+          status(result) mustBe INTERNAL_SERVER_ERROR
+        }
+      }
+
     }
   }
 

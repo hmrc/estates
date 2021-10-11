@@ -19,7 +19,7 @@ package services
 import base.BaseSpec
 import org.mockito.Mockito.{times, verify, verifyZeroInteractions, when}
 import org.mockito.Matchers._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import connectors.{EstatesConnector, SubscriptionConnector}
 import exceptions._
 import models.ExistingCheckResponse._
@@ -46,18 +46,37 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
     val SUT = new EstatesService(mockEstateConnector, mockSubscriptionConnector, mockRepository)
   }
 
-  ".getEstateInfoFormBundleNo should return formBundle No from ETMP Data" in {
-    val etmpData = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-5mld-response.json").as[GetEstateResponse].asInstanceOf[GetEstateProcessedResponse]
-    val mockEstatesConnector = mock[EstatesConnector]
-    val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
-    val mockRepository = mock[CacheRepositoryImpl]
-    when(mockEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(etmpData))
+  ".getEstateInfoFormBundleNo" should {
 
-    val OUT = new EstatesService(mockEstatesConnector, mockSubscriptionConnector, mockRepository)
+    "return formBundle No from ETMP Data" in {
+      val etmpData = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-5mld-response.json").as[GetEstateResponse].asInstanceOf[GetEstateProcessedResponse]
+      val mockEstatesConnector = mock[EstatesConnector]
+      val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
+      val mockRepository = mock[CacheRepositoryImpl]
+      when(mockEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(etmpData))
 
-    whenReady(OUT.getEstateInfoFormBundleNo("75464876")) {formBundleNo =>
-      formBundleNo mustBe etmpData.responseHeader.formBundleNo
+      val OUT = new EstatesService(mockEstatesConnector, mockSubscriptionConnector, mockRepository)
+
+      whenReady(OUT.getEstateInfoFormBundleNo("75464876")) { formBundleNo =>
+        formBundleNo mustBe etmpData.responseHeader.formBundleNo
+      }
     }
+
+    "return InternalServerError when unable to get formBundleNo" in {
+
+      val mockEstatesConnector = mock[EstatesConnector]
+      val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
+      val mockRepository = mock[CacheRepositoryImpl]
+
+      when(mockEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(BadRequestResponse))
+
+      val OUT = new EstatesService(mockEstatesConnector, mockSubscriptionConnector, mockRepository)
+
+      val r = OUT.getEstateInfoFormBundleNo("75464876").failed.futureValue
+
+      assert(r.getMessage.contains(s"Submission could not proceed"))
+    }
+
   }
 
   ".checkExistingEstate" should {
@@ -71,7 +90,6 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         }
       }
     }
-
 
     "return NotMatched " when {
       "connector returns NotMatched." in new EstateServiceFixture {
@@ -184,6 +202,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
   }
 
   ".getEstateInfo" should {
+
     "return EstateFoundResponse" when {
       "EstateFoundResponse is returned from DES Connector with a Processed flag and an estate body when not cached" in new EstateServiceFixture {
         val utr = "1234567890"
@@ -275,7 +294,8 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         }
       }
     }
-  } // getEstateInfo
+
+  }
 
   ".estateVariation" should {
     "return a VariationTvnResponse" when {
@@ -292,7 +312,6 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         }
 
       }
-
 
       "return DuplicateSubmissionException" when {
 

@@ -18,7 +18,7 @@ package controllers
 
 import base.BaseSpec
 import config.AppConfig
-import controllers.actions.{FakeIdentifierAction, VariationsResponseHandler}
+import controllers.actions.FakeIdentifierAction
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
 import models.{DeclarationForApi, DeclarationName, NameType}
 import org.mockito.Matchers._
@@ -48,8 +48,6 @@ class EstateVariationsControllerSpec extends BaseSpec {
 
   private val mockVariationService = mock[VariationService]
 
-  private val responseHandler = new VariationsResponseHandler(mockAuditService)
-
   before {
     reset(mockEstateService, mockConfig)
   }
@@ -58,7 +56,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
     val SUT = new EstateVariationsController(
       new FakeIdentifierAction(cc.parsers.default, Organisation),
       mockVariationService,
-      responseHandler)
+      mockAuditService)
     SUT
   }
 
@@ -109,6 +107,19 @@ class EstateVariationsControllerSpec extends BaseSpec {
         (output \ "code").as[String] mustBe "INVALID_CORRELATIONID"
         (output \ "message").as[String] mustBe "Submission has not passed validation. Invalid CorrelationId."
 
+      }
+
+      "payload does not parse as declaration" in {
+
+        val SUT = estateVariationsController
+
+        val request = FakeRequest("POST", "/estates/declare/1234567890")
+          .withHeaders(CONTENT_TYPE -> "application/json")
+          .withBody(Json.parse("{}"))
+
+        val result = SUT.declare(utr)(request)
+
+        status(result) mustBe BAD_REQUEST
       }
 
     }
@@ -209,6 +220,25 @@ class EstateVariationsControllerSpec extends BaseSpec {
         (output \ "code").as[String] mustBe "SERVICE_UNAVAILABLE"
         (output \ "message").as[String] mustBe "Service unavailable."
 
+      }
+    }
+
+    "return internal server unavailable" when {
+      "the des returns encounters a problem" in {
+
+        when(mockVariationService.submitDeclaration(any(), any(), any())(any()))
+          .thenReturn(Future.failed(new RuntimeException))
+
+        when(mockConfig.variationsApiSchema).thenReturn(appConfig.variationsApiSchema)
+
+        val SUT = estateVariationsController
+
+        val result = SUT.declare(utr)(
+          postRequestWithPayload(Json.parse(validEstateVariationsRequestJson))
+            .withHeaders(Headers.CORRELATION_HEADER -> UUID.randomUUID().toString)
+        )
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }

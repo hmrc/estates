@@ -23,10 +23,6 @@ sealed trait GetEstateErrorResponse extends GetEstateResponse {
   override def toString: String = super.toString
 }
 
-case object InvalidUTRResponse extends GetEstateErrorResponse {
-  override def toString: String = "The UTR provided is invalid"
-}
-
 case object BadRequestResponse extends GetEstateErrorResponse {
   override def toString: String = "Bad Request received from DES"
 }
@@ -39,9 +35,7 @@ case object InternalServerErrorResponse extends GetEstateErrorResponse {
   override def toString: String = "Internal Server Error received from DES"
 }
 
-case class NotEnoughDataResponse(json: JsValue, errors: JsValue) extends GetEstateErrorResponse {
-  override def toString: String = Json.stringify(errors)
-}
+case class NotEnoughDataResponse(json: JsValue, errors: JsValue) extends GetEstateErrorResponse
 
 case object ServiceUnavailableResponse extends GetEstateErrorResponse {
   override def toString: String = "Service Unavailable received from DES"
