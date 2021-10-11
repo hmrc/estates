@@ -35,7 +35,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
 
   private implicit val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
 
-
   "addNewTransform" - {
 
     "must write a corresponding transform to the transformation repository" - {
@@ -54,7 +53,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
 
         val transform = PersonalRepTransform(Some(personalRep), None)
 
-        when(repository.get(any())).thenReturn(Future.successful(Some(ComposedDeltaTransform(Nil))))
+        when(repository.get(any())).thenReturn(Future.successful(None))
         when(repository.set(any(), any())).thenReturn(Future.successful(true))
 
         val result = service.addNewTransform("internalId", transform)
@@ -100,6 +99,31 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
             ComposedDeltaTransform(existingTransforms :+ newTransform)
           )
         }
+
+      }
+
+      "return a failure if unable to get transforms" in {
+
+        val repository = mock[TransformationRepositoryImpl]
+        val service = new TransformationService(repository)
+
+        when(repository.get(any())).thenReturn(Future.failed(new RuntimeException))
+
+        val personalRep = EstatePerRepIndType(
+          name =  NameType("First", None, "Last"),
+          dateOfBirth = LocalDate.of(2000,1,1),
+          identification = IdentificationType(None, None, None),
+          phoneNumber = "07987654",
+          email = None
+        )
+
+        val newTransform = PersonalRepTransform(
+          Some(personalRep.copy(email = Some("e@mail.com"))), None
+        )
+
+        val result = service.addNewTransform("internalId", newTransform)
+
+        result.failed.futureValue mustBe a[RuntimeException]
 
       }
     }
@@ -179,6 +203,51 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
           )
         }
 
+      }
+
+      "return failure if unable to get transforms" in {
+
+        val repository = mock[TransformationRepositoryImpl]
+        val service = new TransformationService(repository)
+
+        when(repository.get(any())).thenReturn(Future.failed(new RuntimeException))
+        val result = service.removeYearsReturnsTransform("internalId")
+
+        result.failed.futureValue mustBe a[RuntimeException]
+      }
+    }
+
+  }
+
+  "getTransformations" - {
+
+    "return existing transformations" in {
+      val repository = mock[TransformationRepositoryImpl]
+      val service = new TransformationService(repository)
+
+      when(repository.get(any())).thenReturn(Future.successful(None))
+
+      val result = service.getTransformations("internalId")
+
+      whenReady(result) { r =>
+        r mustBe None
+      }
+    }
+
+  }
+
+  "removeAllTransformations" - {
+
+    "reset cache" in {
+      val repository = mock[TransformationRepositoryImpl]
+      val service = new TransformationService(repository)
+
+      when(repository.resetCache(any())).thenReturn(Future.successful(None))
+
+      val result = service.removeAllTransformations("internalId")
+
+      whenReady(result) { r =>
+        r mustBe None
       }
     }
 

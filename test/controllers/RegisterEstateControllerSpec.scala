@@ -47,7 +47,7 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
     reset(mockRosmPatternService, mockRegistrationService)
   }
 
-  ".submit" should {
+  ".register" should {
 
     val application = applicationBuilder()
       .overrides(
@@ -82,6 +82,26 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
 
     }
 
+    "return bad request" when {
+
+      "declaration does not parse" in {
+        val application = applicationBuilder()
+          .configure()
+          .build()
+
+        val controller = application.injector.instanceOf[RegisterEstateController]
+
+        val request = FakeRequest("POST", "path")
+          .withBody(Json.parse("{}"))
+          .withHeaders(CONTENT_TYPE -> "application/json")
+
+        val result = controller.register().apply(request)
+
+        status(result) mustBe BAD_REQUEST
+      }
+
+    }
+
     "return conflict" when {
 
       "estate already registered" in {
@@ -101,7 +121,6 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
     "return internal server error" when {
 
       "error" in {
-
         when(mockRegistrationService.submit(any())(any(), any()))
           .thenReturn(Future.failed(ServiceNotAvailableException("dependent service is down")))
 
@@ -111,6 +130,15 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
         val output = contentAsJson(result)
         (output \ "code").as[String] mustBe "INTERNAL_SERVER_ERROR"
         (output \ "message").as[String] mustBe "Internal server error."
+      }
+
+      "service encounters a problem" in {
+        when(mockRegistrationService.submit(any())(any(), any()))
+          .thenReturn(Future.successful(RegistrationFailureResponse(500)))
+
+        val result = controller.register().apply(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }

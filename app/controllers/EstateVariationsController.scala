@@ -20,10 +20,12 @@ import javax.inject.Inject
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
-import controllers.actions.{IdentifierAction, VariationsResponseHandler}
+import controllers.actions.IdentifierAction
 import models.DeclarationForApi
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
+import services.AuditService
 import services.maintain.VariationService
+import utils.ErrorResults.internalServerErrorErrorResult
 import utils.{ErrorResults, Session}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EstateVariationsController @Inject()(
                                             identify: IdentifierAction,
                                             variationService: VariationService,
-                                            responseHandler: VariationsResponseHandler
+                                            auditService: AuditService
                                           )(implicit ec: ExecutionContext, cc: ControllerComponents
 ) extends EstatesBaseController(cc) with Logging {
 
@@ -49,7 +51,17 @@ class EstateVariationsController @Inject()(
               case response: VariationSuccessResponse => Ok(Json.toJson(response))
               case VariationFailureResponse(errorResponse) => ErrorResults.fromErrorResponse(errorResponse)
             }
-        } recover responseHandler.recoverFromException
+        } recover {
+          case e =>
+            logger.error(s"[ErrorHandler][Session ID: ${Session.id(hc)}] Exception returned ${e.getMessage}")
+
+            auditService.auditVariationError(
+              request.identifier,
+              request.body,
+              e.getMessage
+            )
+            internalServerErrorErrorResult
+        }
       )
     }
   }

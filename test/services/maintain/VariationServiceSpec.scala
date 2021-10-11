@@ -17,10 +17,11 @@
 package services.maintain
 
 import connectors.BaseConnectorSpec
+import exceptions.InternalServerErrorException
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => equalTo}
 import org.mockito.Mockito.{reset, times, verify, when}
-import play.api.libs.json.{JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, __}
 import models.getEstate.{GetEstateProcessedResponse, ResponseHeader}
 import models.variation.{VariationFailureResponse, VariationResponse, VariationSuccessResponse}
 import models.{DeclarationForApi, DeclarationName, NameType}
@@ -96,6 +97,25 @@ class VariationServiceSpec extends BaseConnectorSpec {
         }}
 
     }
+
+    "audit error when unable to populate personal rep address" in {
+
+      when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
+        .thenReturn(JsError(__, "no personal rep address"))
+
+      when(estateService.getEstateInfoFormBundleNo(utr))
+        .thenReturn(Future.successful(formBundleNo))
+
+      val response: GetEstateProcessedResponse = GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))
+
+      when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(response))
+
+      val result = service.submitDeclaration(utr, internalId, declaration)
+
+      assert(result.failed.futureValue.getMessage == "There was a problem transforming data for submission to ETMP")
+    }
+
     "audit error when submission fails" in {
 
       val failedResponse = VariationFailureResponse(DuplicateSubmissionErrorResponse)
