@@ -45,14 +45,14 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     SilencerSettings(),
     majorVersion                     := 0,
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides              ++= AppDependencies.overrides,
     PlayKeys.playDefaultPort := 8832,
       ScoverageKeys.coverageExcludedFiles := excludedPackages.mkString(";"),
-      ScoverageKeys.coverageMinimum := 80,
+      ScoverageKeys.coverageMinimumStmtTotal := 80,
       ScoverageKeys.coverageFailOnMinimum := true,
       ScoverageKeys.coverageHighlighting := true
   )
