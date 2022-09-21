@@ -16,20 +16,21 @@
 
 package transforms
 
-import java.time.LocalDate
-import org.scalatestplus.mockito.MockitoSugar
+import models.{AddressType, EstatePerRepIndType, IdentificationType, NameType}
+import org.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models.{AddressType, EstatePerRepIndType, IdentificationType, NameType}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
+
+import java.time.LocalDate
 
 class AmendPersonalRepIndSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   "an amend personal rep call" must {
-    "return amended data in a subsequent 'get' call" in assertMongoTest(createApplication) { app =>
+    "return amended data in a subsequent 'get' call" in {
 
       val newPersonalRep = EstatePerRepIndType(
         name = NameType("newFirstName", Some("newMiddleName"), "newLastName"),
@@ -53,10 +54,10 @@ class AmendPersonalRepIndSpec extends AsyncWordSpec with Matchers with MockitoSu
             .withBody(Json.toJson(newPersonalRep))
             .withHeaders(CONTENT_TYPE -> "application/json")
 
-          val amendResult = route(app, amendRequest).get
+          val amendResult = route(createApplication, amendRequest).get
           status(amendResult) mustBe OK
 
-          val newResult = route(app, FakeRequest(GET, "/estates/personal-rep/individual")).get
+          val newResult = route(createApplication, FakeRequest(GET, "/estates/personal-rep/individual")).get
           status(newResult) mustBe OK
           contentAsJson(newResult) mustBe Json.toJson(newPersonalRep)
     }

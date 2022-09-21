@@ -16,9 +16,9 @@
 
 package utils
 
-import java.time.LocalDate
-
 import services.EstatesValidationError
+
+import java.time.LocalDate
 
 trait ValidationUtil {
 

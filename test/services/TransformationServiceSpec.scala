@@ -16,19 +16,18 @@
 
 package services
 
-import java.time.LocalDate
+import models._
+import org.mockito.ArgumentMatchers._
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.time.{Millis, Span}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import models.{EstatePerRepIndType, IdentificationType, NameType, YearReturnType, YearsReturns}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Span}
 import repositories.TransformationRepositoryImpl
 import transformers.ComposedDeltaTransform
 import transformers.register.{PersonalRepTransform, YearsReturnsTransform}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {

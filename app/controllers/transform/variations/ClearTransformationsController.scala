@@ -16,12 +16,12 @@
 
 package controllers.transform.variations
 
-import javax.inject.Inject
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.VariationsTransformationService
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ClearTransformationsController @Inject()(

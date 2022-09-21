@@ -16,18 +16,18 @@
 
 package controllers
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import controllers.actions.IdentifierAction
 import models.register.RegistrationDeclaration
 import models.{AlreadyRegisteredResponse, RegistrationTrnResponse}
+import play.api.Logging
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.RosmPatternService
 import services.register.RegistrationService
 import utils.ErrorResults._
 import utils.Session
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegisterEstateController @Inject()(identifierAction: IdentifierAction,

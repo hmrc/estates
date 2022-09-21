@@ -16,22 +16,21 @@
 
 package controllers
 
-import java.time.LocalDate
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{verify, when}
+import models._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models._
-import org.scalatest.matchers.must.Matchers
 import services.{PersonalRepTransformationService, TransformationService}
 import transformers.ComposedDeltaTransform
 import transformers.register.PersonalRepTransform
 
+import java.time.LocalDate
 import scala.concurrent.Future
 import scala.util.Success
 

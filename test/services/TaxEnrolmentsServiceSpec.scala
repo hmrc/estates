@@ -17,11 +17,10 @@
 package services
 
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when, _}
 import connectors.TaxEnrolmentConnector
 import exceptions.{BadRequestException, InternalServerErrorException}
 import models.{TaxEnrolmentFailure, TaxEnrolmentSuccess}
+import org.mockito.ArgumentMatchers.any
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration.Duration

@@ -17,12 +17,11 @@
 package services
 
 import base.BaseSpec
-import org.mockito.Mockito.verify
-import org.mockito.Matchers.{any, eq => equalTo}
-import play.api.libs.json.Json
 import models.RegistrationFailureResponse
 import models.auditing.EstatesAuditData
 import models.variation.VariationSuccessResponse
+import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.ExecutionContext

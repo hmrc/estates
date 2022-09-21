@@ -16,13 +16,12 @@
 
 package services
 
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{verify, when}
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
 import org.scalatest.OptionValues
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsString
 import transformers.ComposedDeltaTransform
 import transformers.register.CorrespondenceNameTransform

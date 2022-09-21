@@ -16,38 +16,32 @@
 
 package uk.gov.hmrc.repositories
 
-import java.time.LocalDate
-import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
 import models.variation.EstatePerRepIndType
 import models.{IdentificationType, NameType}
+import org.scalatest._
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.VariationsTransformationRepository
 import transformers.ComposedDeltaTransform
 import transformers.variations.AddAmendIndividualPersonalRepTransform
 
-class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers
-  with ScalaFutures with OptionValues with Inside with TransformIntegrationTest with EitherValues {
+import java.time.LocalDate
 
-  "a variations repository" - {
+class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+  with BeforeAndAfterEach {
 
-    val internalId = "Int-074d0597107e-557e-4559-96ba-328969d0"
+  private val repository = createApplication.injector.instanceOf[VariationsTransformationRepository]
 
-    "must be able to store and retrieve a payload" in assertMongoTest(createApplication) { app =>
+  private val internalId = "Int-074d0597107e-557e-4559-96ba-328969d0"
+  private val utr = "UTRUTRUTR"
 
-      val repository = app.injector.instanceOf[VariationsTransformationRepository]
-
-      val storedOk = repository.set("UTRUTRUTR", internalId, data)
-      storedOk.futureValue mustBe true
-
-      val retrieved = repository.get("UTRUTRUTR", internalId)
-
-      retrieved.futureValue mustBe Some(data)
-    }
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    await(repository.resetCache(utr, internalId))
   }
 
-  val data = ComposedDeltaTransform(
+  private val data = ComposedDeltaTransform(
     Seq(
       AddAmendIndividualPersonalRepTransform(
         EstatePerRepIndType(
@@ -64,4 +58,17 @@ class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers
       )
     )
   )
+
+  "a variations repository" - {
+
+    "must be able to store and retrieve a payload" in {
+
+      val storedOk = repository.set(utr, internalId, data)
+      storedOk.futureValue mustBe true
+
+      val retrieved = repository.get(utr, internalId)
+
+      retrieved.futureValue mustBe Some(data)
+    }
+  }
 }

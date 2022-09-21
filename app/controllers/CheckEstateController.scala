@@ -16,18 +16,18 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
 import config.AppConfig
 import controllers.actions.IdentifierAction
 import models.ApiResponse._
-import models._
 import models.ExistingCheckResponse._
+import models._
+import play.api.Logging
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents}
 import services.EstatesService
 import utils.Session
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()

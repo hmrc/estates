@@ -17,17 +17,15 @@
 package services.maintain
 
 import connectors.BaseConnectorSpec
-import exceptions.InternalServerErrorException
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, eq => equalTo}
-import org.mockito.Mockito.{reset, times, verify, when}
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, __}
 import models.getEstate.{GetEstateProcessedResponse, ResponseHeader}
 import models.variation.{VariationFailureResponse, VariationResponse, VariationSuccessResponse}
 import models.{DeclarationForApi, DeclarationName, NameType}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import play.api.libs.json._
 import services._
-import utils.ErrorResponses.{DuplicateSubmissionErrorResponse, EtmpDataStaleErrorResponse}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.ErrorResponses.{DuplicateSubmissionErrorResponse, EtmpDataStaleErrorResponse}
 
 import java.time.LocalDate
 import scala.concurrent.Future

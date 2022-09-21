@@ -17,11 +17,10 @@
 package services
 
 import base.BaseSpec
-import org.mockito.Matchers.{any, eq => equalTo}
-import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.BeforeAndAfterEach
 import exceptions.{BadRequestException, InternalServerErrorException}
 import models.{SubscriptionIdResponse, TaxEnrolmentFailure, TaxEnrolmentSuccess}
+import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import org.scalatest.BeforeAndAfterEach
 
 import scala.concurrent.Future
 

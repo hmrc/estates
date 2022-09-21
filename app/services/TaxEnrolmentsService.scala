@@ -21,12 +21,12 @@ import akka.pattern.after
 import com.google.inject.ImplementedBy
 import config.AppConfig
 import connectors.TaxEnrolmentConnector
-import javax.inject.Inject
 import models.{TaxEnrolmentFailure, TaxEnrolmentSubscriberResponse}
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
-import play.api.Logging
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._

@@ -16,9 +16,9 @@
 
 package transformers
 
-import java.time.LocalDate
-
 import play.api.libs.json._
+
+import java.time.LocalDate
 
 trait JsonOperations {
 

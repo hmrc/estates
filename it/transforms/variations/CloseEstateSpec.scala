@@ -16,16 +16,16 @@
 
 package transforms.variations
 
+import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-
-import java.time.LocalDate
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
+
+import java.time.LocalDate
 
 class CloseEstateSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
@@ -33,9 +33,9 @@ class CloseEstateSpec extends AsyncWordSpec with Matchers with MockitoSugar with
   val closeDate2: LocalDate = LocalDate.parse("2009-12-31")
 
   "an add close estate call" must {
-    "return added data in a subsequent 'GET' call" in assertMongoTest(createApplication) { app =>
-      roundTripTest(app, closeDate1)
-      roundTripTest(app, closeDate2)
+    "return added data in a subsequent 'GET' call" in {
+      roundTripTest(createApplication, closeDate1)
+      roundTripTest(createApplication, closeDate2)
     }
   }
 

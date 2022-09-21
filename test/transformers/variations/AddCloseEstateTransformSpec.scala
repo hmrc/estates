@@ -18,9 +18,9 @@ package transformers.variations
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.Json
 
 import java.time.LocalDate
-import play.api.libs.json.Json
 
 class AddCloseEstateTransformSpec extends AnyFreeSpec with Matchers {
 

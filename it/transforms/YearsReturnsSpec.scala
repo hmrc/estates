@@ -16,14 +16,14 @@
 
 package transforms
 
-import org.scalatestplus.mockito.MockitoSugar
+import models.{YearReturnType, YearsReturns}
+import org.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models.{YearReturnType, YearsReturns}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 class YearsReturnsSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
@@ -32,9 +32,9 @@ class YearsReturnsSpec extends AsyncWordSpec with Matchers with MockitoSugar wit
   private val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
 
   "an add YearsReturns call" must {
-    "return added data in a subsequent 'GET' call" in assertMongoTest(createApplication) { app =>
-          roundTripTest(app, YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
-          roundTripTest(app, YearsReturns(List(cyMinusOneReturn)))
+    "return added data in a subsequent 'GET' call" in {
+          roundTripTest(createApplication, YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
+          roundTripTest(createApplication, YearsReturns(List(cyMinusOneReturn)))
     }
   }
 

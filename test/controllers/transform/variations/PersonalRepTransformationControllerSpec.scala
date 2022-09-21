@@ -16,22 +16,21 @@
 
 package controllers.transform.variations
 
-import java.time.LocalDate
-import org.mockito.Matchers.any
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.Json
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{CONTENT_TYPE, _}
-import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import controllers.actions.FakeIdentifierAction
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{IdentificationType, NameType, Success}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.Json
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{CONTENT_TYPE, _}
 import services.maintain.PersonalRepTransformationService
+import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

@@ -16,14 +16,13 @@
 
 package services.maintain
 
-import java.time.LocalDate
-
-import javax.inject.Inject
 import models.Success
 import services.VariationsTransformationService
 import transformers.JsonOperations
 import transformers.variations.AddCloseEstateTransform
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CloseEstateTransformationService @Inject()(transformationService: VariationsTransformationService)

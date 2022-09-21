@@ -16,13 +16,14 @@
 
 package services.maintain
 
-import javax.inject.Inject
+import models._
+import models.getEstate.ResponseHeader
 import play.api.Logging
 import play.api.libs.json.Reads._
 import play.api.libs.json._
-import models._
-import models.getEstate.ResponseHeader
 import services.LocalDateService
+
+import javax.inject.Inject
 
 class VariationDeclarationService @Inject()(localDateService: LocalDateService) extends Logging {
 

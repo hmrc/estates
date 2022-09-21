@@ -16,12 +16,12 @@
 
 package controllers.actions
 
-import javax.inject.Inject
+import models.ApiResponse.invalidUTRErrorResponse
 import play.api.libs.json.Json.toJson
 import play.api.mvc.Results._
 import play.api.mvc._
-import models.ApiResponse.invalidUTRErrorResponse
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ValidateUTRAction(input: String)

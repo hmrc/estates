@@ -17,14 +17,13 @@
 package connectors
 
 import com.google.inject.ImplementedBy
-import javax.inject.Inject
-import play.api.libs.json.{JsValue, Json, Writes}
 import config.AppConfig
 import models.{TaxEnrolmentSubscriberResponse, TaxEnrolmentSubscription}
+import play.api.libs.json.{JsValue, Json, Writes}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import utils.Constants._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -45,7 +44,7 @@ class TaxEnrolmentConnectorImpl @Inject()(http: HttpClient, config: AppConfig) e
       etmpId = subscriptionId)
 
     val response = http.PUT[JsValue, TaxEnrolmentSubscriberResponse](taxEnrolmentsEndpoint, Json.toJson(taxEnrolmentSubscriptionRequest))
-    (Writes.JsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, global)
+    (Writes.jsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, global)
     response
   }
 

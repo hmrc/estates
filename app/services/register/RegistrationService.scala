@@ -16,21 +16,20 @@
 
 package services.register
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json._
-import uk.gov.hmrc.auth.core.AffinityGroup
 import models._
 import models.register.RegistrationDeclaration
 import models.requests.IdentifierRequest
+import play.api.Logging
+import play.api.libs.json._
 import repositories.TransformationRepository
-import services.{AuditService, EstatesService, Estates5MLDService}
-
+import services.{AuditService, Estates5MLDService, EstatesService}
 import transformers.ComposedDeltaTransform
 import transformers.register.DeclarationTransform
-import utils.Session
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.Session
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationService @Inject()(repository: TransformationRepository,
