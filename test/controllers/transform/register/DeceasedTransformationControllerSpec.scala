@@ -16,24 +16,22 @@
 
 package controllers.transform.register
 
-import java.time.LocalDate
-
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito.when
+import controllers.actions.FakeIdentifierAction
+import models.{EstateWillType, IdentificationType, NameType}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.{BodyParsers, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, _}
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import controllers.actions.FakeIdentifierAction
-import models.{EstateWillType, IdentificationType, NameType}
 import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.DeceasedTransform
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {

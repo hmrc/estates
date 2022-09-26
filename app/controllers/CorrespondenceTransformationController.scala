@@ -16,14 +16,14 @@
 
 package controllers
 
-import javax.inject.Inject
+import controllers.actions.IdentifierAction
 import play.api.Logging
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import controllers.actions.IdentifierAction
 import services.CorrespondenceTransformationService
 import utils.{Session, ValidationUtil}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CorrespondenceTransformationController @Inject()(

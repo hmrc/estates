@@ -16,18 +16,17 @@
 
 package services
 
-import java.net.URL
-
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.core.report.LogLevel.ERROR
 import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
-import javax.inject.Inject
+import models.EstateRegistration
 import play.api.Logging
 import play.api.libs.json.{JsPath, Json, JsonValidationError, Reads}
-import models.EstateRegistration
 import utils.EstateBusinessValidation
 
+import java.net.URL
+import javax.inject.Inject
 import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}

@@ -16,71 +16,51 @@
 
 package repositories
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
-
-import javax.inject.{Inject, Singleton}
+import config.AppConfig
+import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.Updates.combine
+import org.mongodb.scala.model._
 import play.api.Logging
 import play.api.libs.json._
-import reactivemongo.api.WriteConcern
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.play.json.collection.JSONCollection
-import config.AppConfig
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit.SECONDS
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CacheRepositoryImpl @Inject()(
-                                     mongo: MongoDriver,
-                                     config: AppConfig
-                                   )(implicit ec: ExecutionContext) extends CacheRepository with Logging {
-
-  private val collectionName: String = "estates"
-  private val cacheTtl = config.ttlInSeconds
-
-  private def collection: Future[JSONCollection] =
-    for {
-      _ <- ensureIndexes
-      res <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
-    } yield res
-
-
-  private val lastUpdatedIndex = Index(
-    key = Seq("updatedAt" -> IndexType.Ascending),
-    name = Some("etmp-data-updated-at-index"),
-    options = BSONDocument("expireAfterSeconds" -> cacheTtl)
-  )
-
-  private val idIndex = Index(
-    key = Seq("id" -> IndexType.Ascending),
-    name = Some("id-index")
-  )
-
-  private lazy val ensureIndexes = {
-    logger.info("Ensuring collection indexes")
-    for {
-      collection              <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
-        createdLastUpdatedIndex <- collection.indexesManager.ensure(lastUpdatedIndex)
-      createdIdIndex          <- collection.indexesManager.ensure(idIndex)
-    } yield createdLastUpdatedIndex && createdIdIndex
-  }
+class CacheRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+  extends PlayMongoRepository[JsObject](
+    mongoComponent = mongo,
+    collectionName = "estates",
+    domainFormat = implicitly[Format[JsObject]],
+    indexes = Seq(
+      IndexModel(
+        Indexes.ascending("updatedAt"),
+        IndexOptions()
+          .name("etmp-data-updated-at-index")
+          .expireAfter(config.ttlInSeconds, SECONDS)
+      ),
+      IndexModel(
+        Indexes.ascending("id"),
+        IndexOptions()
+          .name("id-index")
+      )
+    )
+  ) with CacheRepository with Logging {
 
   override def get(utr: String, internalId: String): Future[Option[JsValue]] = {
 
-    val selector = Json.obj(
-      "id" -> createKey(utr, internalId)
-    )
+    val selector = equal("id", createKey(utr, internalId))
 
-    collection.flatMap {collection =>
-
-      collection.find(selector, None).one[JsObject].map(opt =>
-        for  {
-          document <- opt
-          etmpData <- (document \ "etmpData").toOption
-        } yield etmpData)
-    }
+    collection.find(selector).headOption().map(opt =>
+      for {
+        document <- opt
+        etmpData <- (document \ "etmpData").toOption
+      } yield etmpData)
   }
 
   private def createKey(utr: String, internalId: String) = {
@@ -89,33 +69,26 @@ class CacheRepositoryImpl @Inject()(
 
   override def set(utr: String, internalId: String, data: JsValue): Future[Boolean] = {
 
-    val selector = Json.obj(
-      "id" -> createKey(utr, internalId)
+    val selector = equal("id", createKey(utr, internalId))
+
+    val modifier = combine(
+      Updates.set("id", createKey(utr, internalId)),
+      Updates.set("updatedAt", Json.obj("$date" -> Timestamp.valueOf(LocalDateTime.now()))),
+      Updates.set("etmpData", data)
     )
 
-    val modifier = Json.obj(
-      "$set" -> Json.obj(
-        "id" -> createKey(utr, internalId),
-        "updatedAt" ->  Json.obj("$date" -> Timestamp.valueOf(LocalDateTime.now())),
-        "etmpData" -> data
-      )
-    )
+    val updateOptions = new UpdateOptions().upsert(true)
 
-    collection.flatMap {
-      _.update(ordered = false).one(selector, modifier, upsert = true, multi = false).map {
-        result => result.ok
-      }
+    collection.updateOne(selector, modifier, updateOptions).toFutureOption().map {
+      case Some(_)  => true
+      case None => false
     }
   }
 
   override def resetCache(utr: String, internalId: String): Future[Option[JsObject]] = {
-    val selector = Json.obj(
-      "id" -> createKey(utr, internalId)
-    )
+    val selector = equal("id", createKey(utr, internalId))
 
-    collection.flatMap(_.findAndRemove(selector, None, None, WriteConcern.Default, None, None, Seq.empty).map(
-      _.value
-    ))
+    collection.findOneAndDelete(selector).toFutureOption()
   }
 }
 

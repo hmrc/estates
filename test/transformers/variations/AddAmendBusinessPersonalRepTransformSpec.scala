@@ -16,12 +16,13 @@
 
 package transformers.variations
 
-import java.time.LocalDate
 import models.IdentificationOrgType
 import models.variation.EstatePerRepOrgType
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
+
+import java.time.LocalDate
 
 class AddAmendBusinessPersonalRepTransformSpec extends AnyFreeSpec with Matchers {
 

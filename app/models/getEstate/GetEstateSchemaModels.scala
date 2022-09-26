@@ -16,11 +16,11 @@
 
 package models.getEstate
 
-import java.time.LocalDate
-
+import models._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import models._
+
+import java.time.LocalDate
 
 case class PersonalRepresentativeType (
                                         estatePerRepInd : Option[EstatePerRepIndType] = None,

@@ -16,15 +16,15 @@
 
 package controllers
 
-import javax.inject.Inject
+import controllers.actions.IdentifierAction
+import models.{EstatePerRepIndType, EstatePerRepOrgType}
 import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import controllers.actions.IdentifierAction
-import models.{EstatePerRepIndType, EstatePerRepOrgType}
 import services.{LocalDateService, PersonalRepTransformationService}
 import utils.{Session, ValidationUtil}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalRepTransformationController @Inject()(

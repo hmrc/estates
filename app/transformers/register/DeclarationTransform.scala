@@ -16,10 +16,10 @@
 
 package transformers.register
 
+import models.{AddressType, Declaration, NameType}
 import play.api.libs.json._
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
-import models.{AddressType, Declaration, NameType}
 
 class DeclarationTransform {
 

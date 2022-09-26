@@ -16,18 +16,18 @@
 
 package controllers
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
 import controllers.actions.IdentifierAction
 import models.DeclarationForApi
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
+import play.api.Logging
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents}
 import services.AuditService
 import services.maintain.VariationService
 import utils.ErrorResults.internalServerErrorErrorResult
 import utils.{ErrorResults, Session}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EstateVariationsController @Inject()(

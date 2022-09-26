@@ -17,8 +17,8 @@
 package services
 
 import base.BaseSpec
-import org.scalatest.EitherValues
 import models.EstateRegistration
+import org.scalatest.EitherValues
 import utils.{EstateDataExamples, JsonUtils}
 
 
@@ -33,21 +33,21 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
         val jsonString = JsonUtils.getJsonFromFile("mdtp/valid-estate-registration-01.json")
 
         estateValidator.validate[EstateRegistration](jsonString) must not be 'left
-        estateValidator.validate[EstateRegistration](jsonString).right.value mustBe a[EstateRegistration]
+        estateValidator.validate[EstateRegistration](jsonString).value mustBe a[EstateRegistration]
       }
 
       "estate payload json having required fields for estate type 02" in {
         val jsonString = JsonUtils.getJsonFromFile("mdtp/valid-estate-registration-02.json")
 
         estateValidator.validate[EstateRegistration](jsonString) must not be 'left
-        estateValidator.validate[EstateRegistration](jsonString).right.value mustBe a[EstateRegistration]
+        estateValidator.validate[EstateRegistration](jsonString).value mustBe a[EstateRegistration]
       }
 
       "estate payload json having required fields for estate type 04" in {
         val jsonString = JsonUtils.getJsonFromFile("mdtp/valid-estate-registration-04.json")
 
         estateValidator.validate[EstateRegistration](jsonString) must not be 'left
-        val rightValue = estateValidator.validate[EstateRegistration](jsonString).right.value
+        val rightValue = estateValidator.validate[EstateRegistration](jsonString).value
 
         rightValue mustBe a[EstateRegistration]
 

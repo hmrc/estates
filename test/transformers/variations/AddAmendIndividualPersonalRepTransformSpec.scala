@@ -16,12 +16,13 @@
 
 package transformers.variations
 
-import java.time.LocalDate
-import models.{IdentificationType, NameType}
 import models.variation.EstatePerRepIndType
+import models.{IdentificationType, NameType}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import utils.JsonUtils
+
+import java.time.LocalDate
 
 class AddAmendIndividualPersonalRepTransformSpec extends AnyFreeSpec with Matchers {
   "the modify individual personal rep transformer should" - {

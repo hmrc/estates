@@ -16,19 +16,19 @@
 
 package services
 
-import javax.inject.Inject
-import play.api.libs.json.{JsPath, JsString, JsValue, Json}
-import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import config.AppConfig
-import models.{EstateRegistration, EstateRegistrationNoDeclaration, RegistrationFailureResponse}
 import models.auditing.EstatesAuditData
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.requests.IdentifierRequest
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
+import models.{EstateRegistration, EstateRegistrationNoDeclaration, RegistrationFailureResponse}
+import play.api.libs.json.{JsPath, JsString, JsValue, Json}
 import transformers.ComposedDeltaTransform
+import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)(implicit ec: ExecutionContext) {

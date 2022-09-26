@@ -16,9 +16,9 @@
 
 package transforms
 
+import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
@@ -31,9 +31,9 @@ class AddCorrespondenceNameSpec extends AsyncWordSpec with Matchers with Mockito
   val newEstateName2 = JsString("New Estate Name 2")
 
   "an add correspondence name call" must {
-    "return added data in a subsequent 'GET' call" in assertMongoTest(createApplication) { app =>
-          roundTripTest(app, newEstateName)
-          roundTripTest(app, newEstateName2)
+    "return added data in a subsequent 'GET' call" in {
+          roundTripTest(createApplication, newEstateName)
+          roundTripTest(createApplication, newEstateName2)
     }
   }
 

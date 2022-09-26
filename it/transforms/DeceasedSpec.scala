@@ -16,16 +16,17 @@
 
 package transforms
 
-import java.time.LocalDate
-import org.scalatestplus.mockito.MockitoSugar
+import models.{EstateWillType, IdentificationType, NameType}
+import org.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models.{EstateWillType, IdentificationType, NameType}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
+
+import java.time.LocalDate
 
 class DeceasedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
@@ -52,9 +53,9 @@ class DeceasedSpec extends AsyncWordSpec with Matchers with MockitoSugar with Tr
   )
 
   "an add Deceased call" must {
-    "return added data in a subsequent 'GET' call" in assertMongoTest(createApplication) { app =>
-          roundTripTest(app, originalDeceased)
-          roundTripTest(app, newDeceased)
+    "return added data in a subsequent 'GET' call" in {
+          roundTripTest(createApplication, originalDeceased)
+          roundTripTest(createApplication, newDeceased)
     }
   }
 

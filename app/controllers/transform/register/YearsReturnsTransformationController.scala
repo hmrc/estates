@@ -16,16 +16,16 @@
 
 package controllers.transform.register
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
 import models.YearsReturns
+import play.api.Logging
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.register.YearsReturnsTransformationService
 import utils.Session
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class YearsReturnsTransformationController @Inject()(

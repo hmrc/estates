@@ -17,22 +17,28 @@
 package uk.gov.hmrc.repositories
 
 import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.TransformationRepository
 import transformers.ComposedDeltaTransform
 
-class TransformRepositorySpec  extends AsyncFreeSpec with Matchers
-  with ScalaFutures with OptionValues with Inside with TransformIntegrationTest with EitherValues {
+class TransformRepositorySpec  extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+  with BeforeAndAfterEach {
+
+  private val repository = createApplication.injector.instanceOf[TransformationRepository]
+
+  private val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
+  private val data = ComposedDeltaTransform(Seq())
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    await(repository.resetCache(internalId))
+  }
 
   "a transform repository" - {
 
-    val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
-
-    "must be able to store and retrieve a payload" in assertMongoTest(createApplication) { app =>
-
-      val repository = app.injector.instanceOf[TransformationRepository]
+    "must be able to store and retrieve a payload" in {
 
       val storedOk = repository.set(internalId, data)
 
@@ -43,8 +49,4 @@ class TransformRepositorySpec  extends AsyncFreeSpec with Matchers
       retrieved.futureValue mustBe Some(data)
     }
   }
-
-  private val data = ComposedDeltaTransform(
-    Seq()
-  )
 }

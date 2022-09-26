@@ -16,13 +16,13 @@
 
 package services.maintain
 
-import javax.inject.Inject
 import models.Success
 import models.variation.PersonalRepresentativeType
 import services.VariationsTransformationService
 import transformers.JsonOperations
 import transformers.variations.{AddAmendBusinessPersonalRepTransform, AddAmendIndividualPersonalRepTransform}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalRepTransformationService @Inject()(transformationService: VariationsTransformationService

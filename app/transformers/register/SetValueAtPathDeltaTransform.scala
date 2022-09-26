@@ -16,7 +16,7 @@
 
 package transformers.register
 
-import play.api.libs.json.{JsPath, JsResult, JsValue, Json, __}
+import play.api.libs.json._
 import transformers.DeltaTransform
 
 abstract class SetValueAtPathDeltaTransform extends DeltaTransform {

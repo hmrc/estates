@@ -16,20 +16,19 @@
 
 package services.maintain
 
-import java.time.LocalDate
 import models.variation.{EstatePerRepIndType, EstatePerRepOrgType, PersonalRepresentativeType}
 import models.{IdentificationOrgType, IdentificationType, NameType}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
 import services.VariationsTransformationService
 import transformers.variations.AddAmendIndividualPersonalRepTransform
 import utils.JsonRequests
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

@@ -16,14 +16,14 @@
 
 package services
 
-import javax.inject.Inject
+import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse, TransformationErrorResponse}
 import play.api.Logging
 import play.api.libs.json._
-import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse, TransformationErrorResponse}
 import repositories.VariationsTransformationRepository
 import transformers.{ComposedDeltaTransform, DeltaTransform}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

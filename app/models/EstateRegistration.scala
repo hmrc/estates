@@ -16,10 +16,10 @@
 
 package models
 
-import java.time.LocalDate
-
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+
+import java.time.LocalDate
 
 case class EstateRegistration(matchData: Option[MatchData],
                               correspondence: Correspondence,

@@ -17,20 +17,19 @@
 package controllers.transform.register
 
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.Json
-import play.api.mvc.{BodyParsers, ControllerComponents}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{CONTENT_TYPE, _}
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import controllers.actions.FakeIdentifierAction
 import models.Success
 import models.register.AmountOfTaxOwed
 import models.register.TaxAmount.AmountMoreThanTenThousand
+import org.mockito.ArgumentMatchers.any
+import org.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
+import play.api.libs.json.Json
+import play.api.mvc.{BodyParsers, ControllerComponents}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{CONTENT_TYPE, _}
 import services.register.AmountOfTaxTransformationService
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 
 import scala.concurrent.Future
 

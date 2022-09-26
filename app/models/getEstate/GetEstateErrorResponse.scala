@@ -16,7 +16,7 @@
 
 package models.getEstate
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JsValue
 import utils.ErrorResponses.EtmpDataStaleErrorResponse
 
 sealed trait GetEstateErrorResponse extends GetEstateResponse {

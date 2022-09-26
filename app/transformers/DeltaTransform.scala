@@ -16,7 +16,7 @@
 
 package transformers
 
-import play.api.libs.json.{JsValue, _}
+import play.api.libs.json._
 import transformers.register._
 import transformers.variations.{AddAmendBusinessPersonalRepTransform, AddAmendIndividualPersonalRepTransform, AddCloseEstateTransform}
 

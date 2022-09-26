@@ -16,11 +16,11 @@
 
 package services
 
-import javax.inject.Inject
 import play.api.libs.json.JsString
 import transformers.ComposedDeltaTransform
 import transformers.register.CorrespondenceNameTransform
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 

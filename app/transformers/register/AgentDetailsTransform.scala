@@ -16,8 +16,8 @@
 
 package transformers.register
 
-import play.api.libs.json.{JsPath, _}
 import models.AgentDetails
+import play.api.libs.json.{JsPath, _}
 import transformers.JsonOperations
 import utils.JsonOps._
 

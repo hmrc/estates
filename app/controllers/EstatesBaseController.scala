@@ -18,8 +18,8 @@ package controllers
 
 import play.api.libs.json._
 import play.api.mvc.{ControllerComponents, Request, Result}
-import utils.ErrorResults._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.ErrorResults._
 
 import scala.concurrent.Future
 

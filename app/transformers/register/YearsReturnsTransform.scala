@@ -16,8 +16,8 @@
 
 package transformers.register
 
-import play.api.libs.json._
 import models.YearsReturns
+import play.api.libs.json._
 import transformers.JsonOperations
 
 case class YearsReturnsTransform(years: YearsReturns)

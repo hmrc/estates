@@ -16,18 +16,18 @@
 
 package services
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json.{JsValue, Json}
 import connectors.{EstatesConnector, SubscriptionConnector}
 import exceptions.InternalServerErrorException
 import models._
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.variation.VariationResponse
+import play.api.Logging
+import play.api.libs.json.{JsValue, Json}
 import repositories.CacheRepository
-import utils.Session
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.Session
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

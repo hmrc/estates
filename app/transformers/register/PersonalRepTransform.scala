@@ -16,9 +16,9 @@
 
 package transformers.register
 
-import play.api.libs.json.{JsPath, _}
 import models.JsonWithoutNulls._
 import models.{AddressType, EstatePerRepIndType, EstatePerRepOrgType}
+import play.api.libs.json.{JsPath, _}
 import transformers.JsonOperations
 import utils.JsonOps._
 

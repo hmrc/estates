@@ -17,20 +17,18 @@
 package controllers
 
 import base.BaseSpec
-import org.mockito.Matchers.{any, eq => mockEq}
-import org.mockito.Mockito.{reset, verify, when}
+import config.AppConfig
+import models.getEstate._
+import org.mockito.ArgumentMatchers.{any, eq => mockEq}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterEach}
 import play.api.inject.bind
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import config.AppConfig
-import models.RegistrationFailureResponse
-import models.getEstate._
 import services.{AuditService, EstatesService, VariationsTransformationService}
-import utils.JsonRequests
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import utils.JsonRequests
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future

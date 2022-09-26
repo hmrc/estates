@@ -16,21 +16,20 @@
 
 package controllers.transform.register
 
-import java.time.LocalDate
-
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json._
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
 import models.EstateWillType
+import play.api.Logging
+import play.api.libs.json._
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.TransformationService
 import transformers.register.DeceasedTransform
 import transformers.{ComposedDeltaTransform, DeltaTransform}
-import utils.Session
 import uk.gov.hmrc.time.TaxYear
+import utils.Session
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeceasedTransformationController @Inject()(

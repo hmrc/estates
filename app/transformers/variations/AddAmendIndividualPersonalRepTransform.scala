@@ -16,8 +16,8 @@
 
 package transformers.variations
 
-import play.api.libs.json._
 import models.variation.EstatePerRepIndType
+import play.api.libs.json._
 import transformers.DeltaTransform
 
 case class AddAmendIndividualPersonalRepTransform(personalRep: EstatePerRepIndType) extends DeltaTransform with AddAmendPersonalRepTransform {

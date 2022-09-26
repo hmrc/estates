@@ -16,14 +16,15 @@
 
 package services.maintain
 
-import java.time.LocalDate
-import org.scalatest.OptionValues
 import models._
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import services.LocalDateService
 import utils.JsonUtils
+
+import java.time.LocalDate
 
 class VariationDeclarationServiceSpec extends AnyFreeSpec with Matchers with OptionValues {
 
