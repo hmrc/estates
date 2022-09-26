@@ -19,7 +19,7 @@ object AppDependencies {
     "org.jsoup"                   %  "jsoup"                    % "1.15.3",
     "com.typesafe.play"           %% "play-test"                % PlayVersion.current,
     "org.mockito"                 %% "mockito-scala-scalatest"  % "1.17.12",
-    "com.vladsch.flexmark"        %  "flexmark-all"             % "0.64.0",
+    "com.vladsch.flexmark"        %  "flexmark-all"             % "0.62.2",
     "uk.gov.hmrc"                 %% "service-integration-test" % "1.3.0-play-28",
     "com.github.tomakehurst"      %  "wiremock-jre8"            % "2.33.2",
     "uk.gov.hmrc.mongo"           %% "hmrc-mongo-test-play-28"  % "0.73.0"
