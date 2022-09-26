@@ -16,25 +16,24 @@
 
 package services.maintain
 
-import java.time.LocalDate
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.time.{Millis, Span}
-import play.api.libs.json.{JsResult, JsValue, Json}
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.variation.EstatePerRepIndType
 import models.{AddressType, IdentificationType, NameType}
+import org.mockito.ArgumentMatchers._
+import org.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Span}
+import play.api.libs.json.{JsResult, JsValue, Json}
 import repositories.VariationsTransformationRepositoryImpl
 import services.{AuditService, EstatesService, VariationsTransformationService}
 import transformers.ComposedDeltaTransform
 import transformers.variations.{AddAmendIndividualPersonalRepTransform, AddCloseEstateTransform}
-import utils.{JsonRequests, JsonUtils}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.{JsonRequests, JsonUtils}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class VariationsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {

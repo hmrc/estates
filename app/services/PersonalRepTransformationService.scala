@@ -16,11 +16,11 @@
 
 package services
 
-import javax.inject.Inject
 import models.{EstatePerRepIndType, EstatePerRepOrgType}
 import transformers.ComposedDeltaTransform
 import transformers.register.PersonalRepTransform
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 

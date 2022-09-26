@@ -16,24 +16,23 @@
 
 package transforms.variations
 
-import java.time.LocalDate
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import connectors.EstatesConnector
+import controllers.actions.{FakeIdentifierAction, IdentifierAction}
+import models.getEstate.GetEstateResponse
+import org.mockito.ArgumentMatchers._
+import org.mockito.MockitoSugar
+import org.scalatest.freespec.AsyncFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import connectors.EstatesConnector
-import controllers.actions.{FakeIdentifierAction, IdentifierAction}
-import models.getEstate.GetEstateResponse
-import org.scalatest.freespec.AsyncFreeSpec
-import org.scalatest.matchers.must.Matchers
-import utils.JsonUtils
 import uk.gov.hmrc.repositories.TransformIntegrationTest
+import utils.JsonUtils
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class ClearTransformationsSpec extends AsyncFreeSpec with Matchers with MockitoSugar with TransformIntegrationTest {
@@ -61,7 +60,7 @@ class ClearTransformationsSpec extends AsyncFreeSpec with Matchers with MockitoS
       )
       .build()
 
-    "must return original data in a subsequent 'get' call" in assertMongoTest(application) { _ =>
+    "must return original data in a subsequent 'get' call" in {
 
       val utr: String = "5174384721"
 

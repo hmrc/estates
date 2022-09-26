@@ -16,17 +16,16 @@
 
 package controllers.transform.variations
 
-import java.time.LocalDate
-
-import javax.inject.Inject
+import controllers.EstatesBaseController
+import controllers.actions.IdentifierAction
 import play.api.Logging
 import play.api.libs.json.{JsError, JsSuccess, JsValue}
 import play.api.mvc.{Action, ControllerComponents}
-import controllers.EstatesBaseController
-import controllers.actions.IdentifierAction
 import services.maintain.CloseEstateTransformationService
 import utils.{Session, ValidationUtil}
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CloseEstateTransformationController @Inject()(

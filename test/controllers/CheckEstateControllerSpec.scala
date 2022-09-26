@@ -17,20 +17,19 @@
 package controllers
 
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito._
+import controllers.actions.FakeIdentifierAction
+import models.ExistingCheckResponse._
+import models.{ExistingCheckRequest, ExistingCheckResponse}
+import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{BodyParsers, ControllerComponents}
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import controllers.actions.FakeIdentifierAction
-import models.{ExistingCheckRequest, ExistingCheckResponse}
-import models.ExistingCheckResponse._
 import services.{EstatesService, ValidationService}
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class CheckEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite {
 

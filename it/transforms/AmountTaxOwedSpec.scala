@@ -16,23 +16,23 @@
 
 package transforms
 
-import org.scalatestplus.mockito.MockitoSugar
+import models.register.AmountOfTaxOwed
+import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
+import org.mockito.MockitoSugar
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models.register.AmountOfTaxOwed
-import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 class AmountTaxOwedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   "an add AmountOfTaxOwed call" must {
-    "return added data in a subsequent 'GET' call" in assertMongoTest(createApplication) { app =>
-          roundTripTest(app, AmountOfTaxOwed(AmountMoreThanTenThousand))
-          roundTripTest(app, AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
+    "return added data in a subsequent 'GET' call" in {
+          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanTenThousand))
+          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
     }
   }
 

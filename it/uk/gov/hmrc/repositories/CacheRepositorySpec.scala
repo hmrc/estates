@@ -17,32 +17,36 @@
 package uk.gov.hmrc.repositories
 
 import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.CacheRepository
 
-class CacheRepositorySpec extends AsyncFreeSpec with Matchers
-  with ScalaFutures with OptionValues with Inside with TransformIntegrationTest with EitherValues {
+class CacheRepositorySpec extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+  with BeforeAndAfterEach {
+
+  private val repository = createApplication.injector.instanceOf[CacheRepository]
+
+  private val data = Json.obj("testField" -> "testValue")
+  private val internalId = "Int-328969d0-96ba-4559-557e-074d0597107e"
+  private val utr = "UTRUTRUTR"
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    await(repository.resetCache(utr, internalId))
+  }
 
   "a cache repository" - {
 
-    val internalId = "Int-328969d0-96ba-4559-557e-074d0597107e"
+    "must be able to store and retrieve a payload" in {
 
-    "must be able to store and retrieve a payload" in assertMongoTest(createApplication) { app =>
+      val storedOk = repository.set(utr, internalId, data)
+      await(storedOk) mustBe true
 
-      val repository = app.injector.instanceOf[CacheRepository]
+      val retrieved = repository.get(utr, internalId)
 
-      val storedOk = repository.set("UTRUTRUTR", internalId, data)
-      storedOk.futureValue mustBe true
-
-      val retrieved = repository.get("UTRUTRUTR", internalId)
-
-      retrieved.futureValue mustBe Some(data)
+      await(retrieved) mustBe Some(data)
     }
   }
-
-  private val data = Json.obj("testField" -> "testValue")
-
 }

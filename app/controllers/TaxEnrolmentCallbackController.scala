@@ -16,12 +16,12 @@
 
 package controllers
 
-import javax.inject.Inject
 import play.api.Logging
 import play.api.mvc.ControllerComponents
-import utils.Session
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import utils.Session
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 

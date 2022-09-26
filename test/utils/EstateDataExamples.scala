@@ -16,8 +16,8 @@
 
 package utils
 
-import play.api.libs.json.__
 import models.EstateRegistration
+import play.api.libs.json.__
 
 
 trait EstateDataExamples  extends  JsonRequests {

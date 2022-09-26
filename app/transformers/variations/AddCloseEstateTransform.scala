@@ -16,10 +16,10 @@
 
 package transformers.variations
 
-import java.time.LocalDate
-
 import play.api.libs.json._
 import transformers.register.SetValueAtPathDeltaTransform
+
+import java.time.LocalDate
 
 case class AddCloseEstateTransform(closeDate: LocalDate) extends SetValueAtPathDeltaTransform {
 

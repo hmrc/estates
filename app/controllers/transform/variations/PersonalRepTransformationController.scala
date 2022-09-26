@@ -16,17 +16,16 @@
 
 package controllers.transform.variations
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json.{JsError, JsSuccess, JsValue}
-import play.api.mvc.{Action, ControllerComponents}
 import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
 import models.variation.PersonalRepresentativeType
+import play.api.Logging
+import play.api.libs.json.{JsError, JsSuccess, JsValue}
+import play.api.mvc.{Action, ControllerComponents}
 import services.maintain.PersonalRepTransformationService
-import utils.ValidationUtil
-import utils.Session
+import utils.{Session, ValidationUtil}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalRepTransformationController @Inject()(

@@ -16,12 +16,12 @@
 
 package models.variation
 
+import models.ErrorResponse
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{Format, Json, OFormat}
-import models.ErrorResponse
-import utils.ErrorResponses._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+import utils.ErrorResponses._
 
 trait VariationResponse
 

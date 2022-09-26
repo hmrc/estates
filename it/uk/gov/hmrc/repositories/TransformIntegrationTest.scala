@@ -16,42 +16,26 @@
 
 package uk.gov.hmrc.repositories
 
-import org.scalatest.Assertion
+import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
+import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.stubControllerComponents
-import play.api.{Application, Play}
-import reactivemongo.api.{AsyncDriver, DefaultDB, MongoConnection}
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import controllers.actions.{FakeIdentifierAction, IdentifierAction}
-import repositories.MongoDriver
+import uk.gov.hmrc.mongo.test.MongoSupport
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.util.Try
 
-trait TransformIntegrationTest extends ScalaFutures {
+trait TransformIntegrationTest extends ScalaFutures with MongoSupport {
 
   implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
 
   val connectionString = "mongodb://localhost:27017/estates-integration"
 
-  def getDatabase(connection: MongoConnection): DefaultDB = {
-    Await.result(connection.database("estates-integration"), Duration.Inf)
-  }
-
-  private def getConnection(): Future[MongoConnection] = {
-    for {
-      uri <- Future.fromTry(MongoConnection.parseURI(connectionString))
-      connection <- AsyncDriver().connect(uri)
-    } yield connection
-  }
-
-  def dropTheDatabase(connection: MongoConnection): Unit = {
-    Await.result(getDatabase(connection).drop(), Duration.Inf)
+  def dropTheDatabase(): Unit = {
+    mongoDatabase.drop()
   }
 
   private val cc = stubControllerComponents()
@@ -69,26 +53,4 @@ trait TransformIntegrationTest extends ScalaFutures {
       ).build()
   }
 
-  def assertMongoTest(application: Application)(block: Application => Assertion): Future[Assertion] = {
-
-    Play.start(application)
-
-    try {
-
-      val f: Future[Assertion] = for {
-          connection <- getConnection()
-          _ = dropTheDatabase(connection)
-        } yield {
-          block(application)
-        }
-
-      // We need to force the assertion to resolve here.
-      // Otherwise, the test block may never be run at all.
-      val assertion = Await.result(f, Duration.Inf)
-      Future.successful(assertion)
-    }
-    finally {
-      Play.stop(application)
-    }
-  }
 }

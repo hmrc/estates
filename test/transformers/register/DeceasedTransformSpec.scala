@@ -16,13 +16,14 @@
 
 package transformers.register
 
-import java.time.LocalDate
-import org.scalatest.OptionValues
-import play.api.libs.json.Json
 import models.{EstateWillType, IdentificationType, NameType}
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.Json
 import utils.JsonUtils
+
+import java.time.LocalDate
 
 class DeceasedTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 

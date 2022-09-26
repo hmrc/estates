@@ -16,19 +16,19 @@
 
 package services.maintain
 
-import javax.inject.Inject
-import play.api.Logging
-import play.api.libs.json._
 import exceptions.InternalServerErrorException
 import models.DeclarationForApi
 import models.getEstate.{EtmpCacheDataStaleResponse, GetEstateProcessedResponse, GetEstateResponse, ResponseHeader}
 import models.variation.{VariationFailureResponse, VariationResponse, VariationSuccessResponse}
-import services.{AuditService, EstatesService, Estates5MLDService, VariationsTransformationService}
+import play.api.Logging
+import play.api.libs.json._
+import services.{AuditService, Estates5MLDService, EstatesService, VariationsTransformationService}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.ErrorResponses.{EtmpDataStaleErrorResponse, InternalServerErrorErrorResponse}
 import utils.JsonOps._
 import utils.Session
-import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

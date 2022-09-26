@@ -16,15 +16,15 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsPath, JsString, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import controllers.actions.{IdentifierAction, ValidateUTRActionFactory}
 import models.getEstate._
 import models.requests.IdentifierRequest
+import play.api.libs.json.{JsPath, JsString, JsValue, Json}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.{AuditService, EstatesService, VariationsTransformationService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton

@@ -16,17 +16,15 @@
 
 package connectors
 
-import java.util.UUID
-
-import javax.inject.Inject
-import play.api.Logging
-import play.api.http.HeaderNames
 import config.AppConfig
 import models._
+import play.api.Logging
+import play.api.http.HeaderNames
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import utils.Constants._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 
+import java.util.UUID
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 

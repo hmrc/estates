@@ -17,15 +17,14 @@
 package services
 
 import base.BaseSpec
-import org.mockito.Mockito.{times, verify, verifyZeroInteractions, when}
-import org.mockito.Matchers._
-import play.api.libs.json.{JsValue, Json}
 import connectors.{EstatesConnector, SubscriptionConnector}
 import exceptions._
 import models.ExistingCheckResponse._
 import models._
 import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
+import org.mockito.ArgumentMatchers._
+import play.api.libs.json.JsValue
 import repositories.CacheRepositoryImpl
 import utils.ErrorResponses.DuplicateSubmissionErrorResponse
 import utils.{JsonRequests, JsonUtils}

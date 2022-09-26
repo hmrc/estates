@@ -16,13 +16,14 @@
 
 package transformers.register
 
-import java.time.LocalDate
-import org.scalatest.OptionValues
-import play.api.libs.json.{JsError, Json}
 import models._
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.{JsError, Json}
 import utils.JsonUtils
+
+import java.time.LocalDate
 
 class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 

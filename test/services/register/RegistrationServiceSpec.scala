@@ -16,26 +16,24 @@
 
 package services.register
 
-import java.time.LocalDate
 import base.BaseSpec
-import org.mockito.Matchers.{any, eq => mockEq}
-import org.mockito.Mockito.{reset, verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.OptionValues
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.{JsString, Json}
-import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.AffinityGroup
 import models._
 import models.register.{RegistrationDeclaration, TaxAmount}
 import models.requests.IdentifierRequest
-import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq => mockEq}
+import org.mockito.{ArgumentCaptor, MockitoSugar}
+import org.scalatest.OptionValues
+import org.scalatest.concurrent.ScalaFutures
+import play.api.libs.json.{JsString, Json}
+import play.api.test.FakeRequest
 import repositories.TransformationRepository
 import services.{AuditService, Estates5MLDService, EstatesService}
 import transformers.ComposedDeltaTransform
 import transformers.register._
+import uk.gov.hmrc.auth.core.AffinityGroup
 import utils.JsonUtils
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 

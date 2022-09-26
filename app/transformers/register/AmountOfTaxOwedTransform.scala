@@ -16,8 +16,8 @@
 
 package transformers.register
 
-import play.api.libs.json._
 import models.register.TaxAmount
+import play.api.libs.json._
 import transformers.JsonOperations
 
 case class AmountOfTaxOwedTransform(amount: TaxAmount)

@@ -16,11 +16,11 @@
 
 package models
 
+import exceptions._
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
-import exceptions._
 
 final case class SubscriptionIdResponse(subscriptionId: String)
 

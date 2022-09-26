@@ -16,24 +16,22 @@
 
 package controllers
 
-import java.time.LocalDate
-
 import base.BaseSpec
-import org.mockito.Matchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
+import exceptions._
+import models._
+import models.register.{RegistrationDeclaration, TaxAmount}
+import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
-import exceptions._
-import models._
-import models.register.{RegistrationDeclaration, TaxAmount}
 import services.RosmPatternService
 import services.register.RegistrationService
-import utils.JsonRequests
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.JsonRequests
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite with JsonRequests {

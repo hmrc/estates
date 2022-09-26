@@ -16,8 +16,8 @@
 
 package models.register
 
-import play.api.libs.json.{Format, Json}
 import models.NameType
+import play.api.libs.json.{Format, Json}
 
 case class RegistrationDeclaration(name: NameType)
 
