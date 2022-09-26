@@ -56,8 +56,6 @@ class CacheRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(im
 
     val selector = equal("id", createKey(utr, internalId))
 
-    //collection.find(selector).headOption()
-
     collection.find(selector).headOption().map(opt =>
       for {
         document <- opt
