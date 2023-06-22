@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,36 +41,33 @@ class RegistrationService @Inject()(repository: TransformationRepository,
 
   def getRegistration()(implicit request: IdentifierRequest[_], hc: HeaderCarrier): Future[EstateRegistrationNoDeclaration] = {
 
-      repository.get(request.identifier) flatMap {
-        case Some(transforms) =>
-          buildPrintFromTransforms(transforms) match {
-            case JsSuccess(json, _) =>
-              json.asOpt[EstateRegistrationNoDeclaration] match {
-                case Some(payload) =>
-
-                  auditService.auditGetRegistrationSuccess(payload)
-
-                  Future.successful(payload)
-                case None =>
-                  val reason = "Unable to parse transformed json as EstateRegistrationNoDeclaration"
-                  auditService.auditGetRegistrationFailed(transforms, reason)
-                  Future.failed(new RuntimeException(reason))
-              }
-            case JsError(errors) =>
-              val reason = "Unable to build json from transforms"
-              auditService.auditGetRegistrationFailed(transforms, reason, errors.toString)
-              Future.failed(new RuntimeException(s"$reason: $errors"))
-          }
-        case None =>
-          val reason = "Unable to get registration due to there being no transforms"
-          auditService.auditGetRegistrationFailed(ComposedDeltaTransform(Seq.empty), reason)
-          Future.failed(new RuntimeException(reason))
-      }
+    repository.get(request.identifier) flatMap {
+      case Some(transforms) =>
+        buildPrintFromTransforms(transforms) match {
+          case JsSuccess(json, _) =>
+            json.asOpt[EstateRegistrationNoDeclaration] match {
+              case Some(payload) =>
+                auditService.auditGetRegistrationSuccess(payload)
+                Future.successful(payload)
+              case None =>
+                val reason = "Unable to parse transformed json as EstateRegistrationNoDeclaration"
+                auditService.auditGetRegistrationFailed(transforms, reason)
+                Future.failed(new RuntimeException(reason))
+            }
+          case JsError(errors) =>
+            val reason = "Unable to build json from transforms"
+            auditService.auditGetRegistrationFailed(transforms, reason, errors.toString)
+            Future.failed(new RuntimeException(s"$reason: $errors"))
+        }
+      case None =>
+        val reason = "Unable to get registration due to there being no transforms"
+        auditService.auditGetRegistrationFailed(ComposedDeltaTransform(Seq.empty), reason)
+        Future.failed(new RuntimeException(reason))
+    }
 
   }
 
-  def submit(declaration: RegistrationDeclaration)
-            (implicit request: IdentifierRequest[_], hc: HeaderCarrier): Future[RegistrationResponse] = {
+  def submit(declaration: RegistrationDeclaration)(implicit request: IdentifierRequest[_], hc: HeaderCarrier): Future[RegistrationResponse] = {
 
       repository.get(request.identifier) flatMap {
         case Some(transforms) =>

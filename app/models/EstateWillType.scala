@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ import java.time.LocalDate
 case class EstateWillType(name: NameType,
                           dateOfBirth: Option[LocalDate],
                           dateOfDeath: LocalDate,
-                          identification: Option[IdentificationType])
+                          identification: Option[IdentificationType],
+                          addressYesNo: Option[Boolean])
 
 object EstateWillType {
   implicit val estateWillTypeFormat: Format[EstateWillType] = Json.format[EstateWillType]
