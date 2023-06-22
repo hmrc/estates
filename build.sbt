@@ -62,6 +62,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
 
+addCommandAlias("scalastyleAll", "all scalastyle test:scalastyle")
+
 lazy val itSettings = Defaults.itSettings ++ Seq(
     unmanagedSourceDirectories   := Seq(
         baseDirectory.value / "it"
