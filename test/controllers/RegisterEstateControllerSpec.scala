@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,8 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
       name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
       dateOfBirth = None,
       dateOfDeath = LocalDate.parse("2013-04-07"),
-      identification = Some(IdentificationType(Some("MT939555B"), None, None))
+      identification = Some(IdentificationType(Some("MT939555B"), None, None)),
+      addressYesNo = None
     )
 
     val personalRepInd: EstatePerRepIndType = EstatePerRepIndType(

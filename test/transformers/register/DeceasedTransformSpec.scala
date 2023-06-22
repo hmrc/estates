@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,8 @@ class DeceasedTransformSpec extends AnyFreeSpec with Matchers with OptionValues 
       nino = Some("AA123456B"),
       address = None,
       passport = None
-    ))
+    )),
+    addressYesNo = None
   )
 
   "the deceased transform should" - {
