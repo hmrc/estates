@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
       nino = Some("AB111111C"),
       address = None,
       passport = None
-    ))
+    )),
+    addressYesNo = None
   )
 
   private val deceased = EstateWillType(
@@ -64,7 +65,8 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
       nino = Some("AB000000C"),
       address = None,
       passport = None
-    ))
+    )),
+    addressYesNo = None
   )
 
   "deceased transformation controller" when {
@@ -202,7 +204,8 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
             nino = Some("AB000000C"),
             address = None,
             passport = None
-          ))
+          )),
+          addressYesNo = None
         )
 
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)

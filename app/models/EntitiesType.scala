@@ -27,6 +27,6 @@ object EntitiesType {
 
   val entitiesWriteToDes: Writes[EntitiesType] = (
     (JsPath \ "personalRepresentative").write[PersonalRepresentativeType](PersonalRepresentativeType.personalRepTypeWritesToDes) and
-      (JsPath \ "deceased").write[EstateWillType]
+      (JsPath \ "deceased").write[EstateWillType](EstateWillType.estateWillTypeWriteToDes)
     ).apply(unlift(EntitiesType.unapply))
 }
