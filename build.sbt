@@ -56,11 +56,12 @@ lazy val microservice = Project(appName, file("."))
       ScoverageKeys.coverageFailOnMinimum := true,
       ScoverageKeys.coverageHighlighting := true
   )
-  .settings(publishingSettings: _*)
   .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(resolvers += Resolver.jcenterRepo)
+
+addCommandAlias("scalastyleAll", "all scalastyle test:scalastyle")
 
 lazy val itSettings = Defaults.itSettings ++ Seq(
     unmanagedSourceDirectories   := Seq(
