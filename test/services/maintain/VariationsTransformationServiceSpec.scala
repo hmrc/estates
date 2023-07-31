@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{JsonRequests, JsonUtils}
 
 import java.time.LocalDate
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class VariationsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {

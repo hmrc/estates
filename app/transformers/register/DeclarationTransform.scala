@@ -27,8 +27,8 @@ class DeclarationTransform {
     addDeclaration(actor, declarationName, body)
   }
 
-  private val correspondenceAddressPath: JsPath = __ \ 'correspondence \ 'address
-  private val agentAddressPath: JsPath          = __ \ 'agentDetails \ 'agentAddress
+  private val correspondenceAddressPath: JsPath = __ \ Symbol("correspondence") \ Symbol("address")
+  private val agentAddressPath: JsPath          = __ \ Symbol("agentDetails") \ Symbol("agentAddress")
 
   private def addDeclaration(actor: AffinityGroup, name: NameType, responseJson: JsValue): JsResult[JsObject] = {
     for {
@@ -39,7 +39,7 @@ class DeclarationTransform {
       }
       address <- addressJson.validate[AddressType]
       declaration = Declaration(name, address)
-      updated <- responseJson.transform(putNewValue(__ \ 'declaration, Json.toJson(declaration)))
+      updated <- responseJson.transform(putNewValue(__ \ Symbol("declaration"), Json.toJson(declaration)))
     } yield updated
   }
 

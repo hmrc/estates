@@ -29,8 +29,7 @@ import utils.JsonOps._
 import utils.Session
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext,Future}
 
 
 class VariationService @Inject()(
@@ -38,7 +37,7 @@ class VariationService @Inject()(
                                   transformationService: VariationsTransformationService,
                                   declarationService: VariationDeclarationService,
                                   estates5MLDService: Estates5MLDService,
-                                  auditService: AuditService) extends Logging {
+                                  auditService: AuditService)(implicit ec: ExecutionContext) extends Logging {
 
   def submitDeclaration(utr: String,
                         internalId: String,

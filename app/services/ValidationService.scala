@@ -22,12 +22,12 @@ import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import models.EstateRegistration
 import play.api.Logging
-import play.api.libs.json.{JsPath, Json, JsonValidationError, Reads}
+import play.api.libs.json.{Format, JsPath, Json, JsonValidationError, Reads}
 import utils.EstateBusinessValidation
 
 import java.net.URL
 import javax.inject.Inject
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -88,7 +88,7 @@ class Validator(schema: JsonSchema) extends Logging {
     }
   }
 
-  protected def getValidationErrors(errors: Seq[(JsPath, Seq[JsonValidationError])]): List[EstatesValidationError] = {
+  protected def getValidationErrors(errors: Iterable[(JsPath, Iterable[JsonValidationError])]): List[EstatesValidationError] = {
     val validationErrors = errors.flatMap(errors => errors._2.map(error => EstatesValidationError(error.message, errors._1.toString()))).toList
     logger.debug(s"[getValidationErrors] validationErrors in validate :  $validationErrors")
     validationErrors
@@ -111,5 +111,5 @@ class Validator(schema: JsonSchema) extends Logging {
 case class EstatesValidationError(message: String, location: String)
 
 object EstatesValidationError {
-  implicit val formats = Json.format[EstatesValidationError]
+  implicit val formats: Format[EstatesValidationError] = Json.format[EstatesValidationError]
 }

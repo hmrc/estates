@@ -21,15 +21,15 @@ GET         /is-tax-required            controllers.transform.register.DeceasedT
 GET         /agent-details              controllers.transform.register.AgentDetailsTransformationController.get
 POST        /agent-details              controllers.transform.register.AgentDetailsTransformationController.save
 
-POST        /check                      controllers.CheckEstateController.checkExistingEstate
+POST        /check                      controllers.CheckEstateController.checkExistingEstate()
 
-POST        /register                   controllers.RegisterEstateController.register
+POST        /register                   controllers.RegisterEstateController.register()
 
-GET         /registration               controllers.RegisterEstateController.get
+GET         /registration               controllers.RegisterEstateController.get()
 
 POST        /declare/:utr               controllers.EstateVariationsController.declare(utr: String)
 
-POST        /tax-enrolment/callback/subscriptions   controllers.TaxEnrolmentCallbackController.subscriptionCallback
+POST        /tax-enrolment/callback/subscriptions   controllers.TaxEnrolmentCallbackController.subscriptionCallback()
 
 POST        /close/:utr                 controllers.transform.variations.CloseEstateTransformationController.close(utr: String)
 

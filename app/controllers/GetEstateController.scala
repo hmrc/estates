@@ -43,7 +43,7 @@ class GetEstateController @Inject()(identify: IdentifierAction,
   def getPersonalRepresentative(utr: String): Action[AnyContent] =
     doGet(utr, applyTransforms = true) {
       case processed: GetEstateProcessedResponse =>
-        val pick = (JsPath \ 'details \ 'estate \ 'entities \ 'personalRepresentative).json.pick
+        val pick = (JsPath \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative")).json.pick
         processed.getEstate.transform(pick).fold(
           _ => InternalServerError,
           json => {
@@ -57,7 +57,7 @@ class GetEstateController @Inject()(identify: IdentifierAction,
     }
 
   def getDateOfDeath(utr: String): Action[AnyContent] =
-    getItemAtPath(utr, JsPath \ 'details \'estate \ 'entities \ 'deceased \ 'dateOfDeath)
+    getItemAtPath(utr, JsPath \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("deceased") \ Symbol("dateOfDeath"))
 
   private def notEnoughInformationResponse(utr: String, json: JsValue, errors: JsValue)
                                           (implicit request: IdentifierRequest[AnyContent]): Result = {

@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-package transformers.register
+package models.getEstate
 
-import models.YearsReturns
-import play.api.libs.json._
-import transformers.JsonOperations
+import play.api.libs.json.{Format, Json}
 
-case class YearsReturnsTransform(years: YearsReturns)
-  extends SetValueAtPathDeltaTransform with JsonOperations {
+case class GetMatchData(utr: String)
 
-  override val path: JsPath =  __ \ Symbol("yearsReturns")
-
-  override val value: JsValue = Json.toJson(years)
-}
-
-
-object YearsReturnsTransform {
-
-  val key = "YearsReturnsTransform"
-
-  implicit val format: Format[YearsReturnsTransform] = Json.format[YearsReturnsTransform]
+object GetMatchData {
+  implicit val matchDataFormat: Format[GetMatchData] = Json.format[GetMatchData]
 }
 

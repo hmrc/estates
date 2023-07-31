@@ -26,7 +26,7 @@ class Estates5MLDService @Inject()(){
   def applySubmissionDate(registration: JsValue, applySubmissionDate: Boolean = false): JsResult[JsValue] = {
     if (applySubmissionDate) {
       registration.transform(
-        __.json.update((__ \ 'submissionDate).json.put(Json.toJson(LocalDate.now())))
+        __.json.update((__ \ Symbol("submissionDate")).json.put(Json.toJson(LocalDate.now())))
       )
     } else {
       JsSuccess(registration)

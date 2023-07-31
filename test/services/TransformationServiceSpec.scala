@@ -28,6 +28,7 @@ import transformers.ComposedDeltaTransform
 import transformers.register.{PersonalRepTransform, YearsReturnsTransform}
 
 import java.time.LocalDate
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {

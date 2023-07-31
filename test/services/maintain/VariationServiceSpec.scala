@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.ErrorResponses.{DuplicateSubmissionErrorResponse, EtmpDataStaleErrorResponse}
 
 import java.time.LocalDate
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class VariationServiceSpec extends BaseConnectorSpec {

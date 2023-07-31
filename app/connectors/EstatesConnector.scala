@@ -29,10 +29,9 @@ import utils.Constants._
 
 import java.util.UUID
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5MLDService: Estates5MLDService) extends Logging {
+class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5MLDService: Estates5MLDService)(implicit ec: ExecutionContext) extends Logging {
 
   private lazy val estatesServiceUrl : String = s"${config.registrationBaseUrl}/estates"
 
@@ -100,7 +99,7 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: $correlationId")
 
-    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), global)
+    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), ec)
   }
 
   def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {

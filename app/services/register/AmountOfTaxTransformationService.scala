@@ -23,12 +23,9 @@ import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AmountOfTaxOwedTransform
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class AmountOfTaxTransformationService @Inject()(
-                                                  transformationService: TransformationService
-                                                ) {
+class AmountOfTaxTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
 
   def get(internalId: String): Future[Option[AmountOfTaxOwed]] = {
     transformationService.getTransformations(internalId) map {

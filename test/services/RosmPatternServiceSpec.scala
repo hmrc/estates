@@ -22,6 +22,7 @@ import models.{SubscriptionIdResponse, TaxEnrolmentFailure, TaxEnrolmentSuccess}
 import org.mockito.ArgumentMatchers.{any, eq => equalTo}
 import org.scalatest.BeforeAndAfterEach
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {

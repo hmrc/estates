@@ -22,7 +22,7 @@ import transformers.{DeltaTransform, JsonOperations}
 case class CorrespondenceNameTransform(newCorrespondenceName: JsString)
   extends DeltaTransform with JsonOperations {
 
-  private val path: JsPath = __ \ 'correspondence \ 'name
+  private val path: JsPath = __ \ Symbol("correspondence") \ Symbol("name")
 
   override def applyTransform(input: JsValue): JsResult[JsValue] = {
     input.transform(

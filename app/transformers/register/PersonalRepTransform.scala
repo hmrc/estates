@@ -28,9 +28,9 @@ case class PersonalRepTransform(
                                    )
   extends SetValueAtPathDeltaTransform with JsonOperations {
 
-  override val path: JsPath = __ \ 'estate \ 'entities \ 'personalRepresentative
+  override val path: JsPath = __ \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative")
 
-  private lazy val correspondencePath = __ \ 'correspondence
+  private lazy val correspondencePath = __ \ Symbol("correspondence")
 
   override val value: JsValue = Json.obj(
     "estatePerRepInd" -> newPersonalIndRep,
@@ -61,8 +61,8 @@ case class PersonalRepTransform(
         for {
           inputWithCorrespondence <- transformCorrespondence(input, newPersonalIndRep.identification.address, newPersonalIndRep.phoneNumber)
           inputWithAddressCorrected <- {
-            if (input.transform((path \ 'estatePerRepInd \ 'identification \ 'nino).json.pick).isSuccess) {
-              inputWithCorrespondence.transform((path \ 'estatePerRepInd \ 'identification \ 'address).json.prune)
+            if (input.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("nino")).json.pick).isSuccess) {
+              inputWithCorrespondence.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("address")).json.prune)
             } else {
               JsSuccess(inputWithCorrespondence)
             }
@@ -74,8 +74,8 @@ case class PersonalRepTransform(
           inputWithCorrespondence <- transformCorrespondence(input, newPersonalOrgRep.identification.address, newPersonalOrgRep.phoneNumber)
           inputWithAddressCorrected <- {
 
-            if (input.transform((path \ 'estatePerRepOrg \ 'identification \ 'utr).json.pick).isSuccess) {
-              inputWithCorrespondence.transform((path \ 'estatePerRepOrg \ 'identification \ 'address).json.prune)
+            if (input.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("utr")).json.pick).isSuccess) {
+              inputWithCorrespondence.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("address")).json.prune)
             } else {
               JsSuccess(inputWithCorrespondence)
             }
@@ -87,7 +87,7 @@ case class PersonalRepTransform(
     }
 
   private def removeIsPassportField(original: JsValue): JsValue = {
-    val isPassportPath = path \ 'estatePerRepInd \ 'identification \ 'passport \ 'isPassport
+    val isPassportPath = path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("passport") \ Symbol("isPassport")
 
     original.transform(isPassportPath.json.prune) match {
       case JsSuccess(updated, _) => updated

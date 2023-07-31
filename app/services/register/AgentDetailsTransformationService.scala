@@ -22,12 +22,9 @@ import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AgentDetailsTransform
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class AgentDetailsTransformationService @Inject()(
-                                                  transformationService: TransformationService
-                                                ) {
+class AgentDetailsTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
 
   def addTransform(internalId: String, agentDetails: AgentDetails) : Future[Success.type] = {
     transformationService.addNewTransform(internalId, AgentDetailsTransform(agentDetails)) map {

@@ -1,5 +1,4 @@
 import scoverage.ScoverageKeys
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "estates"
 
@@ -28,38 +27,31 @@ val excludedPackages = Seq(
     ".*FrontendAuditConnector.*",
     ".*javascript.*",
     ".*ControllerConfiguration",
-    ".*mapping.Constants.*",
-    ".*pages.*",
-    ".*viewmodels.*",
-    ".*Message.*",
-    ".*config.*",
-    ".*models.RegistrationResponse.*",
-    ".*LocalDateService.*",
-    ".*GetEstateErrorResponse.*",
-    ".*JsonOperations.*",
-    ".*EstateVariationModels.*",
-    ".*AuditService.*"
+    ".*mapping.Constants.*"
 )
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    scalaVersion := "2.12.15",
-    SilencerSettings(),
-    majorVersion                     := 0,
-    libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
-    dependencyOverrides              ++= AppDependencies.overrides,
-    PlayKeys.playDefaultPort := 8832,
+      scalaVersion := "2.13.11",
+      // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
+      libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
+      majorVersion := 0,
+      libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+      PlayKeys.playDefaultPort := 8832,
       ScoverageKeys.coverageExcludedFiles := excludedPackages.mkString(";"),
       ScoverageKeys.coverageMinimumStmtTotal := 80,
       ScoverageKeys.coverageFailOnMinimum := true,
-      ScoverageKeys.coverageHighlighting := true
+      ScoverageKeys.coverageHighlighting := true,
+      scalacOptions ++= Seq(
+          "-Wconf:src=routes/.*:s",
+          "-Wconf:cat=unused-imports&src=views/.*:s"
+      )
   )
   .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(itSettings): _*)
-  .settings(resolvers += Resolver.jcenterRepo)
+  .settings(inConfig(IntegrationTest)(itSettings))
 
 addCommandAlias("scalastyleAll", "all scalastyle test:scalastyle")
 

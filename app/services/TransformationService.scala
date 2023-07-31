@@ -23,10 +23,9 @@ import transformers.register.YearsReturnsTransform
 import transformers.{ComposedDeltaTransform, DeltaTransform}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class TransformationService @Inject()(repository: TransformationRepository) extends Logging {
+class TransformationService @Inject()(repository: TransformationRepository)(implicit ec: ExecutionContext) extends Logging {
 
   def addNewTransform(internalId: String, newTransform: DeltaTransform) : Future[Boolean] = {
     repository.get(internalId) map {

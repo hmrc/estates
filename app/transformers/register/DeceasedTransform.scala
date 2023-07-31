@@ -23,7 +23,7 @@ import transformers.JsonOperations
 case class DeceasedTransform(deceased: EstateWillType)
     extends SetValueAtPathDeltaTransform with JsonOperations {
 
-  override val path: JsPath = __ \ 'estate \ 'entities \ 'deceased
+  override val path: JsPath = __ \ Symbol("estate") \ Symbol("entities") \ Symbol("deceased")
 
   override val value: JsValue = Json.toJson(deceased)
 }

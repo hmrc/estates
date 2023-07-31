@@ -24,7 +24,7 @@ import utils.JsonOps._
 case class AgentDetailsTransform(agentDetails: AgentDetails)
     extends SetValueAtPathDeltaTransform with JsonOperations {
 
-  override val path: JsPath = __ \ 'agentDetails
+  override val path: JsPath = __ \ Symbol("agentDetails")
 
   override val value: JsValue = Json.toJson(agentDetails)
 

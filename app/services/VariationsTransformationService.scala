@@ -24,12 +24,11 @@ import transformers.{ComposedDeltaTransform, DeltaTransform}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class VariationsTransformationService @Inject()(transformRepository: VariationsTransformationRepository,
                                                 estatesService: EstatesService,
-                                                auditService: AuditService) extends Logging {
+                                                auditService: AuditService)(implicit ec: ExecutionContext) extends Logging {
 
   def addNewTransform(utr: String, internalId: String, newTransform: DeltaTransform) : Future[Boolean] = {
     transformRepository.get(utr, internalId) map {
@@ -105,14 +104,14 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
   }
 
   def populatePersonalRepAddress(beforeJson: JsValue): JsResult[JsValue] = {
-    val pathToPersonalRepAddress = __ \ 'details \ 'estate \ 'entities \ 'personalRepresentative \ 'identification \ 'address
+    val pathToPersonalRepAddress = __ \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative") \ Symbol("identification") \ Symbol("address")
 
     if (beforeJson.transform(pathToPersonalRepAddress.json.pick).isSuccess) {
       logger.info(s"[populatePersonalRepAddress] record already has an address for the personal representative, not modifying")
       JsSuccess(beforeJson)
     } else {
       logger.info(s"[populatePersonalRepAddress] record does not have an address for personal rep, adding one from correspondence")
-      val pathToCorrespondenceAddress = __ \ 'correspondence \ 'address
+      val pathToCorrespondenceAddress = __ \ Symbol("correspondence") \ Symbol("address")
       val copyAddress = __.json.update(pathToPersonalRepAddress.json.copyFrom(pathToCorrespondenceAddress.json.pick))
       beforeJson.transform(copyAddress)
     }

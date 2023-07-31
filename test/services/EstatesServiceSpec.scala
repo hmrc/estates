@@ -29,6 +29,7 @@ import repositories.CacheRepositoryImpl
 import utils.ErrorResponses.DuplicateSubmissionErrorResponse
 import utils.{JsonRequests, JsonUtils}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EstatesServiceSpec extends BaseSpec with JsonRequests {

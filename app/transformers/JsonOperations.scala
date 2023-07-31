@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 trait JsonOperations {
 
-  def lineNoPick: Reads[JsValue] = (__ \ 'lineNo).json.pick
+  def lineNoPick: Reads[JsValue] = (__ \ Symbol("lineNo")).json.pick
 
   def isKnownToEtmp(json: JsValue): Boolean = {
     json.transform(lineNoPick).isSuccess
