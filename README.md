@@ -4,7 +4,7 @@ This service is responsible for registering, playing back and varying an Estate 
 
 To run locally using the micro-service provided by the service manager:
 
-***sm --start ESTATES_ALL***
+***sm2 --start ESTATES_ALL***
 
 If you want to run your local copy, then stop the frontend ran by the service manager and run your local code by using the following (port number is 8832 but is defaulted to that in build.sbt).
 
