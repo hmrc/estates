@@ -37,7 +37,7 @@ trait EstateDataExamples  extends  JsonRequests {
 
   def estateWithoutCorrespondenceAddress : String = {
     val json = getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
-    val jsonTransformer = (__  \ 'correspondence \  'address ).json.prune
+    val jsonTransformer = (__  \ Symbol("correspondence") \  Symbol("address") ).json.prune
     json.transform(jsonTransformer).get.toString()
   }
 

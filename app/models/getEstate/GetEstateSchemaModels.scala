@@ -99,7 +99,7 @@ object Estate {
   implicit val estateFormat: Format[Estate] = Json.format[Estate]
 }
 
-case class GetEstate(matchData: MatchData,
+case class GetEstate(matchData: GetMatchData,
                      correspondence: Correspondence,
                      declaration: Declaration,
                      estate: Estate,
@@ -112,7 +112,7 @@ object GetEstate {
   implicit val writes: Writes[GetEstate] = Json.writes[GetEstate]
 
   implicit val reads: Reads[GetEstate] = (
-    (JsPath \ "matchData").read[MatchData] and
+    (JsPath \ "matchData").read[GetMatchData] and
       (JsPath \ "correspondence").read[Correspondence] and
       (JsPath \ "declaration").read[Declaration] and
       (JsPath \ "details" \ "estate").read[Estate] and

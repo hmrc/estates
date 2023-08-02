@@ -23,7 +23,7 @@ import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import utils.ErrorResponses._
 
-trait VariationResponse
+sealed trait VariationResponse
 
 final case class VariationSuccessResponse(tvn: String) extends VariationResponse
 

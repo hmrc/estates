@@ -25,10 +25,9 @@ import utils.Constants._
 
 import java.util.UUID
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionConnector @Inject()(http: HttpClient, config: AppConfig) extends Logging {
+class SubscriptionConnector @Inject()(http: HttpClient, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
 
   private lazy val subscriptionUrl : String = s"${config.subscriptionBaseUrl}/trusts"
 

@@ -23,7 +23,7 @@ import transformers.JsonOperations
 case class AmountOfTaxOwedTransform(amount: TaxAmount)
     extends SetValueAtPathDeltaTransform with JsonOperations {
 
-  override val path: JsPath = __ \ 'estate \ 'periodTaxDues
+  override val path: JsPath = __ \ Symbol("estate") \ Symbol("periodTaxDues")
 
   override val value: JsValue = Json.toJson(amount)
 

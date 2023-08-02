@@ -27,6 +27,7 @@ import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AgentDetailsTransform
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {

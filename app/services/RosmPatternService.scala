@@ -24,15 +24,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext,Future}
 import scala.util.control.NonFatal
 
 
 class RosmPatternServiceImpl @Inject()(estateService: EstatesService,
                                        taxEnrolmentService : TaxEnrolmentsService,
                                        auditService: AuditService
-                                      ) extends RosmPatternService with Logging {
+                                      )(implicit ec: ExecutionContext) extends RosmPatternService with Logging {
 
   def getSubscriptionIdAndEnrol(trn : String, identifier: String)(implicit hc : HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] ={
 

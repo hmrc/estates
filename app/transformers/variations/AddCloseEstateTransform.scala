@@ -23,7 +23,7 @@ import java.time.LocalDate
 
 case class AddCloseEstateTransform(closeDate: LocalDate) extends SetValueAtPathDeltaTransform {
 
-  override val path: JsPath = __ \ 'trustEndDate
+  override val path: JsPath = __ \ Symbol("trustEndDate")
 
   override val value: JsValue = Json.toJson(closeDate)
 }

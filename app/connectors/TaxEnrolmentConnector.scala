@@ -24,10 +24,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import utils.Constants._
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class TaxEnrolmentConnectorImpl @Inject()(http: HttpClient, config: AppConfig) extends TaxEnrolmentConnector {
+class TaxEnrolmentConnectorImpl @Inject()(http: HttpClient, config: AppConfig)(implicit ec: ExecutionContext) extends TaxEnrolmentConnector {
 
   private def headers =
     Seq(
@@ -44,7 +43,7 @@ class TaxEnrolmentConnectorImpl @Inject()(http: HttpClient, config: AppConfig) e
       etmpId = subscriptionId)
 
     val response = http.PUT[JsValue, TaxEnrolmentSubscriberResponse](taxEnrolmentsEndpoint, Json.toJson(taxEnrolmentSubscriptionRequest))
-    (Writes.jsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, global)
+    (Writes.jsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, ec)
     response
   }
 

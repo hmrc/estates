@@ -36,13 +36,13 @@ class EstatesBaseController(cc: ControllerComponents) extends BackendController(
     request.body.validate[T] match {
       case JsSuccess(payload, _) =>
         f(payload)
-      case JsError(errs: Seq[(JsPath, Seq[JsonValidationError])]) =>
+      case JsError(errs: Iterable[(JsPath, Iterable[JsonValidationError])]) =>
         val response = handleErrorResultByField(errs)
         Future.successful(response)
     }
 
 
-  def handleErrorResultByField(field: Seq[(JsPath, Seq[JsonValidationError])]): Result = {
+  def handleErrorResultByField(field: Iterable[(JsPath, Iterable[JsonValidationError])]): Result = {
 
     val fields = field.map { case (key, validationError) =>
       (key.toString.stripPrefix("/"), validationError.head.message)

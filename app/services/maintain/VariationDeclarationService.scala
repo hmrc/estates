@@ -27,16 +27,16 @@ import javax.inject.Inject
 
 class VariationDeclarationService @Inject()(localDateService: LocalDateService) extends Logging {
 
-  private lazy val pathToEntities: JsPath = __ \ 'details \ 'estate \ 'entities
-  private lazy val pathToPersonalRep: JsPath = pathToEntities \ 'personalRepresentative
-  private lazy val pathToPersonalRepAddress = pathToPersonalRep \ 'identification \ 'address
-  private lazy val pathToPersonalRepPhoneNumber = pathToPersonalRep \ 'phoneNumber
-  private lazy val pathToPersonalRepCountry = pathToPersonalRepAddress \ 'country
-  private lazy val pathToCorrespondenceAddress = __ \ 'correspondence \ 'address
-  private lazy val pathToCorrespondencePhoneNumber = __ \ 'correspondence \ 'phoneNumber
+  private lazy val pathToEntities: JsPath = __ \ Symbol("details") \ Symbol("estate") \ Symbol("entities")
+  private lazy val pathToPersonalRep: JsPath = pathToEntities \ Symbol("personalRepresentative")
+  private lazy val pathToPersonalRepAddress = pathToPersonalRep \ Symbol("identification") \ Symbol("address")
+  private lazy val pathToPersonalRepPhoneNumber = pathToPersonalRep \ Symbol("phoneNumber")
+  private lazy val pathToPersonalRepCountry = pathToPersonalRepAddress \ Symbol("country")
+  private lazy val pathToCorrespondenceAddress = __ \ Symbol("correspondence") \ Symbol("address")
+  private lazy val pathToCorrespondencePhoneNumber = __ \ Symbol("correspondence") \ Symbol("phoneNumber")
   private lazy val pickPersonalRep = pathToPersonalRep.json.pick
-  private lazy val declarationPath = __ \ 'declaration
-  private lazy val agentPath = __ \ 'agentDetails
+  private lazy val declarationPath = __ \ Symbol("declaration")
+  private lazy val agentPath = __ \  Symbol("agentDetails")
 
   def transform(amendDocument: JsValue,
                 responseHeader: ResponseHeader,
@@ -45,14 +45,14 @@ class VariationDeclarationService @Inject()(localDateService: LocalDateService) 
     logger.debug(s"[VariationDeclarationService] applying declaration transforms to document $amendDocument from cached $cachedDocument")
 
     amendDocument.transform(
-      (__ \ 'applicationType).json.prune andThen
-        (__ \ 'declaration).json.prune andThen
-        (__ \ 'yearsReturns).json.prune andThen
+      (__ \ Symbol("applicationType")).json.prune andThen
+        (__ \ Symbol("declaration")).json.prune andThen
+        (__ \ Symbol("yearsReturns")).json.prune andThen
         updateCorrespondence(amendDocument) andThen
         removePersonalRepAddressIfHasNinoOrUtr(amendDocument, pathToPersonalRep) andThen
         convertPersonalRepresentativeToArray(amendDocument) andThen
         endPreviousPersonalRepIfChanged(amendDocument, cachedDocument) andThen
-        putNewValue(__ \ 'reqHeader \ 'formBundleNo, JsString(responseHeader.formBundleNo)) andThen
+        putNewValue(__ \ Symbol("reqHeader") \ Symbol("formBundleNo"), JsString(responseHeader.formBundleNo)) andThen
         addDeclaration(declaration, amendDocument) andThen
         addAgentIfDefined(declaration.agentDetails)
     )
@@ -65,7 +65,7 @@ class VariationDeclarationService @Inject()(localDateService: LocalDateService) 
 
     pathToCorrespondenceAddress.json.prune andThen
       pathToCorrespondencePhoneNumber.json.prune andThen
-      putNewValue(__ \ 'correspondence \ 'abroadIndicator, JsBoolean(!inUk)) andThen
+      putNewValue(__ \ Symbol("correspondence") \ Symbol("abroadIndicator"), JsBoolean(!inUk)) andThen
       __.json.update(pathToCorrespondenceAddress.json.copyFrom(pathToPersonalRepAddress.json.pick)) andThen
       __.json.update(pathToCorrespondencePhoneNumber.json.copyFrom(pathToPersonalRepPhoneNumber.json.pick))
   }
@@ -84,14 +84,14 @@ class VariationDeclarationService @Inject()(localDateService: LocalDateService) 
     val hasNino = hasField("nino")
 
     if (hasUtr || hasNino) {
-      (personalRepPath \ 'identification \ 'address).json.prune
+      (personalRepPath \ Symbol("identification") \ Symbol("address")).json.prune
     } else {
       __.json.pick[JsObject]
     }
   }
 
   private def determinePersonalRepField(rootPath: JsPath, json: JsValue): String = {
-    val namePath = (rootPath \ 'name).json.pick
+    val namePath = (rootPath \ Symbol("name")).json.pick
 
     if(json.transform(namePath).flatMap(_.validate[NameType]).isSuccess) {
       "estatePerRepInd"
@@ -105,7 +105,7 @@ class VariationDeclarationService @Inject()(localDateService: LocalDateService) 
 
     previousPersonalRepJson.transform(__.json.update {
       logger.info(s"[addPreviousPersonalRepAsExpiredStep] setting end date on original personal representative")
-      (__ \ 'entityEnd).json.put(date)
+      (__ \ Symbol("entityEnd")).json.put(date)
     }).fold(
       errors => {
         logger.error(s"[addPreviousPersonalRepAsExpiredStep] unable to set end date on original personal representative")
@@ -158,7 +158,7 @@ class VariationDeclarationService @Inject()(localDateService: LocalDateService) 
         JsSuccess(x.agentAddress)
       case None =>
         logger.info(s"[declarationAddress] using personal representatives address as declaration")
-        amendJson.transform((pathToPersonalRep \ 'identification \ 'address).json.pick).flatMap(_.validate[AddressType])
+        amendJson.transform((pathToPersonalRep \ Symbol("identification") \ Symbol("address")).json.pick).flatMap(_.validate[AddressType])
     }
 
   private def addDeclaration(declarationForApi: DeclarationForApi, amendJson: JsValue) : Reads[JsObject] = {

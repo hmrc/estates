@@ -22,12 +22,9 @@ import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.YearsReturnsTransform
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class YearsReturnsTransformationService @Inject()(
-                                                  transformationService: TransformationService
-                                                ) {
+class YearsReturnsTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
 
   def get(internalId: String): Future[Option[YearsReturns]] = {
     transformationService.getTransformations(internalId) map {

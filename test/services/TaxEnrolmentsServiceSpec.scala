@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 
 

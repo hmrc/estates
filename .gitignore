@@ -1,7 +1,4 @@
-.*
-
-!.gitignore
-!.scalafmt.conf
+/.bsp/sbt.json
 .cache
 /.classpath
 db

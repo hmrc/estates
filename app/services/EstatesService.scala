@@ -28,12 +28,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EstatesService @Inject()(val estatesConnector: EstatesConnector,
                                val subscriptionConnector: SubscriptionConnector,
-                               repository: CacheRepository) extends Logging {
+                               repository: CacheRepository)(implicit ec: ExecutionContext) extends Logging {
 
   def getEstateInfoFormBundleNo(utr: String)(implicit hc: HeaderCarrier): Future[String] =
     estatesConnector.getEstateInfo(utr).map {

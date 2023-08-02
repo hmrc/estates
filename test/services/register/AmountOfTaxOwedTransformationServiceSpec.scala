@@ -28,6 +28,7 @@ import services.TransformationService
 import transformers.ComposedDeltaTransform
 import transformers.register.AmountOfTaxOwedTransform
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
