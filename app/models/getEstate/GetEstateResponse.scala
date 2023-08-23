@@ -21,30 +21,30 @@ import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK, SERVICE_UNAVAILABLE}
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
+import scala.language.implicitConversions
+
 trait GetEstateResponse
 
 object GetEstateResponse extends GetEstateHttpReads {
 
-  implicit val reads: Reads[GetEstateResponse] = new Reads[GetEstateResponse] {
-    override def reads(json: JsValue): JsResult[GetEstateResponse] = {
-      val header = (json \ "responseHeader").asOpt[ResponseHeader]
+  implicit val reads: Reads[GetEstateResponse] = (json: JsValue) => {
+    val header = (json \ "responseHeader").asOpt[ResponseHeader]
 
-      header match {
-        case Some(parsedHeader) =>
-          (json \ "trustOrEstateDisplay").toOption match {
-            case None =>
-              JsSuccess(GetEstateStatusResponse(parsedHeader))
-            case Some(x) =>
-              x.validate[GetEstate] match {
-                case JsSuccess(_, _) =>
-                  JsSuccess(GetEstateProcessedResponse(x, parsedHeader))
-                case x : JsError =>
-                  JsSuccess(NotEnoughDataResponse(json, JsError.toJson(x)))
-              }
-          }
-        case None =>
-          JsSuccess(NotEnoughDataResponse(json, JsError.toJson(JsError("responseHeader not defined on response"))))
-      }
+    header match {
+      case Some(parsedHeader) =>
+        (json \ "trustOrEstateDisplay").toOption match {
+          case None =>
+            JsSuccess(GetEstateStatusResponse(parsedHeader))
+          case Some(x) =>
+            x.validate[GetEstate] match {
+              case JsSuccess(_, _) =>
+                JsSuccess(GetEstateProcessedResponse(x, parsedHeader))
+              case x: JsError =>
+                JsSuccess(NotEnoughDataResponse(json, JsError.toJson(x)))
+            }
+        }
+      case None =>
+        JsSuccess(NotEnoughDataResponse(json, JsError.toJson(JsError("responseHeader not defined on response"))))
     }
   }
 
