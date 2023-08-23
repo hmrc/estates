@@ -1,8 +1,9 @@
 import scoverage.ScoverageKeys
+import uk.gov.hmrc.DefaultBuildSettings
 
 val appName = "estates"
 
-lazy val IntegrationTest = config("it") extend(Test)
+lazy val IntegrationTest = config("it") extend Test
 
 val excludedPackages = Seq(
     "<empty>",
@@ -17,16 +18,10 @@ val excludedPackages = Seq(
     "views.html.*",
     "testOnly.*",
     "com.kenshoo.play.metrics*.*",
-    ".*repositories.*",
-    ".*LanguageSwitchController",
     ".*GuiceInjector",
     ".*models.Mode",
-    ".*filters.*",
-    ".*handlers.*",
-    ".*components.*",
     ".*FrontendAuditConnector.*",
     ".*javascript.*",
-    ".*ControllerConfiguration",
     ".*mapping.Constants.*"
 )
 
@@ -38,7 +33,7 @@ lazy val microservice = Project(appName, file("."))
       // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
       libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
       majorVersion := 0,
-      libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+      libraryDependencies ++= AppDependencies(),
       PlayKeys.playDefaultPort := 8832,
       ScoverageKeys.coverageExcludedFiles := excludedPackages.mkString(";"),
       ScoverageKeys.coverageMinimumStmtTotal := 80,
@@ -46,16 +41,16 @@ lazy val microservice = Project(appName, file("."))
       ScoverageKeys.coverageHighlighting := true,
       scalacOptions ++= Seq(
           "-Wconf:src=routes/.*:s",
-          "-Wconf:cat=unused-imports&src=views/.*:s"
+          "-feature"
       )
   )
   .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings))
 
-addCommandAlias("scalastyleAll", "all scalastyle test:scalastyle")
+addCommandAlias("scalastyleAll", "all scalastyle Test/scalastyle IntegrationTest/scalastyle")
 
-lazy val itSettings = Defaults.itSettings ++ Seq(
+lazy val itSettings = DefaultBuildSettings.integrationTestSettings() ++ Seq(
     unmanagedSourceDirectories   := Seq(
         baseDirectory.value / "it"
     ),
@@ -67,7 +62,7 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
     )
 )
 
-lazy val testSettings: Seq[Def.Setting[_]] = Seq(
+lazy val testSettings: Seq[Def.Setting[?]] = Seq(
     fork        := true,
     javaOptions ++= Seq(
         "-Dconfig.resource=test.application.conf",

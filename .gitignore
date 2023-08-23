@@ -1,4 +1,4 @@
-/.bsp/sbt.json
+.bsp
 .cache
 /.classpath
 db

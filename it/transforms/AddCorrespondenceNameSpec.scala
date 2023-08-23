@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 class AddCorrespondenceNameSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  val newEstateName = JsString("New Estate Name")
-  val newEstateName2 = JsString("New Estate Name 2")
+  val newEstateName: JsString = JsString("New Estate Name")
+  val newEstateName2: JsString = JsString("New Estate Name 2")
 
   "an add correspondence name call" must {
     "return added data in a subsequent 'GET' call" in {
