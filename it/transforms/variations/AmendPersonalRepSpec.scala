@@ -52,8 +52,7 @@ class AmendPersonalRepSpec extends AsyncFreeSpec with Matchers with MockitoSugar
     val application = new GuiceApplicationBuilder()
       .configure(Seq(
         "mongodb.uri" -> connectionString,
-        "auditing.enabled" -> false,
-        "mongo-async-driver.org.apache.pekko.log-dead-letters" -> 0
+        "auditing.enabled" -> false
       ): _*)
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(cc.parsers.default, Organisation)(ExecutionContext.global)),

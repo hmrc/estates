@@ -19,7 +19,7 @@ object AppDependencies {
     "org.scalatest"               %% "scalatest"                % "3.2.18",
     "org.jsoup"                   %  "jsoup"                    % "1.17.2",
     "org.mockito"                 %% "mockito-scala-scalatest"  % "1.17.31",
-  ).map(_ % "test, it")
+  ).map(_ % Test)
 
   def apply(): Seq[ModuleID] = compile ++ test
 
