@@ -46,7 +46,7 @@ trait TransformIntegrationTest extends ScalaFutures with MongoSupport {
         "mongodb.uri" -> connectionString,
         "metrics.enabled" -> false,
         "auditing.enabled" -> false,
-        "mongo-async-driver.akka.log-dead-letters" -> 0
+        "mongo-async-driver.org.apache.pekko.log-dead-letters" -> 0
       ): _*)
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(cc.parsers.default, Organisation))

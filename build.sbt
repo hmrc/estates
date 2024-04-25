@@ -17,7 +17,6 @@ val excludedPackages = Seq(
     ".*testOnlyDoNotUseInAppConf.*",
     "views.html.*",
     "testOnly.*",
-    "com.kenshoo.play.metrics*.*",
     ".*GuiceInjector",
     ".*models.Mode",
     ".*FrontendAuditConnector.*",
@@ -27,11 +26,8 @@ val excludedPackages = Seq(
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
-  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-      scalaVersion := "2.13.11",
-      // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
-      libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
+      scalaVersion := "2.13.13",
       majorVersion := 0,
       libraryDependencies ++= AppDependencies(),
       PlayKeys.playDefaultPort := 8832,

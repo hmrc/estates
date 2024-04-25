@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -304,7 +304,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),
         transforms,
-        false
+        applySubmissionDate = false
       )(IdentifierRequest(FakeRequest(), "id", AffinityGroup.Organisation))
 
       transformedJson.get mustEqual expectedJson
@@ -349,7 +349,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),
         transforms,
-        false
+        applySubmissionDate = false
       )(IdentifierRequest(FakeRequest(), "id", AffinityGroup.Organisation))
 
       transformedJson.get mustEqual expectedJson
@@ -392,7 +392,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),
         transforms,
-        false
+        applySubmissionDate = false
       )(IdentifierRequest(FakeRequest(), "id", AffinityGroup.Agent))
 
       transformedJson.get mustEqual expectedJson
