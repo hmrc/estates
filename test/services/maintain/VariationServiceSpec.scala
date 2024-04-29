@@ -176,7 +176,6 @@ class VariationServiceSpec extends BaseConnectorSpec {
       result mustBe InternalServerErrorException("There was a problem transforming data for submission to ETMP")
     }
 
-
     "return an InternalServerErrorException given DeclarationService.transform returns a JsError" in {
       setupForTest(VariationSuccessResponse("TVN34567890"), declarationServiceError = Some(JsError("oh no")))
 
