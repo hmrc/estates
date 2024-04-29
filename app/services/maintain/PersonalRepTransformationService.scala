@@ -19,14 +19,13 @@ package services.maintain
 import models.Success
 import models.variation.PersonalRepresentativeType
 import services.VariationsTransformationService
-import transformers.JsonOperations
 import transformers.variations.{AddAmendBusinessPersonalRepTransform, AddAmendIndividualPersonalRepTransform}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalRepTransformationService @Inject()(transformationService: VariationsTransformationService
-                                                     )(implicit ec: ExecutionContext) extends JsonOperations {
+                                                     )(implicit ec: ExecutionContext) {
 
   def addAmendPersonalRepTransformer(utr: String, internalId: String, newPersonalRep: PersonalRepresentativeType): Future[Success.type] = {
     transformationService.addNewTransform(utr, internalId, newPersonalRep match {

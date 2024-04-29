@@ -17,10 +17,10 @@
 package transformers.register
 
 import play.api.libs.json._
-import transformers.{DeltaTransform, JsonOperations}
+import transformers.DeltaTransform
 
 case class CorrespondenceNameTransform(newCorrespondenceName: JsString)
-  extends DeltaTransform with JsonOperations {
+  extends DeltaTransform {
 
   private val path: JsPath = __ \ Symbol("correspondence") \ Symbol("name")
 

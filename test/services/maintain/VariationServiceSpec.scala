@@ -23,9 +23,7 @@ import models.variation.{VariationFailureResponse, VariationResponse, VariationS
 import models.{DeclarationForApi, DeclarationName, ErrorResponse, NameType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => equalTo}
-import org.mockito.IdiomaticMockito.WithExpect.expect
 import play.api.libs.json._
-import play.api.test.Helpers.await
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ErrorResponses.{DuplicateSubmissionErrorResponse, EtmpDataStaleErrorResponse}

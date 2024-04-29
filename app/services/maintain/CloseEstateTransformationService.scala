@@ -18,7 +18,6 @@ package services.maintain
 
 import models.Success
 import services.VariationsTransformationService
-import transformers.JsonOperations
 import transformers.variations.AddCloseEstateTransform
 
 import java.time.LocalDate
@@ -26,7 +25,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CloseEstateTransformationService @Inject()(transformationService: VariationsTransformationService)
-                                                (implicit ec: ExecutionContext) extends JsonOperations {
+                                                (implicit ec: ExecutionContext) {
 
   def addCloseEstateTransformer(utr: String, internalId: String, closeDate: LocalDate): Future[Success.type] = {
     transformationService.addNewTransform(utr, internalId, AddCloseEstateTransform(closeDate)).map(_ => Success)

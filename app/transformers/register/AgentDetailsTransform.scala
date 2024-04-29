@@ -18,11 +18,10 @@ package transformers.register
 
 import models.AgentDetails
 import play.api.libs.json.{JsPath, _}
-import transformers.JsonOperations
 import utils.JsonOps._
 
 case class AgentDetailsTransform(agentDetails: AgentDetails)
-    extends SetValueAtPathDeltaTransform with JsonOperations {
+  extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("agentDetails")
 
