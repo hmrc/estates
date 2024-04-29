@@ -18,7 +18,7 @@ package services.maintain
 
 import connectors.BaseConnectorSpec
 import exceptions.InternalServerErrorException
-import models.getEstate.{GetEstateProcessedResponse, ResponseHeader}
+import models.getEstate.{GetEstateProcessedResponse, NotEnoughDataResponse, ResponseHeader}
 import models.variation.{VariationFailureResponse, VariationResponse, VariationSuccessResponse}
 import models.{DeclarationForApi, DeclarationName, ErrorResponse, NameType}
 import org.mockito.ArgumentCaptor
@@ -154,7 +154,19 @@ class VariationServiceSpec extends BaseConnectorSpec {
         assert(variationResponse ==
           VariationFailureResponse(ErrorResponse("ETMP_DATA_STALE", "ETMP returned a changed form bundle number for the estate.")))
       }
+    }
 
+    "d" in {
+
+      when(estateService.getEstateInfoFormBundleNo(utr))
+        .thenReturn(Future.successful(formBundleNo))
+
+      when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(NotEnoughDataResponse(Json.obj(), Json.obj())))
+
+      val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
+
+      result mustBe InternalServerErrorException("Submission could not proceed, Estate data was not in a processed state")
     }
 
     "x" in {

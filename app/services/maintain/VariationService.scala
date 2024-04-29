@@ -46,33 +46,41 @@ class VariationService @Inject()(
 
     getCachedEstateData(utr, internalId) flatMap {
       case cached: GetEstateProcessedResponse =>
-
-        val cachedEstate = cached.getEstate
-        val responseHeader: ResponseHeader = cached.responseHeader
-
-        transformationService.populatePersonalRepAddress(cachedEstate) match {
-          case JsSuccess(cachedWithAmendedPerRepAddress, _) =>
-            submitPopulatedEstate(utr, internalId, cachedWithAmendedPerRepAddress, declaration, responseHeader)
-          case e: JsError =>
-            auditService.auditVariationTransformationError(
-              utr,
-              internalId,
-              cached.getEstate,
-              JsString("Copy address transform"),
-              "Failed to populate personal rep address",
-              JsError.toJson(e)
-            )
-            logger.error(s"[submitDeclaration][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-              s" Failed to populate personal rep address ${JsError.toJson(e)}")
-            Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
-        }
+        populatePersonalRepAddress(utr, internalId, cached, declaration)
       case EtmpCacheDataStaleResponse =>
         Future.successful(VariationFailureResponse(EtmpDataStaleErrorResponse))
       // TODO: Do we need to be more specific?
       case _ =>
-        Future.successful(VariationFailureResponse(InternalServerErrorErrorResponse))
+        Future.successful(VariationFailureResponse(InternalServerErrorErrorResponse)) //TODO not sure this condition can be hit
     }
 
+  }
+
+  private def populatePersonalRepAddress(utr: String,
+                                         internalId: String,
+                                         cached: GetEstateProcessedResponse,
+                                         declaration: DeclarationForApi)(implicit hc: HeaderCarrier): Future[VariationResponse] = {
+    val cachedEstate = cached.getEstate
+    val responseHeader: ResponseHeader = cached.responseHeader
+
+    transformationService.populatePersonalRepAddress(cachedEstate) match {
+      case JsSuccess(cachedWithAmendedPerRepAddress, _) =>
+        submitPopulatedEstate(utr, internalId, cachedWithAmendedPerRepAddress, declaration, responseHeader)
+      case e: JsError =>
+        auditService.auditVariationTransformationError(
+          utr,
+          internalId,
+          cached.getEstate,
+          JsString("Copy address transform"),
+          "Failed to populate personal rep address",
+          JsError.toJson(e)
+        )
+
+        logger.error(s"[submitDeclaration][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+          s" Failed to populate personal rep address ${JsError.toJson(e)}")
+
+        Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
+    }
   }
 
   private def submitPopulatedEstate(utr: String,
@@ -98,6 +106,7 @@ class VariationService @Inject()(
       case e: JsError =>
         logger.error(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
           s" Failed to transform estate info ${JsError.toJson(e)}")
+
         Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
     }
   }
@@ -138,13 +147,16 @@ class VariationService @Inject()(
       case tpr: GetEstateProcessedResponse if tpr.responseHeader.formBundleNo == fbn =>
         logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
           s" returning GetEstateProcessedResponse")
+
         response.asInstanceOf[GetEstateProcessedResponse]
       case _: GetEstateProcessedResponse =>
         logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
           s" ETMP cached data in mongo has become stale, rejecting submission")
+
         EtmpCacheDataStaleResponse
       case _ =>
         logger.warn(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr] Estate was not in a processed state")
+
         throw InternalServerErrorException("Submission could not proceed, Estate data was not in a processed state")
     }
   }
