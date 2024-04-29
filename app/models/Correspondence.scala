@@ -27,5 +27,4 @@ case class Correspondence(abroadIndicator: Boolean,
 
 object Correspondence {
   implicit val correspondenceFormat : Format[Correspondence] = Json.format[Correspondence]
-
 }
