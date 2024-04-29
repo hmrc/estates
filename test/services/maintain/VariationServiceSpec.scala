@@ -135,7 +135,8 @@ class VariationServiceSpec extends BaseConnectorSpec {
       }
     }
 
-    "z" in {
+    "return an EtmpCacheDataStaleResponse given the form bundle number returned from estatesService.getEstateInfo" +
+      "and estatesService.getEstateInfoFormBundleNo do not match" in {
 
       when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
         .thenReturn(JsError(__, "no personal rep address"))
@@ -154,7 +155,7 @@ class VariationServiceSpec extends BaseConnectorSpec {
       }
     }
 
-    "d" in {
+    "throw an InternalServerErrorException given the call to estateService.getEstateInfo returns a NotEnoughDataResponse" in {
 
       when(estateService.getEstateInfoFormBundleNo(utr))
         .thenReturn(Future.successful(formBundleNo))
@@ -167,7 +168,7 @@ class VariationServiceSpec extends BaseConnectorSpec {
       result mustBe InternalServerErrorException("Submission could not proceed, Estate data was not in a processed state")
     }
 
-    "x" in {
+    "return an InternalServerErrorException given VariationsTransformationService.applyDeclarationTransformations returns JsError" in {
       setupForTest(VariationSuccessResponse("TVN34567890"), variationsTransformationServiceError = Some(JsError("blah")))
 
       val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
@@ -176,7 +177,7 @@ class VariationServiceSpec extends BaseConnectorSpec {
     }
 
 
-    "y" in {
+    "return an InternalServerErrorException given DeclarationService.transform returns a JsError" in {
       setupForTest(VariationSuccessResponse("TVN34567890"), declarationServiceError = Some(JsError("oh no")))
 
       val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
@@ -184,9 +185,21 @@ class VariationServiceSpec extends BaseConnectorSpec {
       verify(auditService, times(1)).auditVariationTransformationError(any, any, any, any, any, any)(any[HeaderCarrier])
       result mustBe InternalServerErrorException("There was a problem transforming data for submission to ETMP")
     }
-
   }
 
+  "Fail if the etmp data version doesn't match our submission data" in {
+
+    when(estateService.getEstateInfoFormBundleNo(utr))
+      .thenReturn(Future.successful("31415900000"))
+
+    when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
+      .thenReturn(Future.successful(GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))))
+
+    whenReady(service.submitDeclaration(utr, internalId, declaration)) { response =>
+      response mustBe VariationFailureResponse(EtmpDataStaleErrorResponse)
+      verify(estateService, times(0)).estateVariation(any())
+    }
+  }
 
   private def setupForTest(variationResponse: VariationResponse,
                            declarationServiceError: Option[JsError] = None,
@@ -215,17 +228,4 @@ class VariationServiceSpec extends BaseConnectorSpec {
     response
   }
 
-  "Fail if the etmp data version doesn't match our submission data" in {
-
-    when(estateService.getEstateInfoFormBundleNo(utr))
-      .thenReturn(Future.successful("31415900000"))
-
-    when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
-      .thenReturn(Future.successful(GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))))
-
-    whenReady(service.submitDeclaration(utr, internalId, declaration)) { response =>
-      response mustBe VariationFailureResponse(EtmpDataStaleErrorResponse)
-      verify(estateService, times(0)).estateVariation(any())
-    }
-  }
 }

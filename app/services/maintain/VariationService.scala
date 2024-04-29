@@ -142,13 +142,13 @@ class VariationService @Inject()(
   private def getCachedEstateData(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] = {
     for {
       response <- estatesService.getEstateInfo(utr, internalId)
-      fbn <- estatesService.getEstateInfoFormBundleNo(utr)
+      formBundleNumber <- estatesService.getEstateInfoFormBundleNo(utr)
     } yield response match {
-      case tpr: GetEstateProcessedResponse if tpr.responseHeader.formBundleNo == fbn =>
+      case response: GetEstateProcessedResponse if response.responseHeader.formBundleNo == formBundleNumber =>
         logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
           s" returning GetEstateProcessedResponse")
 
-        response.asInstanceOf[GetEstateProcessedResponse]
+        response
       case _: GetEstateProcessedResponse =>
         logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
           s" ETMP cached data in mongo has become stale, rejecting submission")
