@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.register
 
-import models.register.AmountOfTaxOwed
-import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
+import models.{YearReturnType, YearsReturns}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -27,25 +26,28 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AmountTaxOwedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class YearsReturnsSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  "an add AmountOfTaxOwed call" must {
+  private val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
+  private val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
+
+  "an add YearsReturns call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanTenThousand))
-          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
+          roundTripTest(createApplication, YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
+          roundTripTest(createApplication, YearsReturns(List(cyMinusOneReturn)))
     }
   }
 
-  private def roundTripTest(app: Application, amount: AmountOfTaxOwed) = {
-    val amendRequest = FakeRequest(POST, "/estates/amount-tax-owed")
-      .withBody(Json.toJson(amount))
+  private def roundTripTest(app: Application, yearsReturns: YearsReturns) = {
+    val amendRequest = FakeRequest(POST, "/estates/tax-liability")
+      .withBody(Json.toJson(yearsReturns))
       .withHeaders(CONTENT_TYPE -> "application/json")
 
     val amendResult = route(app, amendRequest).get
     status(amendResult) mustBe OK
 
-    val newResult = route(app, FakeRequest(GET, "/estates/amount-tax-owed")).get
+    val newResult = route(app, FakeRequest(GET, "/estates/tax-liability")).get
     status(newResult) mustBe OK
-    contentAsJson(newResult) mustBe Json.toJson(amount)
+    contentAsJson(newResult) mustBe Json.toJson(yearsReturns)
   }
 }

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package transforms.variations
+package uk.gov.hmrc.transformers.variations
 
 import connectors.EstatesConnector
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import models.getEstate.GetEstateResponse
+import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
+import models.{AddressType, IdentificationType, NameType}
 import org.mockito.ArgumentMatchers._
 import org.mockito.MockitoSugar
 import org.scalatest.freespec.AsyncFreeSpec
@@ -35,12 +37,12 @@ import utils.JsonUtils
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
-class ClearTransformationsSpec extends AsyncFreeSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class AmendPersonalRepSpec extends AsyncFreeSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   val getEstateResponseFromDES: GetEstateResponse = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
-  val noTransformsAppliedJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
+  val expectedInitialGetJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
 
-  "a clear transformations call" - {
+  "an amend personal rep call" - {
 
     val stubbedEstatesConnector = mock[EstatesConnector]
     when(stubbedEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(getEstateResponseFromDES))
@@ -58,31 +60,48 @@ class ClearTransformationsSpec extends AsyncFreeSpec with Matchers with MockitoS
       )
       .build()
 
-    "must return original data in a subsequent 'get' call" in {
+    "must return amended data in a subsequent 'get' call" in {
 
-      val utr: String = "5174384721"
+      val newPersonalRepIndInfo = EstatePerRepIndType(
+        lineNo = None,
+        bpMatchStatus = None,
+        name = NameType("newFirstName", Some("newMiddleName"), "newLastName"),
+        dateOfBirth = LocalDate.of(1965, 2, 10),
+        phoneNumber = "newPhone",
+        email = Some("newEmail"),
+        identification = IdentificationType(
+          Some("newNino"),
+          None,
+          Some(AddressType(
+            "1344 Army Road",
+            "Suite 111",
+            Some("Telford"),
+            Some("Shropshire"),
+            Some("TF1 5DR"),
+            "GB"
+          ))),
+        entityStart = LocalDate.of(2007, 4, 13),
+        entityEnd = None
+      )
 
-      val transformRequest = FakeRequest(POST, s"/estates/close/$utr")
-        .withBody(Json.toJson(LocalDate.parse("2000-01-01")))
+      val newPersonalRep = PersonalRepresentativeType(Some(newPersonalRepIndInfo), None)
+
+      val expectedGetAfterAmendLeadTrusteeJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-after-amend-personal-rep.json")
+
+      val result = route(application, FakeRequest(GET, "/estates/5174384721/transformed")).get
+      status(result) mustBe OK
+      contentAsJson(result) mustBe expectedInitialGetJson
+
+      val amendRequest = FakeRequest(POST, "/estates/personal-rep/add-or-amend/5174384721")
+        .withBody(Json.toJson(newPersonalRep))
         .withHeaders(CONTENT_TYPE -> "application/json")
 
-      val transformResult = route(application, transformRequest).get
-      status(transformResult) mustBe OK
+      val amendResult = route(application, amendRequest).get
+      status(amendResult) mustBe OK
 
-      val initialGetResult = route(application, FakeRequest(GET, s"/estates/$utr/transformed")).get
-      status(initialGetResult) mustBe OK
-
-      val clearTransformsRequest = FakeRequest(POST, s"/estates/$utr/clear-transformations")
-        .withHeaders(CONTENT_TYPE -> "application/json")
-
-      val clearTransformsResult = route(application, clearTransformsRequest).get
-      status(clearTransformsResult) mustBe OK
-
-      val subsequentGetResult = route(application, FakeRequest(GET, s"/estates/$utr/transformed")).get
-      status(subsequentGetResult) mustBe OK
-
-      contentAsJson(initialGetResult) mustNot be(noTransformsAppliedJson)
-      contentAsJson(subsequentGetResult) mustBe noTransformsAppliedJson
+      val newResult = route(application, FakeRequest(GET, "/estates/5174384721/transformed")).get
+      status(newResult) mustBe OK
+      contentAsJson(newResult) mustBe expectedGetAfterAmendLeadTrusteeJson
     }
   }
 }

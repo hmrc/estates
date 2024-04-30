@@ -14,39 +14,37 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.variations
 
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 import play.api.Application
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AddCorrespondenceNameSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+import java.time.LocalDate
 
-  val newEstateName: JsString = JsString("New Estate Name")
-  val newEstateName2: JsString = JsString("New Estate Name 2")
+class CloseEstateSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  "an add correspondence name call" must {
+  val closeDate1: LocalDate = LocalDate.parse("2000-01-01")
+  val closeDate2: LocalDate = LocalDate.parse("2009-12-31")
+
+  "an add close estate call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(createApplication, newEstateName)
-          roundTripTest(createApplication, newEstateName2)
+      roundTripTest(createApplication, closeDate1)
+      roundTripTest(createApplication, closeDate2)
     }
   }
 
-  private def roundTripTest(app: Application, name: JsString) = {
-    val amendRequest = FakeRequest(POST, "/estates/correspondence/name")
-      .withBody(Json.toJson(name))
+  private def roundTripTest(app: Application, date: LocalDate) = {
+    val closeRequest = FakeRequest(POST, "/estates/close/utr")
+      .withBody(Json.toJson(date))
       .withHeaders(CONTENT_TYPE -> "application/json")
 
-    val amendResult = route(app, amendRequest).get
-    status(amendResult) mustBe OK
-
-    val newResult = route(app, FakeRequest(GET, "/estates/correspondence/name")).get
-    status(newResult) mustBe OK
-    contentAsJson(newResult) mustBe Json.obj("name" -> name)
+    val closeResult = route(app, closeRequest).get
+    status(closeResult) mustBe OK
   }
 }

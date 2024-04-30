@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.register
 
 import models.{EstateWillType, IdentificationType, NameType}
 import org.mockito.MockitoSugar

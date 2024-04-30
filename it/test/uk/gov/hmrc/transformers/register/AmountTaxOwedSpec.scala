@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package transforms.variations
+package uk.gov.hmrc.transformers.register
 
+import models.register.AmountOfTaxOwed
+import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -25,26 +27,25 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-import java.time.LocalDate
+class AmountTaxOwedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-class CloseEstateSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
-
-  val closeDate1: LocalDate = LocalDate.parse("2000-01-01")
-  val closeDate2: LocalDate = LocalDate.parse("2009-12-31")
-
-  "an add close estate call" must {
+  "an add AmountOfTaxOwed call" must {
     "return added data in a subsequent 'GET' call" in {
-      roundTripTest(createApplication, closeDate1)
-      roundTripTest(createApplication, closeDate2)
+          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanTenThousand))
+          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
     }
   }
 
-  private def roundTripTest(app: Application, date: LocalDate) = {
-    val closeRequest = FakeRequest(POST, "/estates/close/utr")
-      .withBody(Json.toJson(date))
+  private def roundTripTest(app: Application, amount: AmountOfTaxOwed) = {
+    val amendRequest = FakeRequest(POST, "/estates/amount-tax-owed")
+      .withBody(Json.toJson(amount))
       .withHeaders(CONTENT_TYPE -> "application/json")
 
-    val closeResult = route(app, closeRequest).get
-    status(closeResult) mustBe OK
+    val amendResult = route(app, amendRequest).get
+    status(amendResult) mustBe OK
+
+    val newResult = route(app, FakeRequest(GET, "/estates/amount-tax-owed")).get
+    status(newResult) mustBe OK
+    contentAsJson(newResult) mustBe Json.toJson(amount)
   }
 }
