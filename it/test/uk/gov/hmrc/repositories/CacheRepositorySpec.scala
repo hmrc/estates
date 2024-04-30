@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 package uk.gov.hmrc.repositories
 
 import org.scalatest._
-import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.CacheRepository
 
-class CacheRepositorySpec extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+class CacheRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
   with BeforeAndAfterEach {
 
-  private val repository = createApplication.injector.instanceOf[CacheRepository]
+  private val repository = appBuilder.build().injector.instanceOf[CacheRepository]
 
   private val data = Json.obj("testField" -> "testValue")
   private val internalId = "Int-328969d0-96ba-4559-557e-074d0597107e"
@@ -37,7 +37,7 @@ class CacheRepositorySpec extends AsyncFreeSpec with Matchers with TransformInte
     await(repository.resetCache(utr, internalId))
   }
 
-  "a cache repository" - {
+  "a cache repository" should {
 
     "must be able to store and retrieve a payload" in {
 

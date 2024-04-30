@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
 package uk.gov.hmrc.repositories
 
 import org.scalatest._
-import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.TransformationRepository
 import transformers.ComposedDeltaTransform
 
-class TransformRepositorySpec  extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+class TransformRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
   with BeforeAndAfterEach {
 
-  private val repository = createApplication.injector.instanceOf[TransformationRepository]
+  private val repository = appBuilder.build().injector.instanceOf[TransformationRepository]
 
   private val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
   private val data = ComposedDeltaTransform(Seq())
@@ -36,7 +36,7 @@ class TransformRepositorySpec  extends AsyncFreeSpec with Matchers with Transfor
     await(repository.resetCache(internalId))
   }
 
-  "a transform repository" - {
+  "a transform repository" should {
 
     "must be able to store and retrieve a payload" in {
 

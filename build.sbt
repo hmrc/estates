@@ -61,18 +61,6 @@ lazy val it =
   project
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
-    .settings(DefaultBuildSettings.itSettings() ++ itTestSettings)
-
-lazy val itTestSettings = Seq(
-  unmanagedSourceDirectories := Seq(
-    baseDirectory.value / "it"
-  ),
-  parallelExecution := false,
-  fork := true,
-  javaOptions ++= Seq(
-    "-Dconfig.resource=test.application.conf",
-    "-Dlogger.resource=logback-test.xml"
-  )
-)
+    .settings(DefaultBuildSettings.itSettings())
 
 addCommandAlias("scalastyleAll", "all scalastyle Test/scalastyle it/Test/scalastyle")

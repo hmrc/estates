@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ package uk.gov.hmrc.transformers.register
 import models.{AddressType, AgentDetails}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AgentDetailsSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class AgentDetailsSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   private val agentDetails = AgentDetails(
     arn = "SARN1234567",
@@ -49,10 +49,10 @@ class AgentDetailsSpec extends AsyncWordSpec with Matchers with MockitoSugar wit
             .withBody(Json.toJson(agentDetails))
             .withHeaders(CONTENT_TYPE -> "application/json")
 
-          val amendResult = route(createApplication, amendRequest).get
+          val amendResult = route(appBuilder.build(), amendRequest).get
           status(amendResult) mustBe OK
 
-          val newResult = route(createApplication, FakeRequest(GET, "/estates/agent-details")).get
+          val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/agent-details")).get
           status(newResult) mustBe OK
           contentAsJson(newResult) mustBe Json.toJson(agentDetails)
     }

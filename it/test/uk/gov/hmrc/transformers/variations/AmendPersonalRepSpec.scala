@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,35 @@
 package uk.gov.hmrc.transformers.variations
 
 import connectors.EstatesConnector
-import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import models.getEstate.GetEstateResponse
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{AddressType, IdentificationType, NameType}
 import org.mockito.ArgumentMatchers._
 import org.mockito.MockitoSugar
-import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 import utils.JsonUtils
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class AmendPersonalRepSpec extends AsyncFreeSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   val getEstateResponseFromDES: GetEstateResponse = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
   val expectedInitialGetJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
 
-  "an amend personal rep call" - {
+  "an amend personal rep call" should {
 
     val stubbedEstatesConnector = mock[EstatesConnector]
     when(stubbedEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(getEstateResponseFromDES))
 
-    val cc = stubControllerComponents()
-
-    val application = new GuiceApplicationBuilder()
-      .configure(Seq(
-        "mongodb.uri" -> connectionString,
-        "auditing.enabled" -> false
-      ): _*)
+    val application = appBuilder
       .overrides(
-        bind[IdentifierAction].toInstance(new FakeIdentifierAction(cc.parsers.default, Organisation)(ExecutionContext.global)),
         bind[EstatesConnector].toInstance(stubbedEstatesConnector)
       )
       .build()

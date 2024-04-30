@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@ import models.register.AmountOfTaxOwed
 import models.register.TaxAmount.{AmountMoreThanFiveHundredThousand, AmountMoreThanTenThousand}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AmountTaxOwedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class AmountTaxOwedSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   "an add AmountOfTaxOwed call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanTenThousand))
-          roundTripTest(createApplication, AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
+          roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanTenThousand))
+          roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
     }
   }
 
