@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.register
 
 import models.{AddressType, EstatePerRepIndType, IdentificationType, NameType}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -27,7 +27,7 @@ import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 import java.time.LocalDate
 
-class AmendPersonalRepIndSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class AmendPersonalRepIndSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   "an amend personal rep call" must {
     "return amended data in a subsequent 'get' call" in {
@@ -54,10 +54,10 @@ class AmendPersonalRepIndSpec extends AsyncWordSpec with Matchers with MockitoSu
             .withBody(Json.toJson(newPersonalRep))
             .withHeaders(CONTENT_TYPE -> "application/json")
 
-          val amendResult = route(createApplication, amendRequest).get
+          val amendResult = route(appBuilder.build(), amendRequest).get
           status(amendResult) mustBe OK
 
-          val newResult = route(createApplication, FakeRequest(GET, "/estates/personal-rep/individual")).get
+          val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/personal-rep/individual")).get
           status(newResult) mustBe OK
           contentAsJson(newResult) mustBe Json.toJson(newPersonalRep)
     }

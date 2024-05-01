@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,40 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.register
 
+import models.{YearReturnType, YearsReturns}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.Application
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.repositories.TransformIntegrationTest
 
-class AddCorrespondenceNameSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class YearsReturnsSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  val newEstateName: JsString = JsString("New Estate Name")
-  val newEstateName2: JsString = JsString("New Estate Name 2")
+  private val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
+  private val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
 
-  "an add correspondence name call" must {
+  "an add YearsReturns call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(createApplication, newEstateName)
-          roundTripTest(createApplication, newEstateName2)
+          roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
+          roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn)))
     }
   }
 
-  private def roundTripTest(app: Application, name: JsString) = {
-    val amendRequest = FakeRequest(POST, "/estates/correspondence/name")
-      .withBody(Json.toJson(name))
+  private def roundTripTest(app: Application, yearsReturns: YearsReturns) = {
+    val amendRequest = FakeRequest(POST, "/estates/tax-liability")
+      .withBody(Json.toJson(yearsReturns))
       .withHeaders(CONTENT_TYPE -> "application/json")
 
     val amendResult = route(app, amendRequest).get
     status(amendResult) mustBe OK
 
-    val newResult = route(app, FakeRequest(GET, "/estates/correspondence/name")).get
+    val newResult = route(app, FakeRequest(GET, "/estates/tax-liability")).get
     status(newResult) mustBe OK
-    contentAsJson(newResult) mustBe Json.obj("name" -> name)
+    contentAsJson(newResult) mustBe Json.toJson(yearsReturns)
   }
 }

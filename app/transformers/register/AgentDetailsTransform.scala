@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ package transformers.register
 
 import models.AgentDetails
 import play.api.libs.json.{JsPath, _}
-import transformers.JsonOperations
 import utils.JsonOps._
 
 case class AgentDetailsTransform(agentDetails: AgentDetails)
-    extends SetValueAtPathDeltaTransform with JsonOperations {
+  extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("agentDetails")
 

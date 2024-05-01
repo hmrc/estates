@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package uk.gov.hmrc.repositories
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.stubControllerComponents
@@ -40,17 +39,16 @@ trait TransformIntegrationTest extends ScalaFutures with MongoSupport {
 
   private val cc = stubControllerComponents()
 
-  def createApplication : Application = {
+  def appBuilder: GuiceApplicationBuilder = {
     new GuiceApplicationBuilder()
       .configure(Seq(
         "mongodb.uri" -> connectionString,
         "metrics.enabled" -> false,
-        "auditing.enabled" -> false,
-        "mongo-async-driver.akka.log-dead-letters" -> 0
+        "auditing.enabled" -> false
       ): _*)
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(cc.parsers.default, Organisation))
-      ).build()
+      )
   }
 
 }

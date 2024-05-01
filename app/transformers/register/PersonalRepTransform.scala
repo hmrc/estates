@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,10 @@ package transformers.register
 import models.JsonWithoutNulls._
 import models.{AddressType, EstatePerRepIndType, EstatePerRepOrgType}
 import play.api.libs.json.{JsPath, _}
-import transformers.JsonOperations
 import utils.JsonOps._
 
-case class PersonalRepTransform(
-                                     newPersonalIndRep: Option[EstatePerRepIndType],
-                                     newPersonalOrgRep: Option[EstatePerRepOrgType]
-                                   )
-  extends SetValueAtPathDeltaTransform with JsonOperations {
+case class PersonalRepTransform(newPersonalIndRep: Option[EstatePerRepIndType],
+                                newPersonalOrgRep: Option[EstatePerRepOrgType]) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative")
 
@@ -57,34 +53,34 @@ case class PersonalRepTransform(
     }
 
   override def applyDeclarationTransform(input: JsValue): JsResult[JsValue] = this match {
-      case PersonalRepTransform(Some(newPersonalIndRep), None) =>
-        for {
-          inputWithCorrespondence <- transformCorrespondence(input, newPersonalIndRep.identification.address, newPersonalIndRep.phoneNumber)
-          inputWithAddressCorrected <- {
-            if (input.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("nino")).json.pick).isSuccess) {
-              inputWithCorrespondence.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("address")).json.prune)
-            } else {
-              JsSuccess(inputWithCorrespondence)
-            }
+    case PersonalRepTransform(Some(newPersonalIndRep), None) =>
+      for {
+        inputWithCorrespondence <- transformCorrespondence(input, newPersonalIndRep.identification.address, newPersonalIndRep.phoneNumber)
+        inputWithAddressCorrected <- {
+          if (input.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("nino")).json.pick).isSuccess) {
+            inputWithCorrespondence.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("address")).json.prune)
+          } else {
+            JsSuccess(inputWithCorrespondence)
           }
-        } yield removeIsPassportField(inputWithAddressCorrected).applyRules
+        }
+      } yield removeIsPassportField(inputWithAddressCorrected).applyRules
 
-      case PersonalRepTransform(None, Some(newPersonalOrgRep)) =>
-        for {
-          inputWithCorrespondence <- transformCorrespondence(input, newPersonalOrgRep.identification.address, newPersonalOrgRep.phoneNumber)
-          inputWithAddressCorrected <- {
+    case PersonalRepTransform(None, Some(newPersonalOrgRep)) =>
+      for {
+        inputWithCorrespondence <- transformCorrespondence(input, newPersonalOrgRep.identification.address, newPersonalOrgRep.phoneNumber)
+        inputWithAddressCorrected <- {
 
-            if (input.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("utr")).json.pick).isSuccess) {
-              inputWithCorrespondence.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("address")).json.prune)
-            } else {
-              JsSuccess(inputWithCorrespondence)
-            }
+          if (input.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("utr")).json.pick).isSuccess) {
+            inputWithCorrespondence.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("address")).json.prune)
+          } else {
+            JsSuccess(inputWithCorrespondence)
           }
-        } yield inputWithAddressCorrected.applyRules
+        }
+      } yield inputWithAddressCorrected.applyRules
 
-      case _ =>
-        super.applyDeclarationTransform(input)
-    }
+    case _ =>
+      super.applyDeclarationTransform(input)
+  }
 
   private def removeIsPassportField(original: JsValue): JsValue = {
     val isPassportPath = path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("passport") \ Symbol("isPassport")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val service = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
-          name =  NameType("First", None, "Last"),
-          dateOfBirth = LocalDate.of(2000,1,1),
+          name = NameType("First", None, "Last"),
+          dateOfBirth = LocalDate.of(2000, 1, 1),
           identification = IdentificationType(None, None, None),
           phoneNumber = "07987654",
           email = None
@@ -74,8 +74,8 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val service = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
-          name =  NameType("First", None, "Last"),
-          dateOfBirth = LocalDate.of(2000,1,1),
+          name = NameType("First", None, "Last"),
+          dateOfBirth = LocalDate.of(2000, 1, 1),
           identification = IdentificationType(None, None, None),
           phoneNumber = "07987654",
           email = None
@@ -110,8 +110,8 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         when(repository.get(any())).thenReturn(Future.failed(new RuntimeException))
 
         val personalRep = EstatePerRepIndType(
-          name =  NameType("First", None, "Last"),
-          dateOfBirth = LocalDate.of(2000,1,1),
+          name = NameType("First", None, "Last"),
+          dateOfBirth = LocalDate.of(2000, 1, 1),
           identification = IdentificationType(None, None, None),
           phoneNumber = "07987654",
           email = None
@@ -159,14 +159,17 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val service = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
-          name =  NameType("First", None, "Last"),
-          dateOfBirth = LocalDate.of(2000,1,1),
+          name = NameType("First", None, "Last"),
+          dateOfBirth = LocalDate.of(2000, 1, 1),
           identification = IdentificationType(None, None, None),
           phoneNumber = "07987654",
           email = None
         )
 
-        val existingTransforms = Seq(PersonalRepTransform(Some(personalRep), None), YearsReturnsTransform(YearsReturns(List(YearReturnType("19", true)))))
+        val existingTransforms = Seq(
+          PersonalRepTransform(Some(personalRep), None),
+          YearsReturnsTransform(YearsReturns(List(YearReturnType("19", taxConsequence = true))))
+        )
 
         when(repository.get(any())).thenReturn(Future.successful(Some(ComposedDeltaTransform(existingTransforms))))
         when(repository.set(any(), any())).thenReturn(Future.successful(true))
@@ -188,7 +191,10 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val repository = mock[TransformationRepositoryImpl]
         val service = new TransformationService(repository)
 
-        val existingTransforms = Seq(YearsReturnsTransform(YearsReturns(List(YearReturnType("19", false)))), YearsReturnsTransform(YearsReturns(List(YearReturnType("19", true)))))
+        val existingTransforms = Seq(
+          YearsReturnsTransform(YearsReturns(List(YearReturnType("19", taxConsequence = false)))),
+          YearsReturnsTransform(YearsReturns(List(YearReturnType("19", taxConsequence = true))))
+        )
 
         when(repository.get(any())).thenReturn(Future.successful(Some(ComposedDeltaTransform(existingTransforms))))
         when(repository.set(any(), any())).thenReturn(Future.successful(true))

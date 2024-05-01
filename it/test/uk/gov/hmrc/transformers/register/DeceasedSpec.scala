@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package transforms
+package uk.gov.hmrc.transformers.register
 
 import models.{EstateWillType, IdentificationType, NameType}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.Application
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
@@ -28,7 +28,7 @@ import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 import java.time.LocalDate
 
-class DeceasedSpec extends AsyncWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
+class DeceasedSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
   private val originalDeceased = EstateWillType(
     NameType("First", None, "Last"),
@@ -54,8 +54,8 @@ class DeceasedSpec extends AsyncWordSpec with Matchers with MockitoSugar with Tr
 
   "an add Deceased call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(createApplication, originalDeceased)
-          roundTripTest(createApplication, newDeceased)
+          roundTripTest(appBuilder.build(), originalDeceased)
+          roundTripTest(appBuilder.build(), newDeceased)
     }
   }
 

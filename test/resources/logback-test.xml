@@ -5,16 +5,19 @@
         </encoder>
     </appender>
 
-    <logger name="transformers" level="DEBUG"/>
+    <!-- hide metrics disabled warnings in test console output -->
+    <logger name="uk.gov.hmrc.play.bootstrap.audit.DisabledDatastreamMetricsProvider" level="OFF"/>
+
+    <logger name="transformers" level="WARN"/>
     <logger name="controllers" level="WARN"/>
     <logger name="services" level="WARN"/>
     <logger name="models" level="WARN"/>
     <logger name="repositories" level="WARN"/>
     <logger name="connector" level="WARN"/>
-    <logger name="transformers" level="DEBUG"/>
+    <logger name="transformers" level="WARN"/>
     <logger name="utils" level="WARN"/>
 
-    <root level="DEBUG">
+    <root level="WARN">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

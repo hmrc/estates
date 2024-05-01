@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
 
         val controller = application.injector.instanceOf[GetEstateController]
 
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         application.stop()
 
@@ -91,7 +91,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
 
         val controller = application.injector.instanceOf[GetEstateController]
 
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         application.stop()
 
@@ -115,7 +115,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
 
         val controller = application.injector.instanceOf[GetEstateController]
 
-        val result = controller.get(invalidUTR, false).apply(FakeRequest(GET, s"/estates/$invalidUTR"))
+        val result = controller.get(invalidUTR, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$invalidUTR"))
 
         whenReady(result) { _ =>
           status(result) mustBe BAD_REQUEST
@@ -137,7 +137,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
         val controller = application.injector.instanceOf[GetEstateController]
 
         val utr = "1234567890"
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         whenReady(result) { _ =>
           verify(mockAuditService).auditGetVariationFailed(
@@ -159,7 +159,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
         val controller = application.injector.instanceOf[GetEstateController]
 
         val utr = "1234567890"
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         whenReady(result) { _ =>
           verify(mockAuditService).auditGetVariationFailed(
@@ -181,7 +181,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
         val controller = application.injector.instanceOf[GetEstateController]
 
         val utr = "1234567890"
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         whenReady(result) { _ =>
           verify(mockAuditService).auditGetVariationFailed(
@@ -203,7 +203,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
         val controller = application.injector.instanceOf[GetEstateController]
 
         val utr = "1234567890"
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         whenReady(result) { _ =>
           verify(mockAuditService).auditGetVariationFailed(
@@ -227,7 +227,7 @@ class GetEstateControllerSpec extends BaseSpec with BeforeAndAfter with JsonRequ
         val controller = application.injector.instanceOf[GetEstateController]
 
         val utr = "1234567890"
-        val result = controller.get(utr, false).apply(FakeRequest(GET, s"/estates/$utr"))
+        val result = controller.get(utr, applyTransforms = false).apply(FakeRequest(GET, s"/estates/$utr"))
 
         whenReady(result) { _ =>
           verify(mockAuditService).auditGetVariationFailed(

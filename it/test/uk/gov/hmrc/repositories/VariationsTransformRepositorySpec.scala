@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package uk.gov.hmrc.repositories
 import models.variation.EstatePerRepIndType
 import models.{IdentificationType, NameType}
 import org.scalatest._
-import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.VariationsTransformationRepository
 import transformers.ComposedDeltaTransform
@@ -28,10 +28,10 @@ import transformers.variations.AddAmendIndividualPersonalRepTransform
 
 import java.time.LocalDate
 
-class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers with TransformIntegrationTest
+class VariationsTransformRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
   with BeforeAndAfterEach {
 
-  private val repository = createApplication.injector.instanceOf[VariationsTransformationRepository]
+  private val repository = appBuilder.build().injector.instanceOf[VariationsTransformationRepository]
 
   private val internalId = "Int-074d0597107e-557e-4559-96ba-328969d0"
   private val utr = "UTRUTRUTR"
@@ -59,7 +59,7 @@ class VariationsTransformRepositorySpec extends AsyncFreeSpec with Matchers with
     )
   )
 
-  "a variations repository" - {
+  "a variations repository" should {
 
     "must be able to store and retrieve a payload" in {
 

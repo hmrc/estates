@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ class DeclarationTransform {
   }
 
   private val correspondenceAddressPath: JsPath = __ \ Symbol("correspondence") \ Symbol("address")
-  private val agentAddressPath: JsPath          = __ \ Symbol("agentDetails") \ Symbol("agentAddress")
+  private val agentAddressPath: JsPath = __ \ Symbol("agentDetails") \ Symbol("agentAddress")
 
   private def addDeclaration(actor: AffinityGroup, name: NameType, responseJson: JsValue): JsResult[JsObject] = {
     for {
       addressJson <- if (actor == Agent) {
-        takeAddressFromPath(agentAddressPath ,responseJson)
+        takeAddressFromPath(agentAddressPath, responseJson)
       } else {
         takeAddressFromPath(correspondenceAddressPath, responseJson)
       }
@@ -47,7 +47,7 @@ class DeclarationTransform {
     responseJson.transform(path.json.pick)
   }
 
-  private def putNewValue(path: JsPath, value: JsValue ): Reads[JsObject] =
+  private def putNewValue(path: JsPath, value: JsValue): Reads[JsObject] =
     __.json.update(path.json.put(value))
 
 }
