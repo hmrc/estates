@@ -24,14 +24,15 @@ import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import services.Estates5MLDService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import utils.Constants._
 
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5MLDService: Estates5MLDService)(implicit ec: ExecutionContext) extends Logging {
+class EstatesConnector @Inject()(http: HttpClientV2, config: AppConfig, estates5MLDService: Estates5MLDService)(implicit ec: ExecutionContext) extends Logging {
 
   private lazy val estatesServiceUrl : String = s"${config.registrationBaseUrl}/estates"
 
@@ -70,8 +71,10 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
     ))
 
     logger.info(s"[checkExistingEstate] matching estate for correlationId: $correlationId")
-
-    http.POST[JsValue, ExistingCheckResponse](matchEstatesEndpoint, Json.toJson(existingEstateCheckRequest))
+    val url = (matchEstatesEndpoint, Json.toJson(existingEstateCheckRequest))
+    http
+      .post(url"$url")
+      .execute[ExistingCheckResponse]
   }
 
   def registerEstate(registration: EstateRegistration): Future[RegistrationResponse] = {
@@ -85,7 +88,11 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[registerEstate] registering estate for correlationId: $correlationId")
 
-    http.POST[JsValue, RegistrationResponse](estateRegistrationEndpoint, Json.toJson(registration)(EstateRegistration.estateRegistrationWriteToDes))
+    val url = (estateRegistrationEndpoint, Json.toJson(registration))
+    http
+      .post(url"$url")
+      .withBody(EstateRegistration.estateRegistrationWriteToDes)
+      .execute[JsValue, RegistrationResponse]
   }
 
   def getEstateInfo(utr: String): Future[GetEstateResponse] = {
@@ -99,7 +106,12 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: $correlationId")
 
-    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), ec)
+    val url = (create5MLDEstateEndpointForUtr(utr))
+    http
+      .get(url"$url")
+      .withBody(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), ec)
+      .execute[GetEstateResponse]
+//    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), ec)
   }
 
   def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {
@@ -112,7 +124,11 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
     ))
 
     logger.info(s"[estateVariation] submitting estate variation for correlationId: $correlationId")
+    val url = (estateVariationsEndpoint, Json.toJson(estateVariations))
 
-    http.POST[JsValue, VariationResponse](estateVariationsEndpoint, Json.toJson(estateVariations))
+    http.get()
+      .post(url"$url")
+      .withBody(estateVariationsEndpoint, Json.toJson(estateVariations))
+      .execute[JsValue, VariationResponse]
   }
 }

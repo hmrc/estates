@@ -20,14 +20,15 @@ import config.AppConfig
 import models._
 import play.api.Logging
 import play.api.http.HeaderNames
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, StringContextOps}
 import utils.Constants._
 
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionConnector @Inject()(http: HttpClient, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
+class SubscriptionConnector @Inject()(http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
 
   private lazy val subscriptionUrl : String = s"${config.subscriptionBaseUrl}/trusts"
 
@@ -49,6 +50,7 @@ class SubscriptionConnector @Inject()(http: HttpClient, config: AppConfig)(impli
     implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = subscriptionHeaders(correlationId))
 
     val subscriptionIdEndpointUrl = s"$subscriptionUrl/trn/$trn/subscription"
-    http.GET[SubscriptionIdResponse](subscriptionIdEndpointUrl)
+    http.get(url"$subscriptionIdEndpointUrl")
+      .execute[SubscriptionIdResponse]
   }
 }
