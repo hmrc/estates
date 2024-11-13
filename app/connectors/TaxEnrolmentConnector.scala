@@ -19,9 +19,9 @@ package connectors
 import com.google.inject.ImplementedBy
 import config.AppConfig
 import models.{TaxEnrolmentSubscriberResponse, TaxEnrolmentSubscription}
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import utils.Constants._
 
 import javax.inject.Inject
@@ -43,11 +43,14 @@ class TaxEnrolmentConnectorImpl @Inject()(http: HttpClientV2, config: AppConfig)
       callback = config.taxEnrolmentsPayloadBodyCallback,
       etmpId = subscriptionId)
 
-    val url = (taxEnrolmentsEndpoint, Json.toJson(taxEnrolmentSubscriptionRequest))
+    val url = taxEnrolmentsEndpoint
+    val jsonBody = Json.toJson(taxEnrolmentSubscriptionRequest)
 
-    val response = http.put(url"$url")
-      .setHeader(JsValue, TaxEnrolmentSubscriberResponse)
-      .execute(Writes.jsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, taxEnolmentHeaders.headers _, ec)
+    val response = http
+      .put(url"$url")
+      .withBody(jsonBody)
+      .setHeader(taxEnolmentHeaders.headers: _*)
+      .execute(Writes.jsValueWrites, TaxEnrolmentSubscriberResponse.httpReads, ec)
       response
 
 //    val response = http.PUT[JsValue, TaxEnrolmentSubscriberResponse](taxEnrolmentsEndpoint, Json.toJson(taxEnrolmentSubscriptionRequest))
