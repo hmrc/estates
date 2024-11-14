@@ -71,9 +71,10 @@ class EstatesConnector @Inject()(http: HttpClientV2, config: AppConfig, estates5
     ))
 
     logger.info(s"[checkExistingEstate] matching estate for correlationId: $correlationId")
-    val url = (matchEstatesEndpoint, Json.toJson(existingEstateCheckRequest))
+    val url = matchEstatesEndpoint
     http
       .post(url"$url")
+      .withBody(Json.toJson(existingEstateCheckRequest))
       .execute[ExistingCheckResponse]
   }
 
