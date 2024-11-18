@@ -21,7 +21,7 @@ import models._
 import play.api.Logging
 import play.api.http.HeaderNames
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import utils.Constants._
 
 import java.util.UUID
