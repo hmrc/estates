@@ -29,7 +29,7 @@ class EstatesBaseController(cc: ControllerComponents) extends BackendController(
 
   protected def noMatchResponse = """{"match": false}"""
 
-  override protected def withJsonBody[T](f: T => Future[Result])
+  protected def withJsonBody[T](f: T => Future[Result])
                                         (implicit request: Request[JsValue],
                                          m: Manifest[T],
                                          reads: Reads[T]) : Future[Result] =

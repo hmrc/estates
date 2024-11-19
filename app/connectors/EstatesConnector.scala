@@ -24,40 +24,41 @@ import play.api.Logging
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import services.Estates5MLDService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import utils.Constants._
 
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5MLDService: Estates5MLDService)(implicit ec: ExecutionContext) extends Logging {
+class EstatesConnector @Inject()(http: HttpClientV2, config: AppConfig, estates5MLDService: Estates5MLDService)(implicit ec: ExecutionContext) extends Logging {
 
-  private lazy val estatesServiceUrl : String = s"${config.registrationBaseUrl}/estates"
+  private lazy val estatesServiceUrl: String = s"${config.registrationBaseUrl}/estates"
 
-  private lazy val matchEstatesEndpoint : String = s"$estatesServiceUrl/match"
+  private lazy val matchEstatesEndpoint: String = s"$estatesServiceUrl/match"
 
-  private lazy val estateRegistrationEndpoint : String = s"$estatesServiceUrl/registration"
+  private lazy val estateRegistrationEndpoint: String = s"$estatesServiceUrl/registration"
 
   // When reading estates from DES, it's the same endpoint as for trusts.
   // So this must remain "trusts" even though we're reading an estate.
-  private lazy val getEstateUrl: String =  s"${config.getEstateBaseUrl}/trusts"
+  private lazy val getEstateUrl: String = s"${config.getEstateBaseUrl}/trusts"
 
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
-  private lazy val estateVariationsEndpoint : String = s"${config.varyEstateBaseUrl}/estates/variation"
+  private lazy val estateVariationsEndpoint: String = s"${config.varyEstateBaseUrl}/estates/variation"
 
   private val ENVIRONMENT_HEADER = "Environment"
   private val CORRELATION_HEADER = "CorrelationId"
 
-  private def headers(correlationId : String,
+  private def headers(correlationId: String,
                       token: String,
-                      environment: String) : Seq[(String, String)] = Seq(
-      HeaderNames.AUTHORIZATION -> s"Bearer $token",
-      CONTENT_TYPE -> CONTENT_TYPE_JSON,
-      ENVIRONMENT_HEADER -> environment,
-      CORRELATION_HEADER -> correlationId
-    )
+                      environment: String): Seq[(String, String)] = Seq(
+    HeaderNames.AUTHORIZATION -> s"Bearer $token",
+    CONTENT_TYPE -> CONTENT_TYPE_JSON,
+    ENVIRONMENT_HEADER -> environment,
+    CORRELATION_HEADER -> correlationId
+  )
 
   def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest)
   : Future[ExistingCheckResponse] = {
@@ -70,8 +71,11 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
     ))
 
     logger.info(s"[checkExistingEstate] matching estate for correlationId: $correlationId")
-
-    http.POST[JsValue, ExistingCheckResponse](matchEstatesEndpoint, Json.toJson(existingEstateCheckRequest))
+    val url = matchEstatesEndpoint
+    http
+      .post(url"$url")
+      .withBody(Json.toJson(existingEstateCheckRequest))
+      .execute[ExistingCheckResponse]
   }
 
   def registerEstate(registration: EstateRegistration): Future[RegistrationResponse] = {
@@ -85,13 +89,17 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[registerEstate] registering estate for correlationId: $correlationId")
 
-    http.POST[JsValue, RegistrationResponse](estateRegistrationEndpoint, Json.toJson(registration)(EstateRegistration.estateRegistrationWriteToDes))
+    val url = (estateRegistrationEndpoint)
+    http
+      .post(url"$url")
+      .withBody(Json.toJson(registration)(EstateRegistration.estateRegistrationWriteToDes))
+      .execute[RegistrationResponse]
   }
 
   def getEstateInfo(utr: String): Future[GetEstateResponse] = {
     val correlationId = UUID.randomUUID().toString
 
-    implicit val hc : HeaderCarrier = HeaderCarrier(extraHeaders = headers(
+    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = headers(
       correlationId = correlationId,
       token = config.playbackToken,
       environment = config.playbackEnvironment
@@ -99,20 +107,27 @@ class EstatesConnector @Inject()(http: HttpClient, config: AppConfig, estates5ML
 
     logger.info(s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: $correlationId")
 
-    http.GET[GetEstateResponse](create5MLDEstateEndpointForUtr(utr))(GetEstateResponse.httpReads(utr), implicitly[HeaderCarrier](hc), ec)
+    val url = (create5MLDEstateEndpointForUtr(utr))
+    http
+      .get(url"$url")
+      .execute(GetEstateResponse.httpReads(utr), ec)
   }
 
-  def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {
-    val correlationId = UUID.randomUUID().toString
+    def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {
+      val correlationId = UUID.randomUUID().toString
 
-    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = headers(
-      correlationId = correlationId,
-      token = config.variationToken,
-      environment = config.variationEnvironment
-    ))
+      implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = headers(
+        correlationId = correlationId,
+        token = config.variationToken,
+        environment = config.variationEnvironment
+      ))
 
-    logger.info(s"[estateVariation] submitting estate variation for correlationId: $correlationId")
+      logger.info(s"[estateVariation] submitting estate variation for correlationId: $correlationId")
+      val url = (estateVariationsEndpoint)
 
-    http.POST[JsValue, VariationResponse](estateVariationsEndpoint, Json.toJson(estateVariations))
-  }
+      http
+        .post(url"$url")
+        .withBody(Json.toJson(estateVariations))
+        .execute[VariationResponse]
+    }
 }
