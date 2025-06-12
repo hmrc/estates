@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.transformers.register
 
-import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
