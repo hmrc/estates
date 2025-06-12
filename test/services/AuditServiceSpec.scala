@@ -21,6 +21,7 @@ import models.RegistrationFailureResponse
 import models.auditing.EstatesAuditData
 import models.variation.VariationSuccessResponse
 import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import org.mockito.Mockito.verify
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 

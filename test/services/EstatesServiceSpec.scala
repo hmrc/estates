@@ -24,6 +24,7 @@ import models._
 import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.{never, times, verify, when}
 import play.api.libs.json.JsValue
 import repositories.CacheRepositoryImpl
 import utils.ErrorResponses.DuplicateSubmissionErrorResponse
@@ -234,7 +235,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         val futureResult = SUT.getEstateInfo(utr, myId)
         whenReady(futureResult) { result =>
           result mustBe GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", "1"))
-          verifyZeroInteractions(mockEstateConnector)
+          verify(mockEstateConnector, never())
         }
       }
     }

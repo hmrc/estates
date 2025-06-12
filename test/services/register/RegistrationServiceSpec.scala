@@ -21,9 +21,11 @@ import models._
 import models.register.{RegistrationDeclaration, TaxAmount}
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers.{any, eq => mockEq}
-import org.mockito.{ArgumentCaptor, MockitoSugar}
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
 import repositories.TransformationRepository

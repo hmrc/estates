@@ -22,6 +22,7 @@ import controllers.actions.FakeIdentifierAction
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
 import models.{DeclarationForApi, DeclarationName, NameType}
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito.{reset, when}
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest

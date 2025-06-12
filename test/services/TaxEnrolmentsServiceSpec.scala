@@ -21,6 +21,7 @@ import connectors.TaxEnrolmentConnector
 import exceptions.{BadRequestException, InternalServerErrorException}
 import models.{TaxEnrolmentFailure, TaxEnrolmentSuccess}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.duration.Duration

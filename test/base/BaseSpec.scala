@@ -18,11 +18,11 @@ package base
 
 import config.AppConfig
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
-import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfter, Inside}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder

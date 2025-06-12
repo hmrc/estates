@@ -20,6 +20,7 @@ import base.BaseSpec
 import config.AppConfig
 import models.getEstate._
 import org.mockito.ArgumentMatchers.{any, eq => mockEq}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterEach}
 import play.api.inject.bind
 import play.api.libs.json.{JsValue, Json}

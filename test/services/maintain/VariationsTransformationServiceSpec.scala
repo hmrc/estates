@@ -20,11 +20,12 @@ import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
 import models.variation.EstatePerRepIndType
 import models.{AddressType, IdentificationType, NameType}
 import org.mockito.ArgumentMatchers._
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.time.{Millis, Span}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsResult, JsValue, Json}
 import repositories.VariationsTransformationRepositoryImpl
 import services.{AuditService, EstatesService, VariationsTransformationService}

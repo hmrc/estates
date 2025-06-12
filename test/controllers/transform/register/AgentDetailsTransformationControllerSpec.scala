@@ -20,8 +20,9 @@ import base.BaseSpec
 import controllers.actions.FakeIdentifierAction
 import models.{AddressType, AgentDetails, Success}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.{BodyParsers, ControllerComponents}
 import play.api.test.FakeRequest

@@ -20,6 +20,7 @@ import base.BaseSpec
 import exceptions.{BadRequestException, InternalServerErrorException}
 import models.{SubscriptionIdResponse, TaxEnrolmentFailure, TaxEnrolmentSuccess}
 import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 
 import scala.concurrent.ExecutionContext.Implicits.global

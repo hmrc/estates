@@ -23,6 +23,7 @@ import models.variation.{VariationFailureResponse, VariationResponse, VariationS
 import models.{DeclarationForApi, DeclarationName, ErrorResponse, NameType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => equalTo}
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.libs.json._
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
