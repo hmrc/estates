@@ -17,9 +17,9 @@
 package uk.gov.hmrc.transformers.register
 
 import models.{AddressType, EstatePerRepIndType, IdentificationType, NameType}
-import org.mockito.MockitoSugar
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

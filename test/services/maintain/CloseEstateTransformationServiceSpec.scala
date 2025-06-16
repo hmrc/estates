@@ -17,10 +17,11 @@
 package services.maintain
 
 import org.mockito.ArgumentMatchers._
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 import services.VariationsTransformationService
 import transformers.variations.AddCloseEstateTransform
 import utils.JsonRequests

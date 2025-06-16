@@ -21,6 +21,7 @@ import controllers.actions.FakeIdentifierAction
 import models.ExistingCheckResponse._
 import models.{ExistingCheckRequest, ExistingCheckResponse}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{BodyParsers, ControllerComponents}

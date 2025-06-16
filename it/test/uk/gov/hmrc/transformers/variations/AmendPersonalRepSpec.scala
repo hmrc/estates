@@ -21,9 +21,10 @@ import models.getEstate.GetEstateResponse
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{AddressType, IdentificationType, NameType}
 import org.mockito.ArgumentMatchers._
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.when
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest

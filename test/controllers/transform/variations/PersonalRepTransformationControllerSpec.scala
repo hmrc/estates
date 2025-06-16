@@ -20,10 +20,11 @@ import controllers.actions.FakeIdentifierAction
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{IdentificationType, NameType, Success}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, _}
