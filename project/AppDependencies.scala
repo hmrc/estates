@@ -2,8 +2,8 @@ import sbt.*
 
 object AppDependencies {
 
-  val boostrapVersion = "9.13.0"
-  val mongoVersion = "2.6.0"
+  val boostrapVersion = "10.2.0"
+  val mongoVersion = "2.9.0"
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"         % mongoVersion,
