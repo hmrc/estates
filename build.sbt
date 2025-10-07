@@ -26,25 +26,6 @@ lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   )
 )
 
-val excludedPackages = Seq(
-  "<empty>",
-  ".*Reverse.*",
-  ".*Routes.*",
-  ".*standardError*.*",
-  ".*main_template*.*",
-  "uk.gov.hmrc.BuildInfo",
-  "app.*",
-  "prod.*",
-  ".*testOnlyDoNotUseInAppConf.*",
-  "views.html.*",
-  "testOnly.*",
-  ".*GuiceInjector",
-  ".*models.Mode",
-  ".*FrontendAuditConnector.*",
-  ".*javascript.*",
-  ".*mapping.Constants.*"
-)
-
 lazy val it =
   project
     .enablePlugins(PlayScala)
