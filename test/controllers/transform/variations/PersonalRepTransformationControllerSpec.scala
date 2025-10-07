@@ -17,6 +17,7 @@
 package controllers.transform.variations
 
 import controllers.actions.FakeIdentifierAction
+import controllers.transform.variations.personalRep.PersonalRepTransformationController
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{IdentificationType, NameType, Success}
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +28,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{CONTENT_TYPE, _}
+import play.api.test.Helpers._
 import services.maintain.PersonalRepTransformationService
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 

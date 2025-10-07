@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.transform.variations
+package controllers.transform.variations.personalRep
 
 import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction

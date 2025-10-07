@@ -5,4 +5,4 @@ POST        /individual                    controllers.PersonalRepTransformation
 GET         /organisation                  controllers.PersonalRepTransformationController.getPersonalRepOrg()
 POST        /organisation                  controllers.PersonalRepTransformationController.amendPersonalRepOrg()
 
-POST        /add-or-amend/:utr             controllers.transform.variations.PersonalRepTransformationController.addOrAmendPersonalRep(utr: String)
+POST        /add-or-amend/:utr             controllers.transform.variations.personalRep.PersonalRepTransformationController.addOrAmendPersonalRep(utr: String)
