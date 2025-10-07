@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.personalRep
 
 import base.BaseSpec
 import models._

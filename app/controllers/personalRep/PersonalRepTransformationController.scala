@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.personalRep
 
+import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
 import models.{EstatePerRepIndType, EstatePerRepOrgType}
 import play.api.Logging
