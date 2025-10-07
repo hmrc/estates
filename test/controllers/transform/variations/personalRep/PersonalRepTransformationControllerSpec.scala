@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package controllers.transform.variations
+package controllers.transform.variations.personalRep
 
 import controllers.actions.FakeIdentifierAction
-import controllers.transform.variations.personalRep.PersonalRepTransformationController
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{IdentificationType, NameType, Success}
 import org.mockito.ArgumentMatchers.any
