@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.correspondence
 
+import controllers.EstatesBaseController
 import controllers.actions.IdentifierAction
 import play.api.Logging
 import play.api.libs.json._

@@ -1,8 +1,8 @@
 
-GET         /individual                    controllers.PersonalRepTransformationController.getPersonalRepInd()
-POST        /individual                    controllers.PersonalRepTransformationController.amendPersonalRepInd()
+GET         /individual                    controllers.personalRep.PersonalRepTransformationController.getPersonalRepInd()
+POST        /individual                    controllers.personalRep.PersonalRepTransformationController.amendPersonalRepInd()
 
-GET         /organisation                  controllers.PersonalRepTransformationController.getPersonalRepOrg()
-POST        /organisation                  controllers.PersonalRepTransformationController.amendPersonalRepOrg()
+GET         /organisation                  controllers.personalRep.PersonalRepTransformationController.getPersonalRepOrg()
+POST        /organisation                  controllers.personalRep.PersonalRepTransformationController.amendPersonalRepOrg()
 
-POST        /add-or-amend/:utr             controllers.transform.variations.PersonalRepTransformationController.addOrAmendPersonalRep(utr: String)
+POST        /add-or-amend/:utr             controllers.transform.variations.personalRep.PersonalRepTransformationController.addOrAmendPersonalRep(utr: String)

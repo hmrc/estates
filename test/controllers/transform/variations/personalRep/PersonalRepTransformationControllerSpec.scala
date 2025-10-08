@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.transform.variations
+package controllers.transform.variations.personalRep
 
 import controllers.actions.FakeIdentifierAction
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
@@ -27,7 +27,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{CONTENT_TYPE, _}
+import play.api.test.Helpers._
 import services.maintain.PersonalRepTransformationService
 import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 
