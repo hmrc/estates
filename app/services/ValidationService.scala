@@ -22,13 +22,12 @@ import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import models.EstateRegistration
 import play.api.Logging
-import play.api.libs.json.{Format, JsPath, Json, JsonValidationError, Reads}
+import play.api.libs.json._
 import utils.EstateBusinessValidation
 
-import java.net.URL
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 class ValidationService @Inject()() {
@@ -36,8 +35,8 @@ class ValidationService @Inject()() {
   private val factory = JsonSchemaFactory.byDefault()
 
   def get(schemaFile: String): Validator = {
-    val resource: URL = getClass.getResource(schemaFile)
-    val source = Source.fromFile(resource.getPath)
+    val resource = getClass.getResourceAsStream(schemaFile)
+    val source = Source.fromInputStream(resource)
     val schemaJsonFileString = source.mkString
     source.close()
     val schemaJson = JsonLoader.fromString(schemaJsonFileString)
