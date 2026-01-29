@@ -28,13 +28,13 @@ import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 class YearsReturnsSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  private val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
-  private val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
+  private val cyMinusOneReturn = YearReturnType(taxReturnYear = "20", taxConsequence = true)
+  private val cyMinusTwoReturn = YearReturnType(taxReturnYear = "19", taxConsequence = false)
 
   "an add YearsReturns call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
-          roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn)))
+      roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
+      roundTripTest(appBuilder.build(), YearsReturns(List(cyMinusOneReturn)))
     }
   }
 
@@ -47,7 +47,8 @@ class YearsReturnsSpec extends AnyWordSpec with Matchers with MockitoSugar with 
     status(amendResult) mustBe OK
 
     val newResult = route(app, FakeRequest(GET, "/estates/tax-liability")).get
-    status(newResult) mustBe OK
+    status(newResult)        mustBe OK
     contentAsJson(newResult) mustBe Json.toJson(yearsReturns)
   }
+
 }

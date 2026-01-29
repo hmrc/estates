@@ -19,14 +19,12 @@ package transformers.register
 import models.YearsReturns
 import play.api.libs.json._
 
-case class YearsReturnsTransform(years: YearsReturns)
-  extends SetValueAtPathDeltaTransform {
+case class YearsReturnsTransform(years: YearsReturns) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("yearsReturns")
 
   override val value: JsValue = Json.toJson(years)
 }
-
 
 object YearsReturnsTransform {
 
@@ -34,4 +32,3 @@ object YearsReturnsTransform {
 
   implicit val format: Format[YearsReturnsTransform] = Json.format[YearsReturnsTransform]
 }
-

@@ -24,17 +24,17 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+class TaxEnrolmentCallbackController @Inject() (
+  auditConnector: AuditConnector
+)(implicit ec: ExecutionContext, cc: ControllerComponents)
+    extends EstatesBaseController(cc) with Logging {
 
-class TaxEnrolmentCallbackController @Inject()(
-                                               auditConnector :AuditConnector
-                                               )(implicit ec: ExecutionContext, cc: ControllerComponents
-) extends EstatesBaseController(cc) with Logging {
-
-  def subscriptionCallback() = Action.async(parse.json) {
-    implicit request =>
-      logger.info(s"[subscriptionCallback][Session ID: ${Session.id(hc)}]" +
-        s" Tax-Enrolment: subscription callback message was : ${request.body}")
-      Future(Ok(""))
+  def subscriptionCallback() = Action.async(parse.json) { implicit request =>
+    logger.info(
+      s"[subscriptionCallback][Session ID: ${Session.id(hc)}]" +
+        s" Tax-Enrolment: subscription callback message was : ${request.body}"
+    )
+    Future(Ok(""))
   }
 
 }

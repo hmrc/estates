@@ -19,14 +19,17 @@ package transformers.variations
 import play.api.libs.json._
 
 trait AddAmendPersonalRepTransform {
+
   def setPersonalRep(input: JsValue, newPersonalRepDetails: JsValue): JsResult[JsValue] = {
-    val personalRepPath = (__ \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative"))
+    val personalRepPath =
+      __ \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative")
 
     input.transform(
-      personalRepPath.json.prune andThen
-        (__).json.update(personalRepPath.json.put(newPersonalRepDetails)) andThen
-        (personalRepPath \ Symbol("lineNo")).json.prune andThen
+      personalRepPath.json.prune                                        andThen
+        __.json.update(personalRepPath.json.put(newPersonalRepDetails)) andThen
+        (personalRepPath \ Symbol("lineNo")).json.prune                 andThen
         (personalRepPath \ Symbol("bpMatchStatus")).json.prune
     )
   }
+
 }

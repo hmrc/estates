@@ -33,25 +33,28 @@ import scala.concurrent.duration.SECONDS
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class VariationsTransformationRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[JsObject](
-    mongoComponent = mongo,
-    collectionName = "variationTransforms",
-    domainFormat = implicitly[Format[JsObject]],
-    indexes = Seq(
-      IndexModel(
-        Indexes.ascending("updatedAt"),
-        IndexOptions()
-          .name("transformation-data-updated-at-index")
-          .expireAfter(config.ttlInSeconds, SECONDS)
-      ),
-      IndexModel(
-        Indexes.ascending("id"),
-        IndexOptions()
-          .name("id-index")
+class VariationsTransformationRepositoryImpl @Inject() (mongo: MongoComponent, config: AppConfig)(implicit
+  ec: ExecutionContext
+) extends PlayMongoRepository[JsObject](
+      mongoComponent = mongo,
+      collectionName = "variationTransforms",
+      domainFormat = implicitly[Format[JsObject]],
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("updatedAt"),
+          IndexOptions()
+            .name("transformation-data-updated-at-index")
+            .expireAfter(config.ttlInSeconds, SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("id"),
+          IndexOptions()
+            .name("id-index")
+        )
       )
     )
-  ) with VariationsTransformationRepository with Logging {
+    with VariationsTransformationRepository
+    with Logging {
 
   override def get(utr: String, internalId: String): Future[Option[ComposedDeltaTransform]] = {
 
@@ -59,15 +62,14 @@ class VariationsTransformationRepositoryImpl @Inject()(mongo: MongoComponent, co
 
     collection.find(selector).headOption().map { opt =>
       for {
-        document <- opt
+        document   <- opt
         transforms <- (document \ "transforms").asOpt[ComposedDeltaTransform]
       } yield transforms
     }
   }
 
-  private def createKey(utr: String, internalId: String) = {
-    (utr + '-' + internalId)
-  }
+  private def createKey(utr: String, internalId: String) =
+    utr + '-' + internalId
 
   override def set(utr: String, internalId: String, transforms: ComposedDeltaTransform): Future[Boolean] = {
 
@@ -83,7 +85,7 @@ class VariationsTransformationRepositoryImpl @Inject()(mongo: MongoComponent, co
 
     collection.updateOne(selector, modifier, updateOptions).toFutureOption().map {
       case Some(_) => true
-      case None => false
+      case None    => false
     }
   }
 
@@ -92,6 +94,7 @@ class VariationsTransformationRepositoryImpl @Inject()(mongo: MongoComponent, co
 
     collection.findOneAndDelete(selector).toFutureOption()
   }
+
 }
 
 trait VariationsTransformationRepository {

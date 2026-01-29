@@ -40,26 +40,30 @@ class AmendPersonalRepIndSpec extends AnyWordSpec with Matchers with MockitoSuga
         identification = IdentificationType(
           None,
           None,
-          Some(AddressType(
-            "1344 Army Road",
-            "Suite 111",
-            Some("Telford"),
-            Some("Shropshire"),
-            Some("TF1 5DR"),
-            "GB"
-          )))
+          Some(
+            AddressType(
+              "1344 Army Road",
+              "Suite 111",
+              Some("Telford"),
+              Some("Shropshire"),
+              Some("TF1 5DR"),
+              "GB"
+            )
+          )
+        )
       )
 
-          val amendRequest = FakeRequest(POST, "/estates/personal-rep/individual")
-            .withBody(Json.toJson(newPersonalRep))
-            .withHeaders(CONTENT_TYPE -> "application/json")
+      val amendRequest = FakeRequest(POST, "/estates/personal-rep/individual")
+        .withBody(Json.toJson(newPersonalRep))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-          val amendResult = route(appBuilder.build(), amendRequest).get
-          status(amendResult) mustBe OK
+      val amendResult = route(appBuilder.build(), amendRequest).get
+      status(amendResult) mustBe OK
 
-          val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/personal-rep/individual")).get
-          status(newResult) mustBe OK
-          contentAsJson(newResult) mustBe Json.toJson(newPersonalRep)
+      val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/personal-rep/individual")).get
+      status(newResult)        mustBe OK
+      contentAsJson(newResult) mustBe Json.toJson(newPersonalRep)
     }
   }
+
 }

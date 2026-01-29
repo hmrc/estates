@@ -42,8 +42,8 @@ import scala.concurrent.Future
 class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures with OptionValues {
 
   val mockTransformationRepository: TransformationRepository = mock[TransformationRepository]
-  val mockEstateService: EstatesService = mock[EstatesService]
-  val mockAuditService: AuditService = mock[AuditService]
+  val mockEstateService: EstatesService                      = mock[EstatesService]
+  val mockAuditService: AuditService                         = mock[AuditService]
 
   val estates5MLDService = new Estates5MLDService()
 
@@ -55,7 +55,14 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
   val declarationTransformer = new DeclarationTransform
 
-  val address = AddressType("AEstateAddress1", "AEstateAddress2", Some("AEstateAddress3"), Some("AEstateAddress4"), Some("TF3 4ER"), "GB")
+  val address = AddressType(
+    "AEstateAddress1",
+    "AEstateAddress2",
+    Some("AEstateAddress3"),
+    Some("AEstateAddress4"),
+    Some("TF3 4ER"),
+    "GB"
+  )
 
   val service = new RegistrationService(
     mockTransformationRepository,
@@ -74,7 +81,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
   )
 
   val personalRepInd: EstatePerRepIndType = EstatePerRepIndType(
-    name =  NameType("Alister", None, "Mc'Lovern"),
+    name = NameType("Alister", None, "Mc'Lovern"),
     dateOfBirth = LocalDate.parse("1955-09-08"),
     identification = IdentificationType(
       Some("JS123456A"),
@@ -100,13 +107,11 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
     None
   )
 
-  val allTransforms = ComposedDeltaTransform(Seq(
-      deceasedTransform,
-      amountOfTaxOwedTransform,
-      addCorrespondenceNameTransform,
-      addEstatePerRepTransform))
+  val allTransforms = ComposedDeltaTransform(
+    Seq(deceasedTransform, amountOfTaxOwedTransform, addCorrespondenceNameTransform, addEstatePerRepTransform)
+  )
 
-  implicit val request : IdentifierRequest[_] = IdentifierRequest(FakeRequest(), "id", AffinityGroup.Organisation)
+  implicit val request: IdentifierRequest[_] = IdentifierRequest(FakeRequest(), "id", AffinityGroup.Organisation)
 
   ".getRegistration" must {
 
@@ -184,22 +189,22 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
     "successfully submit the payload" in {
 
-        when(mockTransformationRepository.get(any()))
-          .thenReturn(Future.successful(Some(allTransforms)))
+      when(mockTransformationRepository.get(any()))
+        .thenReturn(Future.successful(Some(allTransforms)))
 
-        when(mockEstateService.registerEstate(regCapture.capture()))
-          .thenReturn(Future.successful(RegistrationTrnResponse("trn")))
+      when(mockEstateService.registerEstate(regCapture.capture()))
+        .thenReturn(Future.successful(RegistrationTrnResponse("trn")))
 
-        val result = service.submit(RegistrationDeclaration(NameType("John", None, "Doe")))
+      val result = service.submit(RegistrationDeclaration(NameType("John", None, "Doe")))
 
-        result.futureValue mustBe RegistrationTrnResponse("trn")
+      result.futureValue mustBe RegistrationTrnResponse("trn")
 
-        regCapture.getValue.submissionDate.value mustBe a[LocalDate]
+      regCapture.getValue.submissionDate.value mustBe a[LocalDate]
 
-        verify(mockAuditService).auditRegistrationSubmitted(
-          any(),
-          mockEq("trn")
-        )(any(), any())
+      verify(mockAuditService).auditRegistrationSubmitted(
+        any(),
+        mockEq("trn")
+      )(any(), any())
 
     }
 
@@ -230,7 +235,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
         when(mockTransformationRepository.get(any()))
           .thenReturn(Future.successful(None))
 
-        val result = service.submit(RegistrationDeclaration(NameType("John",None, "Doe")))
+        val result = service.submit(RegistrationDeclaration(NameType("John", None, "Doe")))
 
         assertThrows[RuntimeException] {
           result.futureValue
@@ -251,7 +256,7 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
         when(mockTransformationRepository.get(any()))
           .thenReturn(Future.successful(Some(transforms)))
 
-        val result = service.submit(RegistrationDeclaration(NameType("John",None, "Doe")))
+        val result = service.submit(RegistrationDeclaration(NameType("John", None, "Doe")))
 
         assertThrows[RuntimeException] {
           result.futureValue
@@ -273,35 +278,50 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
       val service = injector.instanceOf[RegistrationService]
 
-      val transforms = ComposedDeltaTransform(Seq(
-        DeceasedTransform(
-          EstateWillType(
-            name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
-            dateOfBirth = None,
-            dateOfDeath = LocalDate.parse("2013-04-07"),
-            identification = Some(IdentificationType(Some("MT939555B"), None, None)),
-            addressYesNo = None
-          )
-        ),
-        AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
-        CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
-        PersonalRepTransform(
-          Some(EstatePerRepIndType(
-            name =  NameType("Alister", None, "Mc'Lovern"),
-            dateOfBirth = LocalDate.parse("1955-09-08"),
-            identification = IdentificationType(
-              Some("JS123456A"),
-              None,
-              Some(AddressType("AEstateAddress1", "AEstateAddress2", Some("AEstateAddress3"), Some("AEstateAddress4"), Some("TF3 4ER"), "GB"))
+      val transforms = ComposedDeltaTransform(
+        Seq(
+          DeceasedTransform(
+            EstateWillType(
+              name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
+              dateOfBirth = None,
+              dateOfDeath = LocalDate.parse("2013-04-07"),
+              identification = Some(IdentificationType(Some("MT939555B"), None, None)),
+              addressYesNo = None
+            )
+          ),
+          AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
+          CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
+          PersonalRepTransform(
+            Some(
+              EstatePerRepIndType(
+                name = NameType("Alister", None, "Mc'Lovern"),
+                dateOfBirth = LocalDate.parse("1955-09-08"),
+                identification = IdentificationType(
+                  Some("JS123456A"),
+                  None,
+                  Some(
+                    AddressType(
+                      "AEstateAddress1",
+                      "AEstateAddress2",
+                      Some("AEstateAddress3"),
+                      Some("AEstateAddress4"),
+                      Some("TF3 4ER"),
+                      "GB"
+                    )
+                  )
+                ),
+                phoneNumber = "078888888",
+                email = Some("test@abc.com")
+              )
             ),
-            phoneNumber = "078888888",
-            email = Some("test@abc.com")
-          )),
-          None
+            None
+          )
         )
-      ))
+      )
 
-      val expectedJson = JsonUtils.getJsonValueFromFile("transformed/declared/registration-submission-with-personal-rep-ind-no-tax-no-agent.json")
+      val expectedJson = JsonUtils.getJsonValueFromFile(
+        "transformed/declared/registration-submission-with-personal-rep-ind-no-tax-no-agent.json"
+      )
 
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),
@@ -317,36 +337,51 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
       val service = injector.instanceOf[RegistrationService]
 
-      val transforms = ComposedDeltaTransform(Seq(
-        DeceasedTransform(
-          EstateWillType(
-            name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
-            dateOfBirth = None,
-            dateOfDeath = LocalDate.parse("2013-04-07"),
-            identification = Some(IdentificationType(Some("MT939555B"), None, None)),
-            addressYesNo = None
-          )
-        ),
-        AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
-        CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
-        PersonalRepTransform(
-          Some(EstatePerRepIndType(
-            name =  NameType("Alister", None, "Mc'Lovern"),
-            dateOfBirth = LocalDate.parse("1955-09-08"),
-            identification = IdentificationType(
-              Some("JS123456A"),
-              None,
-              Some(AddressType("AEstateAddress1", "AEstateAddress2", Some("AEstateAddress3"), Some("AEstateAddress4"), Some("TF3 4ER"), "GB"))
+      val transforms = ComposedDeltaTransform(
+        Seq(
+          DeceasedTransform(
+            EstateWillType(
+              name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
+              dateOfBirth = None,
+              dateOfDeath = LocalDate.parse("2013-04-07"),
+              identification = Some(IdentificationType(Some("MT939555B"), None, None)),
+              addressYesNo = None
+            )
+          ),
+          AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
+          CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
+          PersonalRepTransform(
+            Some(
+              EstatePerRepIndType(
+                name = NameType("Alister", None, "Mc'Lovern"),
+                dateOfBirth = LocalDate.parse("1955-09-08"),
+                identification = IdentificationType(
+                  Some("JS123456A"),
+                  None,
+                  Some(
+                    AddressType(
+                      "AEstateAddress1",
+                      "AEstateAddress2",
+                      Some("AEstateAddress3"),
+                      Some("AEstateAddress4"),
+                      Some("TF3 4ER"),
+                      "GB"
+                    )
+                  )
+                ),
+                phoneNumber = "078888888",
+                email = Some("test@abc.com")
+              )
             ),
-            phoneNumber = "078888888",
-            email = Some("test@abc.com")
-          )),
-          None
-        ),
-        YearsReturnsTransform(YearsReturns(List(YearReturnType("20", taxConsequence = true))))
-      ))
+            None
+          ),
+          YearsReturnsTransform(YearsReturns(List(YearReturnType("20", taxConsequence = true))))
+        )
+      )
 
-      val expectedJson = JsonUtils.getJsonValueFromFile("transformed/declared/registration-submission-with-personal-rep-ind-with-tax-no-agent.json")
+      val expectedJson = JsonUtils.getJsonValueFromFile(
+        "transformed/declared/registration-submission-with-personal-rep-ind-with-tax-no-agent.json"
+      )
 
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),
@@ -362,34 +397,53 @@ class RegistrationServiceSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
       val service = injector.instanceOf[RegistrationService]
 
-      val transforms = ComposedDeltaTransform(Seq(
-        DeceasedTransform(EstateWillType(
-          name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
-          dateOfBirth = None,
-          dateOfDeath = LocalDate.parse("2013-04-07"),
-          identification = Some(IdentificationType(Some("MT939555B"), None, None)),
-          addressYesNo = None
-        )),
-        AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
-        CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
-        PersonalRepTransform(
-          Some(EstatePerRepIndType(
-            name =  NameType("Alister", None, "Mc'Lovern"),
-            dateOfBirth = LocalDate.parse("1955-09-08"),
-            identification = IdentificationType(
-              Some("JS123456A"),
-              None,
-              Some(AddressType("AEstateAddress1", "AEstateAddress2", Some("AEstateAddress3"), Some("AEstateAddress4"), Some("TF3 4ER"), "GB"))
+      val transforms = ComposedDeltaTransform(
+        Seq(
+          DeceasedTransform(
+            EstateWillType(
+              name = NameType("Mr TRS Reference 31", None, "TaxPayer 31"),
+              dateOfBirth = None,
+              dateOfDeath = LocalDate.parse("2013-04-07"),
+              identification = Some(IdentificationType(Some("MT939555B"), None, None)),
+              addressYesNo = None
+            )
+          ),
+          AmountOfTaxOwedTransform(TaxAmount.AmountMoreThanTwoHalfMillion),
+          CorrespondenceNameTransform(JsString("Estate of Mr A Deceased")),
+          PersonalRepTransform(
+            Some(
+              EstatePerRepIndType(
+                name = NameType("Alister", None, "Mc'Lovern"),
+                dateOfBirth = LocalDate.parse("1955-09-08"),
+                identification = IdentificationType(
+                  Some("JS123456A"),
+                  None,
+                  Some(
+                    AddressType(
+                      "AEstateAddress1",
+                      "AEstateAddress2",
+                      Some("AEstateAddress3"),
+                      Some("AEstateAddress4"),
+                      Some("TF3 4ER"),
+                      "GB"
+                    )
+                  )
+                ),
+                phoneNumber = "078888888",
+                email = Some("test@abc.com")
+              )
             ),
-            phoneNumber = "078888888",
-            email = Some("test@abc.com")
-          )),
-          None
-        ),
-        AgentDetailsTransform(AgentDetails("arn", "Agency Ltd", AddressType("line1", "line2", None, None, None, "FR"), "tel", "crn"))
-      ))
+            None
+          ),
+          AgentDetailsTransform(
+            AgentDetails("arn", "Agency Ltd", AddressType("line1", "line2", None, None, None, "FR"), "tel", "crn")
+          )
+        )
+      )
 
-      val expectedJson = JsonUtils.getJsonValueFromFile("transformed/declared/registration-submission-with-personal-rep-ind-no-tax-with-agent.json")
+      val expectedJson = JsonUtils.getJsonValueFromFile(
+        "transformed/declared/registration-submission-with-personal-rep-ind-no-tax-with-agent.json"
+      )
 
       val transformedJson = service.buildSubmissionFromTransforms(
         NameType("John", None, "Doe"),

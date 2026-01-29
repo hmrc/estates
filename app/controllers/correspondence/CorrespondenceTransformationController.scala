@@ -27,34 +27,33 @@ import utils.{Session, ValidationUtil}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CorrespondenceTransformationController @Inject()(
-                                                        identify: IdentifierAction,
-                                                        personalRepTransformationService: CorrespondenceTransformationService,
-                                                        cc: ControllerComponents
-                                        )(implicit val executionContext: ExecutionContext
-) extends EstatesBaseController(cc) with ValidationUtil with Logging {
+class CorrespondenceTransformationController @Inject() (
+  identify: IdentifierAction,
+  personalRepTransformationService: CorrespondenceTransformationService,
+  cc: ControllerComponents
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with ValidationUtil with Logging {
 
-  def getCorrespondenceName(): Action[AnyContent] = identify.async {
-    implicit request =>
-      personalRepTransformationService.getCorrespondenceName(request.identifier) map { correspondenceName =>
-        Ok(
-          correspondenceName.map(name => Json.obj("name" -> name)).getOrElse(Json.obj())
-        )
-      }
+  def getCorrespondenceName(): Action[AnyContent] = identify.async { implicit request =>
+    personalRepTransformationService.getCorrespondenceName(request.identifier) map { correspondenceName =>
+      Ok(
+        correspondenceName.map(name => Json.obj("name" -> name)).getOrElse(Json.obj())
+      )
+    }
   }
 
-  def addCorrespondenceName(): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[JsString] match {
-        case JsSuccess(model, _) =>
-          personalRepTransformationService.addAmendCorrespondenceNameTransformer(request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[addCorrespondenceName][Session ID: ${Session.id(hc)}]" +
-            s" Supplied details could not be read as JsString - $errors")
-          Future.successful(BadRequest)
-      }
+  def addCorrespondenceName(): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[JsString] match {
+      case JsSuccess(model, _) =>
+        personalRepTransformationService.addAmendCorrespondenceNameTransformer(request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(
+          s"[addCorrespondenceName][Session ID: ${Session.id(hc)}]" +
+            s" Supplied details could not be read as JsString - $errors"
+        )
+        Future.successful(BadRequest)
     }
   }
 

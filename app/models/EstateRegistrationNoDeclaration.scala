@@ -18,19 +18,21 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class EstateRegistrationNoDeclaration(matchData: Option[MatchData],
-                                           correspondence: CorrespondenceName,
-                                           yearsReturns: Option[YearsReturns],
-                                           estate: Estate,
-                                           agentDetails: Option[AgentDetails] = None)
+case class EstateRegistrationNoDeclaration(
+  matchData: Option[MatchData],
+  correspondence: CorrespondenceName,
+  yearsReturns: Option[YearsReturns],
+  estate: Estate,
+  agentDetails: Option[AgentDetails] = None
+)
 
 object EstateRegistrationNoDeclaration {
-  implicit val formats : Format[EstateRegistrationNoDeclaration] = Json.format[EstateRegistrationNoDeclaration]
+  implicit val formats: Format[EstateRegistrationNoDeclaration] = Json.format[EstateRegistrationNoDeclaration]
 }
 
 case class CorrespondenceName(name: String)
 
 object CorrespondenceName {
-  implicit val correspondenceFormat : Format[CorrespondenceName] = Json.format[CorrespondenceName]
+  implicit val correspondenceFormat: Format[CorrespondenceName] = Json.format[CorrespondenceName]
 
 }

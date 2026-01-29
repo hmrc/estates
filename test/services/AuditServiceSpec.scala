@@ -29,13 +29,13 @@ import scala.concurrent.ExecutionContext
 
 class AuditServiceSpec extends BaseSpec {
 
-  private implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit private val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   "auditRegistrationFailed" should {
     "send error details" when {
       "a failure response comes in" in {
         val connector = mock[AuditConnector]
-        val service = new AuditService(connector, appConfig)
+        val service   = new AuditService(connector, appConfig)
 
         val request = Json.obj("someField" -> "someValue")
 
@@ -50,7 +50,8 @@ class AuditServiceSpec extends BaseSpec {
 
         verify(connector).sendExplicitAudit[EstatesAuditData](
           equalTo("RegistrationSubmissionFailed"),
-          equalTo(expectedAuditData))(any(), any(), any())
+          equalTo(expectedAuditData)
+        )(any(), any(), any())
 
       }
     }
@@ -60,7 +61,7 @@ class AuditServiceSpec extends BaseSpec {
     "send Variation Submitted by Organisation" when {
       "there are no special JSON fields" in {
         val connector = mock[AuditConnector]
-        val service = new AuditService(connector, appConfig)
+        val service   = new AuditService(connector, appConfig)
 
         val request = Json.obj()
 
@@ -75,14 +76,15 @@ class AuditServiceSpec extends BaseSpec {
 
         verify(connector).sendExplicitAudit[EstatesAuditData](
           equalTo("VariationSubmittedByOrganisation"),
-          equalTo(expectedAuditData))(any(), any(), any())
+          equalTo(expectedAuditData)
+        )(any(), any(), any())
       }
     }
 
     "send Variation Submitted by Agent" when {
       "there is an AgentDetails JSON field" in {
         val connector = mock[AuditConnector]
-        val service = new AuditService(connector, appConfig)
+        val service   = new AuditService(connector, appConfig)
 
         val request = Json.obj(
           "agentDetails" -> Json.obj() // Doesn't care about contents of object
@@ -99,14 +101,15 @@ class AuditServiceSpec extends BaseSpec {
 
         verify(connector).sendExplicitAudit[EstatesAuditData](
           equalTo("VariationSubmittedByAgent"),
-          equalTo(expectedAuditData))(any(), any(), any())
+          equalTo(expectedAuditData)
+        )(any(), any(), any())
       }
     }
 
     "send Closure Submitted by Organisation" when {
       "there is an endTrustDate field" in {
         val connector = mock[AuditConnector]
-        val service = new AuditService(connector, appConfig)
+        val service   = new AuditService(connector, appConfig)
 
         val request = Json.obj(
           "trustEndDate" -> "2012-02-12"
@@ -123,14 +126,15 @@ class AuditServiceSpec extends BaseSpec {
 
         verify(connector).sendExplicitAudit[EstatesAuditData](
           equalTo("ClosureSubmittedByOrganisation"),
-          equalTo(expectedAuditData))(any(), any(), any())
+          equalTo(expectedAuditData)
+        )(any(), any(), any())
       }
     }
 
     "send Closure Submitted by Agent" when {
       "there are agentDetails and endTrustDate JSON fields" in {
         val connector = mock[AuditConnector]
-        val service = new AuditService(connector, appConfig)
+        val service   = new AuditService(connector, appConfig)
 
         val request = Json.obj(
           "trustEndDate" -> "2012-02-12",
@@ -148,7 +152,8 @@ class AuditServiceSpec extends BaseSpec {
 
         verify(connector).sendExplicitAudit[EstatesAuditData](
           equalTo("ClosureSubmittedByAgent"),
-          equalTo(expectedAuditData))(any(), any(), any())
+          equalTo(expectedAuditData)
+        )(any(), any(), any())
       }
     }
   }
@@ -156,44 +161,49 @@ class AuditServiceSpec extends BaseSpec {
   "auditEnrolmentSucceeded" should {
     "send EnrolmentSucceeded audit" in {
       val connector = mock[AuditConnector]
-      val service = new AuditService(connector, appConfig)
+      val service   = new AuditService(connector, appConfig)
 
       service.auditEnrolSuccess("ChickenSub", "TheTRN", "internalId")
 
       val expectedAuditData = EstatesAuditData(
         Json.obj(
-          "trn" -> "TheTRN",
+          "trn"            -> "TheTRN",
           "subscriptionID" -> "ChickenSub"
         ),
         "internalId",
         Some(Json.obj())
       )
 
-      verify(connector).sendExplicitAudit[EstatesAuditData](
-        equalTo("EnrolmentSucceeded"),
-        equalTo(expectedAuditData))(any(), any(), any())
+      verify(connector).sendExplicitAudit[EstatesAuditData](equalTo("EnrolmentSucceeded"), equalTo(expectedAuditData))(
+        any(),
+        any(),
+        any()
+      )
     }
   }
 
   "auditEnrolmentFailure" should {
     "send EnrolmentFailed audit" in {
       val connector = mock[AuditConnector]
-      val service = new AuditService(connector, appConfig)
+      val service   = new AuditService(connector, appConfig)
 
       service.auditEnrolFailed("ChickenSub", "TheTRN", "internalId", "bad juju")
 
       val expectedAuditData = EstatesAuditData(
         Json.obj(
-          "trn" -> "TheTRN",
+          "trn"            -> "TheTRN",
           "subscriptionID" -> "ChickenSub"
         ),
         "internalId",
-        Some(Json.obj( "errorReason" -> "bad juju"))
+        Some(Json.obj("errorReason" -> "bad juju"))
       )
 
-      verify(connector).sendExplicitAudit[EstatesAuditData](
-        equalTo("EnrolmentFailed"),
-        equalTo(expectedAuditData))(any(), any(), any())
+      verify(connector).sendExplicitAudit[EstatesAuditData](equalTo("EnrolmentFailed"), equalTo(expectedAuditData))(
+        any(),
+        any(),
+        any()
+      )
     }
   }
+
 }

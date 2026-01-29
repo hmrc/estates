@@ -21,9 +21,7 @@ import play.api.libs.json.{Format, JsPath, Json, Writes}
 
 import java.time.LocalDate
 
-case class Estate(entities: EntitiesType,
-                  administrationEndDate: Option[LocalDate],
-                  periodTaxDues: String)
+case class Estate(entities: EntitiesType, administrationEndDate: Option[LocalDate], periodTaxDues: String)
 
 object Estate {
   implicit val estateFormat: Format[Estate] = Json.format[Estate]
@@ -32,5 +30,6 @@ object Estate {
     (JsPath \ "entities").write[EntitiesType](EntitiesType.entitiesWriteToDes) and
       (JsPath \ "administrationEndDate").writeNullable[LocalDate] and
       (JsPath \ "periodTaxDues").write[String]
-    ).apply(unlift(Estate.unapply))
+  ).apply(unlift(Estate.unapply))
+
 }

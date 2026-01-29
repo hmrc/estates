@@ -34,7 +34,7 @@ import scala.concurrent.Future
 
 class ClearTransformationsControllerSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {
 
-  private val cc = stubControllerComponents()
+  private val cc       = stubControllerComponents()
   val identifierAction = new FakeIdentifierAction(cc.parsers.default, Agent)
 
   val fakeUtr: String = "utr"
@@ -42,7 +42,7 @@ class ClearTransformationsControllerSpec extends AnyFreeSpec with MockitoSugar w
   "clear transformations controller" - {
 
     val variationsTransformationService = mock[VariationsTransformationService]
-    val controller = new ClearTransformationsController(identifierAction, cc, variationsTransformationService)
+    val controller                      = new ClearTransformationsController(identifierAction, cc, variationsTransformationService)
 
     "must clear transformations" in {
 
@@ -58,4 +58,5 @@ class ClearTransformationsControllerSpec extends AnyFreeSpec with MockitoSugar w
       verify(variationsTransformationService).removeAllTransformations(fakeUtr, "id")
     }
   }
+
 }

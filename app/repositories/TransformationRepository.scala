@@ -42,25 +42,27 @@ trait TransformationRepository {
 }
 
 @Singleton
-class TransformationRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[JsObject](
-    mongoComponent = mongo,
-    collectionName = "transforms",
-    domainFormat = implicitly[Format[JsObject]],
-    indexes = Seq(
-      IndexModel(
-        Indexes.ascending("updatedAt"),
-        IndexOptions()
-          .name("transformation-data-updated-at-index")
-          .expireAfter(config.ttlInSeconds, SECONDS)
-      ),
-      IndexModel(
-        Indexes.ascending("id"),
-        IndexOptions()
-          .name("id-index")
+class TransformationRepositoryImpl @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[JsObject](
+      mongoComponent = mongo,
+      collectionName = "transforms",
+      domainFormat = implicitly[Format[JsObject]],
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("updatedAt"),
+          IndexOptions()
+            .name("transformation-data-updated-at-index")
+            .expireAfter(config.ttlInSeconds, SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("id"),
+          IndexOptions()
+            .name("id-index")
+        )
       )
     )
-  ) with TransformationRepository with Logging {
+    with TransformationRepository
+    with Logging {
 
   override def get(internalId: String): Future[Option[ComposedDeltaTransform]] = {
 
@@ -68,7 +70,7 @@ class TransformationRepositoryImpl @Inject()(mongo: MongoComponent, config: AppC
 
     collection.find(selector).headOption().map { opt =>
       for {
-        document <- opt
+        document   <- opt
         transforms <- (document \ "transforms").asOpt[ComposedDeltaTransform]
       } yield transforms
     }
@@ -88,7 +90,7 @@ class TransformationRepositoryImpl @Inject()(mongo: MongoComponent, config: AppC
 
     collection.updateOne(selector, modifier, updateOptions).toFutureOption().map {
       case Some(_) => true
-      case None => false
+      case None    => false
     }
   }
 
@@ -97,4 +99,5 @@ class TransformationRepositoryImpl @Inject()(mongo: MongoComponent, config: AppC
 
     collection.findOneAndDelete(selector).toFutureOption()
   }
+
 }

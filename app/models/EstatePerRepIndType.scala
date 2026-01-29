@@ -20,11 +20,13 @@ import play.api.libs.json.{Format, Json}
 
 import java.time.LocalDate
 
-case class EstatePerRepIndType(   name: NameType,
-                                  dateOfBirth: LocalDate,
-                                  identification: IdentificationType,
-                                  phoneNumber: String,
-                                  email: Option[String])
+case class EstatePerRepIndType(
+  name: NameType,
+  dateOfBirth: LocalDate,
+  identification: IdentificationType,
+  phoneNumber: String,
+  email: Option[String]
+)
 
 object EstatePerRepIndType {
   implicit val estatePerRepIndTypeFormat: Format[EstatePerRepIndType] = Json.format[EstatePerRepIndType]

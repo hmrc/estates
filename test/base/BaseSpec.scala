@@ -38,14 +38,15 @@ import java.time.LocalDate
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BaseSpec extends AnyWordSpec
-  with Matchers
-  with ScalaFutures
-  with MockitoSugar
-  with JsonRequests
-  with BeforeAndAfter
-  with GuiceOneServerPerSuite
-  with Inside {
+class BaseSpec
+    extends AnyWordSpec
+    with Matchers
+    with ScalaFutures
+    with MockitoSugar
+    with JsonRequests
+    with BeforeAndAfter
+    with GuiceOneServerPerSuite
+    with Inside {
 
   object LocalDateServiceStub extends LocalDateService {
     override def now: LocalDate = LocalDate.of(1999, 3, 14)
@@ -59,27 +60,24 @@ class BaseSpec extends AnyWordSpec
 
   def injector = application.injector
 
-  def appConfig : AppConfig = injector.instanceOf[AppConfig]
+  def appConfig: AppConfig = injector.instanceOf[AppConfig]
 
-  def applicationBuilder(): GuiceApplicationBuilder = {
+  def applicationBuilder(): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[LocalDateService].toInstance(LocalDateServiceStub),
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(bodyParsers, Organisation))
       )
       .configure(
-        Seq(
-          "metrics.enabled" -> false,
-          "auditing.enabled" -> false): _*
+        Seq("metrics.enabled" -> false, "auditing.enabled" -> false): _*
       )
-  }
 
-  def fakeRequest : FakeRequest[JsValue] = FakeRequest("POST", "")
+  def fakeRequest: FakeRequest[JsValue] = FakeRequest("POST", "")
     .withHeaders(CONTENT_TYPE -> "application/json")
     .withHeaders(Headers.DraftRegistrationId -> UUID.randomUUID().toString)
     .withBody(Json.parse("{}"))
 
-  def postRequestWithPayload(payload: JsValue, withDraftId: Boolean = true): FakeRequest[JsValue] = {
+  def postRequestWithPayload(payload: JsValue, withDraftId: Boolean = true): FakeRequest[JsValue] =
     if (withDraftId) {
       FakeRequest("POST", "/estates/register")
         .withHeaders(CONTENT_TYPE -> "application/json")
@@ -90,11 +88,5 @@ class BaseSpec extends AnyWordSpec
         .withHeaders(CONTENT_TYPE -> "application/json")
         .withBody(payload)
     }
-  }
+
 }
-
-
-
-
-
-

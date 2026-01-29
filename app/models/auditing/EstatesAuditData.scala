@@ -18,9 +18,7 @@ package models.auditing
 
 import play.api.libs.json.{Format, JsValue, Json}
 
-case class EstatesAuditData(request: JsValue,
-                            internalAuthId : String,
-                            response: Option[JsValue])
+case class EstatesAuditData(request: JsValue, internalAuthId: String, response: Option[JsValue])
 
 object EstatesAuditData {
 

@@ -47,4 +47,5 @@ class CloseEstateSpec extends AnyWordSpec with Matchers with MockitoSugar with T
     val closeResult = route(app, closeRequest).get
     status(closeResult) mustBe OK
   }
+
 }

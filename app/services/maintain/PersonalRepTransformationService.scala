@@ -24,16 +24,26 @@ import transformers.variations.{AddAmendBusinessPersonalRepTransform, AddAmendIn
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalRepTransformationService @Inject()(transformationService: VariationsTransformationService
-                                                     )(implicit ec: ExecutionContext) {
+class PersonalRepTransformationService @Inject() (transformationService: VariationsTransformationService)(implicit
+  ec: ExecutionContext
+) {
 
-  def addAmendPersonalRepTransformer(utr: String, internalId: String, newPersonalRep: PersonalRepresentativeType): Future[Success.type] = {
-    transformationService.addNewTransform(utr, internalId, newPersonalRep match {
-      case PersonalRepresentativeType(Some(personalRepInd), None) =>
-        AddAmendIndividualPersonalRepTransform(personalRepInd)
-      case PersonalRepresentativeType(None, Some(personalRepOrg)) =>
-        AddAmendBusinessPersonalRepTransform(personalRepOrg)
-    }).map(_ => Success)
-  }
+  def addAmendPersonalRepTransformer(
+    utr: String,
+    internalId: String,
+    newPersonalRep: PersonalRepresentativeType
+  ): Future[Success.type] =
+    transformationService
+      .addNewTransform(
+        utr,
+        internalId,
+        newPersonalRep match {
+          case PersonalRepresentativeType(Some(personalRepInd), None) =>
+            AddAmendIndividualPersonalRepTransform(personalRepInd)
+          case PersonalRepresentativeType(None, Some(personalRepOrg)) =>
+            AddAmendBusinessPersonalRepTransform(personalRepOrg)
+        }
+      )
+      .map(_ => Success)
 
 }

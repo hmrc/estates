@@ -30,56 +30,63 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisterEstateController @Inject()(identifierAction: IdentifierAction,
-                                         registrationService: RegistrationService,
-                                         rosmPatternService: RosmPatternService)
-                                        (implicit ec: ExecutionContext, cc: ControllerComponents
-                                        ) extends EstatesBaseController(cc) with Logging {
+class RegisterEstateController @Inject() (
+  identifierAction: IdentifierAction,
+  registrationService: RegistrationService,
+  rosmPatternService: RosmPatternService
+)(implicit ec: ExecutionContext, cc: ControllerComponents)
+    extends EstatesBaseController(cc) with Logging {
 
-  def register(): Action[JsValue] = identifierAction.async(parse.json) {
-    implicit request => {
-      request.body.validate[RegistrationDeclaration].fold(
+  def register(): Action[JsValue] = identifierAction.async(parse.json) { implicit request =>
+    request.body
+      .validate[RegistrationDeclaration]
+      .fold(
         errors => {
-          logger.error(s"[register][Session ID: ${Session.id(hc)}]" +
-            s" unable to parse json as RegistrationDeclaration, $errors")
+          logger.error(
+            s"[register][Session ID: ${Session.id(hc)}]" +
+              s" unable to parse json as RegistrationDeclaration, $errors"
+          )
           Future.successful(BadRequest)
         },
-        declaration => {
-          registrationService
-            .submit(declaration)
-            .flatMap {
-              case response @ RegistrationTrnResponse(trn) =>
-                rosmPatternService.enrol(trn, request.affinityGroup, request.identifier) map { _ =>
+        declaration =>
+          {
+            registrationService
+              .submit(declaration)
+              .flatMap {
+                case response @ RegistrationTrnResponse(trn) =>
+                  rosmPatternService.enrol(trn, request.affinityGroup, request.identifier) map { _ =>
                     Ok(Json.toJson(response))
-                }
-              case AlreadyRegisteredResponse =>
-                logger.info(s"[register][Session ID: ${Session.id(hc)}]" +
-                  s" unable to register estate for session due to it already being registered")
-                Future.successful(duplicateSubmissionErrorResult)
-              case e =>
-                logger.warn(s"[register][Session ID: ${Session.id(hc)}]" +
-                  s" unable to register estate for session due to $e")
-                Future.successful(internalServerErrorErrorResult)
-            }
-        } recover {
-          case e =>
-            logger.warn(s"[register][Session ID: ${Session.id(hc)}]" +
-              s" unable to register estate for session due exception ${e.getMessage}")
+                  }
+                case AlreadyRegisteredResponse               =>
+                  logger.info(
+                    s"[register][Session ID: ${Session.id(hc)}]" +
+                      s" unable to register estate for session due to it already being registered"
+                  )
+                  Future.successful(duplicateSubmissionErrorResult)
+                case e                                       =>
+                  logger.warn(
+                    s"[register][Session ID: ${Session.id(hc)}]" +
+                      s" unable to register estate for session due to $e"
+                  )
+                  Future.successful(internalServerErrorErrorResult)
+              }
+          } recover { case e =>
+            logger.warn(
+              s"[register][Session ID: ${Session.id(hc)}]" +
+                s" unable to register estate for session due exception ${e.getMessage}"
+            )
             internalServerErrorErrorResult
-        }
+          }
       )
-    }
   }
 
-  def get(): Action[AnyContent] = identifierAction.async {
-    implicit request =>
-
-      registrationService
-        .getRegistration()
-        .map(response => Ok(Json.toJson(response)))
-        .recover {
-          case _ => internalServerErrorErrorResult
-        }
+  def get(): Action[AnyContent] = identifierAction.async { implicit request =>
+    registrationService
+      .getRegistration()
+      .map(response => Ok(Json.toJson(response)))
+      .recover { case _ =>
+        internalServerErrorErrorResult
+      }
   }
 
 }

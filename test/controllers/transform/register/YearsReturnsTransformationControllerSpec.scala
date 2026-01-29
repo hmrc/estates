@@ -36,8 +36,8 @@ class YearsReturnsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  private implicit val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
-  private val bodyParsers = injector.instanceOf[BodyParsers.Default]
+  implicit private val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
+  private val bodyParsers                       = injector.instanceOf[BodyParsers.Default]
 
   val identifierAction = new FakeIdentifierAction(bodyParsers, Organisation)
 
@@ -45,25 +45,25 @@ class YearsReturnsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
   "years returns controller" when {
 
-    val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
-    val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
+    val cyMinusOneReturn = YearReturnType(taxReturnYear = "20", taxConsequence = true)
+    val cyMinusTwoReturn = YearReturnType(taxReturnYear = "19", taxConsequence = false)
 
     ".get" must {
 
       "return the years returns" in {
         val controller = new YearsReturnsTransformationController(identifierAction, cc, mockTransformationService)
 
-        when(mockTransformationService.get(any())).thenReturn(Future.successful(Some(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))))
+        when(mockTransformationService.get(any()))
+          .thenReturn(Future.successful(Some(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |{
             | "returns":[
             |   {
@@ -89,8 +89,8 @@ class YearsReturnsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.obj()
       }
 

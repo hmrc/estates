@@ -23,29 +23,26 @@ import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 
 class DeclarationTransform {
 
-  def transform(actor: AffinityGroup, body: JsValue, declarationName: NameType): JsResult[JsValue] = {
+  def transform(actor: AffinityGroup, body: JsValue, declarationName: NameType): JsResult[JsValue] =
     addDeclaration(actor, declarationName, body)
-  }
 
   private val correspondenceAddressPath: JsPath = __ \ Symbol("correspondence") \ Symbol("address")
-  private val agentAddressPath: JsPath = __ \ Symbol("agentDetails") \ Symbol("agentAddress")
+  private val agentAddressPath: JsPath          = __ \ Symbol("agentDetails") \ Symbol("agentAddress")
 
-  private def addDeclaration(actor: AffinityGroup, name: NameType, responseJson: JsValue): JsResult[JsObject] = {
+  private def addDeclaration(actor: AffinityGroup, name: NameType, responseJson: JsValue): JsResult[JsObject] =
     for {
       addressJson <- if (actor == Agent) {
-        takeAddressFromPath(agentAddressPath, responseJson)
-      } else {
-        takeAddressFromPath(correspondenceAddressPath, responseJson)
-      }
-      address <- addressJson.validate[AddressType]
-      declaration = Declaration(name, address)
-      updated <- responseJson.transform(putNewValue(__ \ Symbol("declaration"), Json.toJson(declaration)))
+                       takeAddressFromPath(agentAddressPath, responseJson)
+                     } else {
+                       takeAddressFromPath(correspondenceAddressPath, responseJson)
+                     }
+      address     <- addressJson.validate[AddressType]
+      declaration  = Declaration(name, address)
+      updated     <- responseJson.transform(putNewValue(__ \ Symbol("declaration"), Json.toJson(declaration)))
     } yield updated
-  }
 
-  private def takeAddressFromPath(path: JsPath, responseJson: JsValue): JsResult[JsValue] = {
+  private def takeAddressFromPath(path: JsPath, responseJson: JsValue): JsResult[JsValue] =
     responseJson.transform(path.json.pick)
-  }
 
   private def putNewValue(path: JsPath, value: JsValue): Reads[JsObject] =
     __.json.update(path.json.put(value))

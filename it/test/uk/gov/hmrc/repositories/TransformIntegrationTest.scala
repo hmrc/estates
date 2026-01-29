@@ -29,26 +29,27 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TransformIntegrationTest extends ScalaFutures with MongoSupport {
 
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
 
   val connectionString = "mongodb://localhost:27017/estates-integration"
 
-  def dropTheDatabase(): Unit = {
+  def dropTheDatabase(): Unit =
     mongoDatabase.drop()
-  }
 
   private val cc = stubControllerComponents()
 
-  def appBuilder: GuiceApplicationBuilder = {
+  def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
-      .configure(Seq(
-        "mongodb.uri" -> connectionString,
-        "metrics.enabled" -> false,
-        "auditing.enabled" -> false
-      ): _*)
+      .configure(
+        Seq(
+          "mongodb.uri"      -> connectionString,
+          "metrics.enabled"  -> false,
+          "auditing.enabled" -> false
+        ): _*
+      )
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(cc.parsers.default, Organisation))
       )
-  }
 
 }

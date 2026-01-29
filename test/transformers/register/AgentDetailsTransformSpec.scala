@@ -36,7 +36,7 @@ class AgentDetailsTransformSpec extends AnyFreeSpec with Matchers with OptionVal
       postCode = Some("ne64 8hr"),
       country = "GB"
     ),
-    agentTelephoneNumber =  "07701086492",
+    agentTelephoneNumber = "07701086492",
     clientReference = "Agent01"
   )
 
@@ -51,7 +51,7 @@ class AgentDetailsTransformSpec extends AnyFreeSpec with Matchers with OptionVal
       postCode = Some("ne64 8hr"),
       country = "GB"
     ),
-    agentTelephoneNumber =  "07701086492",
+    agentTelephoneNumber = "07701086492",
     clientReference = "Agent01"
   )
 
@@ -63,7 +63,8 @@ class AgentDetailsTransformSpec extends AnyFreeSpec with Matchers with OptionVal
 
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-agent-details-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-agent-details-transformed.json")
 
         val transformer = new AgentDetailsTransform(agentDetailsUpdated)
 
@@ -112,4 +113,5 @@ class AgentDetailsTransformSpec extends AnyFreeSpec with Matchers with OptionVal
       result.as[AgentDetails].agentTelephoneNumber mustBe "07701086492"
     }
   }
+
 }

@@ -23,6 +23,6 @@ case class RegistrationDeclaration(name: NameType)
 
 object RegistrationDeclaration {
 
-  implicit val formats : Format[RegistrationDeclaration] = Json.format[RegistrationDeclaration]
+  implicit val formats: Format[RegistrationDeclaration] = Json.format[RegistrationDeclaration]
 
 }

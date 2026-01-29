@@ -31,25 +31,24 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class CheckEstateController @Inject()(estateService: EstatesService, config: AppConfig,
-                                      identify: IdentifierAction)
-                                     (implicit val executionContext: ExecutionContext, cc: ControllerComponents)
-  extends EstatesBaseController(cc) with Logging {
+class CheckEstateController @Inject() (estateService: EstatesService, config: AppConfig, identify: IdentifierAction)(
+  implicit
+  val executionContext: ExecutionContext,
+  cc: ControllerComponents
+) extends EstatesBaseController(cc) with Logging {
 
   def checkExistingEstate(): Action[JsValue] = identify.async(parse.json) { implicit request =>
-      withJsonBody[ExistingCheckRequest] {
-        estatesCheckRequest =>
-          estateService.checkExistingEstate(estatesCheckRequest).map {
-            result =>
-              logger.info(s"[checkExistingEstate][Session ID: ${Session.id(hc)}] response: $result")
-              result match {
-                case Matched => Ok(matchResponse)
-                case NotMatched => Ok(noMatchResponse)
-                case AlreadyRegistered => Conflict(Json.toJson(alreadyRegisteredEstateResponse))
-                case _ => InternalServerError(Json.toJson(internalServerErrorResponse))
-              }
-          }
+    withJsonBody[ExistingCheckRequest] { estatesCheckRequest =>
+      estateService.checkExistingEstate(estatesCheckRequest).map { result =>
+        logger.info(s"[checkExistingEstate][Session ID: ${Session.id(hc)}] response: $result")
+        result match {
+          case Matched           => Ok(matchResponse)
+          case NotMatched        => Ok(noMatchResponse)
+          case AlreadyRegistered => Conflict(Json.toJson(alreadyRegisteredEstateResponse))
+          case _                 => InternalServerError(Json.toJson(internalServerErrorResponse))
+        }
       }
+    }
   }
 
 }

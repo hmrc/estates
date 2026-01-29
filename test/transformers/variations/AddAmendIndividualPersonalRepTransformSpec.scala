@@ -25,10 +25,13 @@ import utils.JsonUtils
 import java.time.LocalDate
 
 class AddAmendIndividualPersonalRepTransformSpec extends AnyFreeSpec with Matchers {
+
   "the modify individual personal rep transformer should" - {
     "successfully set a new ind individual personal rep details" in {
-      val beforeJson = JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-before.json")
-      val afterJson = JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-after-ind.json")
+      val beforeJson     =
+        JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-before.json")
+      val afterJson      =
+        JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-after-ind.json")
       val newTrusteeInfo = EstatePerRepIndType(
         lineNo = Some("newLineNo"),
         bpMatchStatus = Some("MatchStatus"),
@@ -40,10 +43,11 @@ class AddAmendIndividualPersonalRepTransformSpec extends AnyFreeSpec with Matche
         entityStart = LocalDate.parse("2012-03-14"),
         entityEnd = None
       )
-      val transformer = AddAmendIndividualPersonalRepTransform(newTrusteeInfo)
+      val transformer    = AddAmendIndividualPersonalRepTransform(newTrusteeInfo)
 
       val result = transformer.applyTransform(beforeJson).get
       result mustBe afterJson
     }
   }
+
 }

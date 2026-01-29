@@ -20,7 +20,6 @@ import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-
 sealed trait TaxEnrolmentSubscriberResponse
 
 case object TaxEnrolmentSuccess extends TaxEnrolmentSubscriberResponse
@@ -37,12 +36,12 @@ object TaxEnrolmentSubscriberResponse extends Logging {
         response.status match {
           case NO_CONTENT =>
             TaxEnrolmentSuccess
-          case status =>
+          case status     =>
             val reason = s"Error response from tax enrolments: $status"
             logger.error(reason)
             TaxEnrolmentFailure(reason)
         }
       }
     }
-}
 
+}

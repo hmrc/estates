@@ -37,8 +37,10 @@ import scala.concurrent.Future
 
 class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  val getEstateResponseFromDES: GetEstateResponse = JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
-  val expectedInitialGetJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
+  val getEstateResponseFromDES: GetEstateResponse =
+    JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
+
+  val expectedInitialGetJson: JsValue             = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
 
   "an amend personal rep call" should {
 
@@ -63,24 +65,28 @@ class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar w
         identification = IdentificationType(
           Some("newNino"),
           None,
-          Some(AddressType(
-            "1344 Army Road",
-            "Suite 111",
-            Some("Telford"),
-            Some("Shropshire"),
-            Some("TF1 5DR"),
-            "GB"
-          ))),
+          Some(
+            AddressType(
+              "1344 Army Road",
+              "Suite 111",
+              Some("Telford"),
+              Some("Shropshire"),
+              Some("TF1 5DR"),
+              "GB"
+            )
+          )
+        ),
         entityStart = LocalDate.of(2007, 4, 13),
         entityEnd = None
       )
 
       val newPersonalRep = PersonalRepresentativeType(Some(newPersonalRepIndInfo), None)
 
-      val expectedGetAfterAmendLeadTrusteeJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-after-amend-personal-rep.json")
+      val expectedGetAfterAmendLeadTrusteeJson: JsValue =
+        JsonUtils.getJsonValueFromFile("it/estates-integration-get-after-amend-personal-rep.json")
 
       val result = route(application, FakeRequest(GET, "/estates/5174384721/transformed")).get
-      status(result) mustBe OK
+      status(result)        mustBe OK
       contentAsJson(result) mustBe expectedInitialGetJson
 
       val amendRequest = FakeRequest(POST, "/estates/personal-rep/add-or-amend/5174384721")
@@ -91,8 +97,9 @@ class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar w
       status(amendResult) mustBe OK
 
       val newResult = route(application, FakeRequest(GET, "/estates/5174384721/transformed")).get
-      status(newResult) mustBe OK
+      status(newResult)        mustBe OK
       contentAsJson(newResult) mustBe expectedGetAfterAmendLeadTrusteeJson
     }
   }
+
 }

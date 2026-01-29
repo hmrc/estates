@@ -19,7 +19,7 @@ package utils
 object Headers {
 
   val DraftRegistrationId = "Draft-Registration-ID"
-  val ENVIRONMENT_HEADER = "Environment"
-  val CORRELATION_HEADER = "Correlation-Id"
+  val ENVIRONMENT_HEADER  = "Environment"
+  val CORRELATION_HEADER  = "Correlation-Id"
 
 }

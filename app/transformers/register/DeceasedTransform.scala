@@ -19,8 +19,7 @@ package transformers.register
 import models.EstateWillType
 import play.api.libs.json._
 
-case class DeceasedTransform(deceased: EstateWillType)
-  extends SetValueAtPathDeltaTransform {
+case class DeceasedTransform(deceased: EstateWillType) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("estate") \ Symbol("entities") \ Symbol("deceased")
 

@@ -24,21 +24,23 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
-class CorrespondenceTransformationService @Inject()(
-                                                  transformationService: TransformationService
-                                                )(implicit val ec: ExecutionContext) {
+class CorrespondenceTransformationService @Inject() (
+  transformationService: TransformationService
+)(implicit val ec: ExecutionContext) {
 
   def addAmendCorrespondenceNameTransformer(internalId: String, newCorrespondenceName: JsString): Future[Success.type] =
-    transformationService.addNewTransform(internalId, CorrespondenceNameTransform(newCorrespondenceName)).map(_ => Success)
+    transformationService
+      .addNewTransform(internalId, CorrespondenceNameTransform(newCorrespondenceName))
+      .map(_ => Success)
 
-  def getCorrespondenceName(internalId: String): Future[Option[JsString]] = {
+  def getCorrespondenceName(internalId: String): Future[Option[JsString]] =
     transformationService.getTransformations(internalId) map {
       case Some(ComposedDeltaTransform(transforms)) =>
-        transforms.flatMap{
+        transforms.flatMap {
           case CorrespondenceNameTransform(name) => Some(name)
-          case _ => None
+          case _                                 => None
         }.lastOption
-      case _ => None
+      case _                                        => None
     }
-  }
+
 }

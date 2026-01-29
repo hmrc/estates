@@ -31,7 +31,8 @@ import transformers.register.AgentDetailsTransform
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
+class AgentDetailsTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   private val agentDetails = AgentDetails(
     arn = "SARN1234567",
@@ -44,7 +45,7 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
       postCode = Some("ne64 8hr"),
       country = "GB"
     ),
-    agentTelephoneNumber =  "07912180120",
+    agentTelephoneNumber = "07912180120",
     clientReference = "clientReference"
   )
 
@@ -53,15 +54,15 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
     "must write a corresponding transform using the transformation service" in {
 
       val transformationService = mock[TransformationService]
-      val service = new AgentDetailsTransformationService(transformationService)
+      val service               = new AgentDetailsTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any())).thenReturn(Future.successful(true))
 
       val result = service.addTransform("internalId", agentDetails)
       whenReady(result) { _ =>
-
         verify(transformationService).addNewTransform(
-          "internalId", AgentDetailsTransform(agentDetails)
+          "internalId",
+          AgentDetailsTransform(agentDetails)
         )
 
       }
@@ -71,13 +72,12 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
 
       "due to there being no data" in {
         val transformationService = mock[TransformationService]
-        val service = new AgentDetailsTransformationService(transformationService)
+        val service               = new AgentDetailsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Nil))))
 
         whenReady(service.get("internalId")) { result =>
-
           result mustBe None
 
         }
@@ -85,7 +85,7 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
 
       "due to there being no transforms" in {
         val transformationService = mock[TransformationService]
-        val service = new AgentDetailsTransformationService(transformationService)
+        val service               = new AgentDetailsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(None))
@@ -101,13 +101,12 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
       "when there is a single transform" in {
 
         val transformationService = mock[TransformationService]
-        val service = new AgentDetailsTransformationService(transformationService)
+        val service               = new AgentDetailsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(AgentDetailsTransform(agentDetails))))))
 
         whenReady(service.get("internalId")) { result =>
-
           result.value mustBe agentDetails
 
         }
@@ -116,4 +115,5 @@ class AgentDetailsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
     }
 
   }
+
 }

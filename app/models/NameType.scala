@@ -18,25 +18,8 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class NameType(firstName: String,
-                    middleName: Option[String],
-                    lastName: String)
+case class NameType(firstName: String, middleName: Option[String], lastName: String)
 
 object NameType {
   implicit val nameTypeFormat: Format[NameType] = Json.format[NameType]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

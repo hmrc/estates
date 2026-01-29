@@ -18,13 +18,13 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class DesResponse(`match`:Boolean)
+case class DesResponse(`match`: Boolean)
 
 object DesResponse {
   implicit val formats: OFormat[DesResponse] = Json.format[DesResponse]
 }
 
-case class DesErrorResponse(code: String,reason: String )
+case class DesErrorResponse(code: String, reason: String)
 
 object DesErrorResponse {
   implicit val formats: OFormat[DesErrorResponse] = Json.format[DesErrorResponse]

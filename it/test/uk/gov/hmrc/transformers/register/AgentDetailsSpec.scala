@@ -38,23 +38,24 @@ class AgentDetailsSpec extends AnyWordSpec with Matchers with MockitoSugar with 
       postCode = Some("ne64 8hr"),
       country = "GB"
     ),
-    agentTelephoneNumber =  "07912180120",
+    agentTelephoneNumber = "07912180120",
     clientReference = "clientReference"
   )
 
   "an add agentDetails call" must {
     "return added data in a subsequent 'GET' call" in {
 
-          val amendRequest = FakeRequest(POST, "/estates/agent-details")
-            .withBody(Json.toJson(agentDetails))
-            .withHeaders(CONTENT_TYPE -> "application/json")
+      val amendRequest = FakeRequest(POST, "/estates/agent-details")
+        .withBody(Json.toJson(agentDetails))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-          val amendResult = route(appBuilder.build(), amendRequest).get
-          status(amendResult) mustBe OK
+      val amendResult = route(appBuilder.build(), amendRequest).get
+      status(amendResult) mustBe OK
 
-          val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/agent-details")).get
-          status(newResult) mustBe OK
-          contentAsJson(newResult) mustBe Json.toJson(agentDetails)
+      val newResult = route(appBuilder.build(), FakeRequest(GET, "/estates/agent-details")).get
+      status(newResult)        mustBe OK
+      contentAsJson(newResult) mustBe Json.toJson(agentDetails)
     }
   }
+
 }

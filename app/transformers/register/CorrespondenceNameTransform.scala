@@ -19,16 +19,14 @@ package transformers.register
 import play.api.libs.json._
 import transformers.DeltaTransform
 
-case class CorrespondenceNameTransform(newCorrespondenceName: JsString)
-  extends DeltaTransform {
+case class CorrespondenceNameTransform(newCorrespondenceName: JsString) extends DeltaTransform {
 
   private val path: JsPath = __ \ Symbol("correspondence") \ Symbol("name")
 
-  override def applyTransform(input: JsValue): JsResult[JsValue] = {
+  override def applyTransform(input: JsValue): JsResult[JsValue] =
     input.transform(
       __.json.update(path.json.put(newCorrespondenceName))
     )
-  }
 
 }
 

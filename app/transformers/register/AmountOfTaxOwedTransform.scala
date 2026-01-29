@@ -19,8 +19,7 @@ package transformers.register
 import models.register.TaxAmount
 import play.api.libs.json._
 
-case class AmountOfTaxOwedTransform(amount: TaxAmount)
-  extends SetValueAtPathDeltaTransform {
+case class AmountOfTaxOwedTransform(amount: TaxAmount) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("estate") \ Symbol("periodTaxDues")
 
@@ -34,5 +33,3 @@ object AmountOfTaxOwedTransform {
 
   implicit val format: Format[AmountOfTaxOwedTransform] = Json.format[AmountOfTaxOwedTransform]
 }
-
-

@@ -21,19 +21,27 @@ import models.{AddressType, EstatePerRepIndType, EstatePerRepOrgType}
 import play.api.libs.json.{JsPath, _}
 import utils.JsonOps._
 
-case class PersonalRepTransform(newPersonalIndRep: Option[EstatePerRepIndType],
-                                newPersonalOrgRep: Option[EstatePerRepOrgType]) extends SetValueAtPathDeltaTransform {
+case class PersonalRepTransform(
+  newPersonalIndRep: Option[EstatePerRepIndType],
+  newPersonalOrgRep: Option[EstatePerRepOrgType]
+) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative")
 
   private lazy val correspondencePath = __ \ Symbol("correspondence")
 
-  override val value: JsValue = Json.obj(
-    "estatePerRepInd" -> newPersonalIndRep,
-    "estatePerRepOrg" -> newPersonalOrgRep
-  ).withoutNulls
+  override val value: JsValue = Json
+    .obj(
+      "estatePerRepInd" -> newPersonalIndRep,
+      "estatePerRepOrg" -> newPersonalOrgRep
+    )
+    .withoutNulls
 
-  def transformCorrespondence(input: JsValue, address: Option[AddressType], telephoneNumber: String): JsResult[JsObject] =
+  def transformCorrespondence(
+    input: JsValue,
+    address: Option[AddressType],
+    telephoneNumber: String
+  ): JsResult[JsObject] =
     address match {
       case Some(address) =>
         val isAbroad = address.postCode.isEmpty
@@ -42,23 +50,30 @@ case class PersonalRepTransform(newPersonalIndRep: Option[EstatePerRepIndType],
             correspondencePath.json.put {
               Json.obj(
                 "abroadIndicator" -> isAbroad,
-                "address" -> address,
-                "phoneNumber" -> telephoneNumber
+                "address"         -> address,
+                "phoneNumber"     -> telephoneNumber
               )
             }
           )
         )
-      case None =>
+      case None          =>
         JsError("No address on personal rep to apply to correspondence")
     }
 
   override def applyDeclarationTransform(input: JsValue): JsResult[JsValue] = this match {
     case PersonalRepTransform(Some(newPersonalIndRep), None) =>
       for {
-        inputWithCorrespondence <- transformCorrespondence(input, newPersonalIndRep.identification.address, newPersonalIndRep.phoneNumber)
+        inputWithCorrespondence   <-
+          transformCorrespondence(input, newPersonalIndRep.identification.address, newPersonalIndRep.phoneNumber)
         inputWithAddressCorrected <- {
-          if (input.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("nino")).json.pick).isSuccess) {
-            inputWithCorrespondence.transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("address")).json.prune)
+          if (
+            input
+              .transform((path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("nino")).json.pick)
+              .isSuccess
+          ) {
+            inputWithCorrespondence.transform(
+              (path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("address")).json.prune
+            )
           } else {
             JsSuccess(inputWithCorrespondence)
           }
@@ -67,11 +82,18 @@ case class PersonalRepTransform(newPersonalIndRep: Option[EstatePerRepIndType],
 
     case PersonalRepTransform(None, Some(newPersonalOrgRep)) =>
       for {
-        inputWithCorrespondence <- transformCorrespondence(input, newPersonalOrgRep.identification.address, newPersonalOrgRep.phoneNumber)
+        inputWithCorrespondence   <-
+          transformCorrespondence(input, newPersonalOrgRep.identification.address, newPersonalOrgRep.phoneNumber)
         inputWithAddressCorrected <- {
 
-          if (input.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("utr")).json.pick).isSuccess) {
-            inputWithCorrespondence.transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("address")).json.prune)
+          if (
+            input
+              .transform((path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("utr")).json.pick)
+              .isSuccess
+          ) {
+            inputWithCorrespondence.transform(
+              (path \ Symbol("estatePerRepOrg") \ Symbol("identification") \ Symbol("address")).json.prune
+            )
           } else {
             JsSuccess(inputWithCorrespondence)
           }
@@ -83,13 +105,15 @@ case class PersonalRepTransform(newPersonalIndRep: Option[EstatePerRepIndType],
   }
 
   private def removeIsPassportField(original: JsValue): JsValue = {
-    val isPassportPath = path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("passport") \ Symbol("isPassport")
+    val isPassportPath =
+      path \ Symbol("estatePerRepInd") \ Symbol("identification") \ Symbol("passport") \ Symbol("isPassport")
 
     original.transform(isPassportPath.json.prune) match {
       case JsSuccess(updated, _) => updated
-      case JsError(_) => original
+      case JsError(_)            => original
     }
   }
+
 }
 
 object PersonalRepTransform {

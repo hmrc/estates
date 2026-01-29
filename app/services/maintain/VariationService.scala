@@ -31,42 +31,44 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+class VariationService @Inject() (
+  estatesService: EstatesService,
+  transformationService: VariationsTransformationService,
+  declarationService: VariationDeclarationService,
+  estates5MLDService: Estates5MLDService,
+  auditService: AuditService
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
-class VariationService @Inject()(
-                                  estatesService: EstatesService,
-                                  transformationService: VariationsTransformationService,
-                                  declarationService: VariationDeclarationService,
-                                  estates5MLDService: Estates5MLDService,
-                                  auditService: AuditService)(implicit ec: ExecutionContext) extends Logging {
-
-  def submitDeclaration(utr: String,
-                        internalId: String,
-                        declaration: DeclarationForApi)
-                       (implicit hc: HeaderCarrier): Future[VariationResponse] = {
+  def submitDeclaration(utr: String, internalId: String, declaration: DeclarationForApi)(implicit
+    hc: HeaderCarrier
+  ): Future[VariationResponse] =
 
     getCachedEstateData(utr, internalId) flatMap {
       case cached: GetEstateProcessedResponse =>
         populatePersonalRepAddress(utr, internalId, cached, declaration)
-      case EtmpCacheDataStaleResponse =>
+      case EtmpCacheDataStaleResponse         =>
         Future.successful(VariationFailureResponse(EtmpDataStaleErrorResponse))
       // TODO: Do we need to be more specific?
-      case _ =>
-        Future.successful(VariationFailureResponse(InternalServerErrorErrorResponse)) //TODO not sure this condition can be hit
+      case _                                  =>
+        Future.successful(
+          VariationFailureResponse(InternalServerErrorErrorResponse)
+        ) // TODO not sure this condition can be hit
     }
 
-  }
-
-  private def populatePersonalRepAddress(utr: String,
-                                         internalId: String,
-                                         cached: GetEstateProcessedResponse,
-                                         declaration: DeclarationForApi)(implicit hc: HeaderCarrier): Future[VariationResponse] = {
-    val cachedEstate = cached.getEstate
+  private def populatePersonalRepAddress(
+    utr: String,
+    internalId: String,
+    cached: GetEstateProcessedResponse,
+    declaration: DeclarationForApi
+  )(implicit hc: HeaderCarrier): Future[VariationResponse] = {
+    val cachedEstate                   = cached.getEstate
     val responseHeader: ResponseHeader = cached.responseHeader
 
     transformationService.populatePersonalRepAddress(cachedEstate) match {
       case JsSuccess(cachedWithAmendedPerRepAddress, _) =>
         submitPopulatedEstate(utr, internalId, cachedWithAmendedPerRepAddress, declaration, responseHeader)
-      case e: JsError =>
+      case e: JsError                                   =>
         auditService.auditVariationTransformationError(
           utr,
           internalId,
@@ -76,19 +78,22 @@ class VariationService @Inject()(
           JsError.toJson(e)
         )
 
-        logger.error(s"[submitDeclaration][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" Failed to populate personal rep address ${JsError.toJson(e)}")
+        logger.error(
+          s"[submitDeclaration][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" Failed to populate personal rep address ${JsError.toJson(e)}"
+        )
 
         Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
     }
   }
 
-  private def submitPopulatedEstate(utr: String,
-                                    internalId: String,
-                                    cachedWithAmendedPerRepAddress: JsValue,
-                                    declaration: DeclarationForApi,
-                                    responseHeader: ResponseHeader)
-                                   (implicit hc: HeaderCarrier): Future[VariationResponse] = {
+  private def submitPopulatedEstate(
+    utr: String,
+    internalId: String,
+    cachedWithAmendedPerRepAddress: JsValue,
+    declaration: DeclarationForApi,
+    responseHeader: ResponseHeader
+  )(implicit hc: HeaderCarrier): Future[VariationResponse] =
     transformationService.applyDeclarationTransformations(utr, internalId, cachedWithAmendedPerRepAddress) flatMap {
       case JsSuccess(transformedDocument, _) =>
 
@@ -104,22 +109,28 @@ class VariationService @Inject()(
         trySubmitPopulatedEstate(documentWithDeclarationTransforms, internalId, utr, transformedDocument)
 
       case e: JsError =>
-        logger.error(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" Failed to transform estate info ${JsError.toJson(e)}")
+        logger.error(
+          s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" Failed to transform estate info ${JsError.toJson(e)}"
+        )
 
         Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
     }
-  }
 
-  private def trySubmitPopulatedEstate(documentWithDeclarationTransforms: JsResult[JsValue],
-                                       internalId: String, utr: String,
-                                       transformedDocument: JsValue)(implicit hc: HeaderCarrier): Future[VariationResponse] = {
+  private def trySubmitPopulatedEstate(
+    documentWithDeclarationTransforms: JsResult[JsValue],
+    internalId: String,
+    utr: String,
+    transformedDocument: JsValue
+  )(implicit hc: HeaderCarrier): Future[VariationResponse] =
 
     documentWithDeclarationTransforms match {
       case JsSuccess(value, _) =>
         logger.debug(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr] submitting variation $value")
-        logger.info(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" successfully transformed json for declaration")
+        logger.info(
+          s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" successfully transformed json for declaration"
+        )
 
         doSubmit(value, internalId)
 
@@ -133,36 +144,43 @@ class VariationService @Inject()(
           JsError.toJson(e)
         )
 
-        logger.error(s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" Problem transforming data for ETMP submission ${JsError.toJson(e)}")
+        logger.error(
+          s"[submitPopulatedEstate][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" Problem transforming data for ETMP submission ${JsError.toJson(e)}"
+        )
         Future.failed(InternalServerErrorException("There was a problem transforming data for submission to ETMP"))
     }
-  }
 
-  private def getCachedEstateData(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] = {
+  private def getCachedEstateData(utr: String, internalId: String)(implicit
+    hc: HeaderCarrier
+  ): Future[GetEstateResponse] =
     for {
-      response <- estatesService.getEstateInfo(utr, internalId)
+      response         <- estatesService.getEstateInfo(utr, internalId)
       formBundleNumber <- estatesService.getEstateInfoFormBundleNo(utr)
     } yield response match {
       case response: GetEstateProcessedResponse if response.responseHeader.formBundleNo == formBundleNumber =>
-        logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" returning GetEstateProcessedResponse")
+        logger.info(
+          s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" returning GetEstateProcessedResponse"
+        )
 
         response
-      case _: GetEstateProcessedResponse =>
-        logger.info(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-          s" ETMP cached data in mongo has become stale, rejecting submission")
+      case _: GetEstateProcessedResponse                                                                    =>
+        logger.info(
+          s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" ETMP cached data in mongo has become stale, rejecting submission"
+        )
 
         EtmpCacheDataStaleResponse
-      case _ =>
-        logger.warn(s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr] Estate was not in a processed state")
+      case _                                                                                                =>
+        logger.warn(
+          s"[getCachedEstateData][Session ID: ${Session.id(hc)}][UTR: $utr] Estate was not in a processed state"
+        )
 
         throw InternalServerErrorException("Submission could not proceed, Estate data was not in a processed state")
     }
-  }
 
-  private def doSubmit(value: JsValue, internalId: String)
-                      (implicit hc: HeaderCarrier): Future[VariationResponse] = {
+  private def doSubmit(value: JsValue, internalId: String)(implicit hc: HeaderCarrier): Future[VariationResponse] = {
 
     val payload = value.applyRules
 
@@ -182,4 +200,5 @@ class VariationService @Inject()(
       case response => response
     }
   }
+
 }

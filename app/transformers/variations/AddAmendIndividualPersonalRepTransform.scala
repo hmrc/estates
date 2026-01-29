@@ -20,15 +20,19 @@ import models.variation.EstatePerRepIndType
 import play.api.libs.json._
 import transformers.DeltaTransform
 
-case class AddAmendIndividualPersonalRepTransform(personalRep: EstatePerRepIndType) extends DeltaTransform with AddAmendPersonalRepTransform {
-  override def applyTransform(input: JsValue): JsResult[JsValue] = {
+case class AddAmendIndividualPersonalRepTransform(personalRep: EstatePerRepIndType)
+    extends DeltaTransform with AddAmendPersonalRepTransform {
+
+  override def applyTransform(input: JsValue): JsResult[JsValue] =
     setPersonalRep(input, Json.toJson(personalRep))
-  }
+
 }
 
 object AddAmendIndividualPersonalRepTransform {
 
   val key = "AddAmendIndividualPersonalRepTransform"
 
-  implicit val format: Format[AddAmendIndividualPersonalRepTransform] = Json.format[AddAmendIndividualPersonalRepTransform]
+  implicit val format: Format[AddAmendIndividualPersonalRepTransform] =
+    Json.format[AddAmendIndividualPersonalRepTransform]
+
 }

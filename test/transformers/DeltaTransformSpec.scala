@@ -24,8 +24,7 @@ class DeltaTransformSpec extends BaseSpec {
   "DeltaTransform" must {
 
     "not throw a match error when parsing a transform with an unrecognised key" in {
-      val json = Json.parse(
-        s"""{
+      val json = Json.parse(s"""{
            |  "deltaTransforms": [
            |    {
            |      "SomeUnknownTransformKey": {
@@ -42,4 +41,5 @@ class DeltaTransformSpec extends BaseSpec {
       e.getMessage mustBe "Don't know how to de-serialise transform"
     }
   }
+
 }

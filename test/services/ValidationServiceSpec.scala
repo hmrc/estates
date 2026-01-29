@@ -29,7 +29,9 @@ import java.time.LocalDate
 class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataExamples {
 
   private lazy val validationService: ValidationService = new ValidationService()
-  private lazy val estateValidator : Validator = validationService.get("/resources/schemas/4MLD/estates-api-schema-5.0.json")
+
+  private lazy val estateValidator: Validator           =
+    validationService.get("/resources/schemas/4MLD/estates-api-schema-5.0.json")
 
   "a validator " should {
     "return an empty list of errors when " when {
@@ -60,16 +62,17 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
     "return registration domain" when {
 
       "no personal representative provided" in {
-        val jsonString = JsonUtils.getJsonFromFile("mdtp/invalid-estate-registration-01.json")
+        val jsonString     = JsonUtils.getJsonFromFile("mdtp/invalid-estate-registration-01.json")
         val expectedErrors = List("object has missing required properties ([\"personalRepresentative\"])")
-        val errorList = estateValidator.validate[EstateRegistration](jsonString).left.value.map(_.message)
+        val errorList      = estateValidator.validate[EstateRegistration](jsonString).left.value.map(_.message)
 
         errorList mustBe expectedErrors
       }
 
       "no correspodence address provided for estate" in {
         val expectedErrors = List("object has missing required properties ([\"address\"])")
-        val errorList = estateValidator.validate[EstateRegistration](estateWithoutCorrespondenceAddress).left.value.map(_.message)
+        val errorList      =
+          estateValidator.validate[EstateRegistration](estateWithoutCorrespondenceAddress).left.value.map(_.message)
 
         errorList mustBe expectedErrors
       }
@@ -77,10 +80,11 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
 
     "return a list of validaton errors for estates " when {
       "individual personal representative has future date of birth" in {
-        val jsonString = JsonUtils.getJsonFromFile("mdtp/estate-registration-dynamic-01.json")
+        val jsonString     = JsonUtils
+          .getJsonFromFile("mdtp/estate-registration-dynamic-01.json")
           .replace("{estatePerRepIndDob}", "2030-01-01")
         val expectedErrors = List("Date of birth must be today or in the past.")
-        val errorList = estateValidator.validate[EstateRegistration](jsonString).left.value.map(_.message)
+        val errorList      = estateValidator.validate[EstateRegistration](jsonString).left.value.map(_.message)
 
         errorList mustBe expectedErrors
       }
@@ -94,14 +98,15 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
             (JsPath \ "details" \ "estate99").read[Estate](Estate.estateFormat) and
             (JsPath \ "agentDetails").readNullable[AgentDetails] and
             (JsPath \ "submissionDate").readNullable[LocalDate]
-          ) (EstateRegistration.apply _)
+        )(EstateRegistration.apply _)
 
-        val jsonString = JsonUtils.getJsonFromFile("mdtp/valid-estate-registration-04.json")
+        val jsonString     = JsonUtils.getJsonFromFile("mdtp/valid-estate-registration-04.json")
         val expectedErrors = List("error.path.missing")
-        val errorList = estateValidator.validate[EstateRegistration](jsonString)(reads).left.value.map(_.message)
+        val errorList      = estateValidator.validate[EstateRegistration](jsonString)(reads).left.value.map(_.message)
 
         errorList mustBe expectedErrors
       }
     }
   }
+
 }

@@ -24,23 +24,23 @@ import transformers.register.AgentDetailsTransform
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentDetailsTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
+class AgentDetailsTransformationService @Inject() (transformationService: TransformationService)(implicit
+  ec: ExecutionContext
+) {
 
-  def addTransform(internalId: String, agentDetails: AgentDetails) : Future[Success.type] = {
-    transformationService.addNewTransform(internalId, AgentDetailsTransform(agentDetails)) map {
-      _ => Success
+  def addTransform(internalId: String, agentDetails: AgentDetails): Future[Success.type] =
+    transformationService.addNewTransform(internalId, AgentDetailsTransform(agentDetails)) map { _ =>
+      Success
     }
-  }
 
-  def get(internalId: String): Future[Option[AgentDetails]] = {
+  def get(internalId: String): Future[Option[AgentDetails]] =
     transformationService.getTransformations(internalId) map {
       case Some(ComposedDeltaTransform(transforms)) =>
-        transforms.flatMap{
+        transforms.flatMap {
           case AgentDetailsTransform(agentDetails) => Some(agentDetails)
-          case _ => None
+          case _                                   => None
         }.lastOption
-      case _ => None
+      case _                                        => None
     }
-  }
 
 }

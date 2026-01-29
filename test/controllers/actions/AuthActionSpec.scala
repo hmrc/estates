@@ -35,18 +35,17 @@ class AuthActionSpec extends BaseSpec {
   private val cc = stubControllerComponents()
 
   class Harness(authAction: IdentifierAction) {
-    def onSubmit(): Action[JsValue] = authAction.apply(cc.parsers.json) { _ => Results.Ok }
+    def onSubmit(): Action[JsValue] = authAction.apply(cc.parsers.json)(_ => Results.Ok)
   }
 
   private def authRetrievals(affinityGroup: AffinityGroup) =
     Future.successful(new ~(Some("id"), Some(affinityGroup)))
 
   private val agentAffinityGroup = AffinityGroup.Agent
-  private val orgAffinityGroup = AffinityGroup.Organisation
+  private val orgAffinityGroup   = AffinityGroup.Organisation
 
-  private def actionToTest(authConnector: AuthConnector) = {
+  private def actionToTest(authConnector: AuthConnector) =
     new AuthenticatedIdentifierAction(authConnector, injector.instanceOf[BodyParsers.Default])
-  }
 
   "Auth Action" when {
 
@@ -56,7 +55,7 @@ class AuthActionSpec extends BaseSpec {
 
         val authAction = actionToTest(new FakeAuthConnector(authRetrievals(agentAffinityGroup)))
         val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
+        val result     = controller.onSubmit()(fakeRequest)
 
         status(result) mustBe OK
 
@@ -71,7 +70,7 @@ class AuthActionSpec extends BaseSpec {
 
         val authAction = actionToTest(new FakeAuthConnector(authRetrievals(orgAffinityGroup)))
         val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
+        val result     = controller.onSubmit()(fakeRequest)
 
         status(result) mustBe OK
 
@@ -83,10 +82,10 @@ class AuthActionSpec extends BaseSpec {
     "Individual user" must {
 
       "redirect the user to the unauthorised page" in {
-        
+
         val authAction = actionToTest(new FakeAuthConnector(authRetrievals(Individual)))
         val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
+        val result     = controller.onSubmit()(fakeRequest)
         status(result) mustBe UNAUTHORIZED
 
         application.stop()
@@ -100,7 +99,7 @@ class AuthActionSpec extends BaseSpec {
 
         val authAction = actionToTest(new FakeFailingAuthConnector(new MissingBearerToken))
         val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
+        val result     = controller.onSubmit()(fakeRequest)
 
         status(result) mustBe UNAUTHORIZED
 
@@ -114,7 +113,7 @@ class AuthActionSpec extends BaseSpec {
 
         val authAction = actionToTest(new FakeFailingAuthConnector(new BearerTokenExpired))
         val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
+        val result     = controller.onSubmit()(fakeRequest)
 
         status(result) mustBe UNAUTHORIZED
 
@@ -122,21 +121,26 @@ class AuthActionSpec extends BaseSpec {
       }
     }
   }
+
 }
 
-class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
+class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends AuthConnector {
   val serviceUrl: String = ""
 
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[A] =
     Future.failed(exceptionToReturn)
-}
 
+}
 
 class FakeAuthConnector(stubbedRetrievalResult: Future[_]) extends AuthConnector {
 
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[A] =
     stubbedRetrievalResult.map(_.asInstanceOf[A])(ec)
-  }
 
 }
-

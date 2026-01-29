@@ -28,45 +28,57 @@ import java.time.LocalDate
 class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValues {
 
   val newPersonalRepInd = EstatePerRepIndType(
-    name =  NameType("Alister", None, "Mc'Lovern"),
-    dateOfBirth = LocalDate.of(1980,6,1),
+    name = NameType("Alister", None, "Mc'Lovern"),
+    dateOfBirth = LocalDate.of(1980, 6, 1),
     identification = IdentificationType(Some("JS123456A"), None, None),
     phoneNumber = "078888888",
     email = Some("test@abc.com")
   )
 
   val newPersonalRepIndWithUkAddress = EstatePerRepIndType(
-    name =  NameType("Alister", None, "Mc'Lovern"),
-    dateOfBirth = LocalDate.of(1980,6,1),
-    identification = IdentificationType(None, None, Some(AddressType(
-      line1 = "Line 1",
-      line2 = "Line 2",
-      line3 = None,
-      line4 = None,
-      postCode = Some("NE981ZZ"),
-      country = "GB"
-    ))),
+    name = NameType("Alister", None, "Mc'Lovern"),
+    dateOfBirth = LocalDate.of(1980, 6, 1),
+    identification = IdentificationType(
+      None,
+      None,
+      Some(
+        AddressType(
+          line1 = "Line 1",
+          line2 = "Line 2",
+          line3 = None,
+          line4 = None,
+          postCode = Some("NE981ZZ"),
+          country = "GB"
+        )
+      )
+    ),
     phoneNumber = "078888888",
     email = Some("test@abc.com")
   )
 
   val newPersonalRepIndWithNonUkAddress = EstatePerRepIndType(
-    name =  NameType("Alister", None, "Mc'Lovern"),
-    dateOfBirth = LocalDate.of(1980,6,1),
-    identification = IdentificationType(None, None, Some(AddressType(
-      line1 = "Line 1",
-      line2 = "Line 2",
-      line3 = None,
-      line4 = None,
-      postCode = None,
-      country = "DE"
-    ))),
+    name = NameType("Alister", None, "Mc'Lovern"),
+    dateOfBirth = LocalDate.of(1980, 6, 1),
+    identification = IdentificationType(
+      None,
+      None,
+      Some(
+        AddressType(
+          line1 = "Line 1",
+          line2 = "Line 2",
+          line3 = None,
+          line4 = None,
+          postCode = None,
+          country = "DE"
+        )
+      )
+    ),
     phoneNumber = "078888888",
     email = Some("test@abc.com")
   )
 
   val newPersonalRepOrgWithUkAddress = EstatePerRepOrgType(
-    orgName =  "Lovely Organisation",
+    orgName = "Lovely Organisation",
     identification = IdentificationOrgType(
       None,
       Some(AddressType("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "Country"))
@@ -76,7 +88,7 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
   )
 
   val newPersonalRepOrgWithNonUkAddress = EstatePerRepOrgType(
-    orgName =  "Lovely Organisation",
+    orgName = "Lovely Organisation",
     identification = IdentificationOrgType(
       None,
       Some(AddressType("line1", "line2", Some("line3"), Some("line4"), None, "Country"))
@@ -86,7 +98,7 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
   )
 
   val newPersonalRepOrgWithUtrAndAddress = EstatePerRepOrgType(
-    orgName =  "Lovely Organisation",
+    orgName = "Lovely Organisation",
     identification = IdentificationOrgType(
       Some("1234567890"),
       Some(AddressType("line1", "line2", Some("line3"), Some("line4"), None, "Country"))
@@ -103,7 +115,8 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-ind-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-ind-transformed.json")
 
         val transformer = new PersonalRepTransform(Some(newPersonalRepInd), None)
 
@@ -115,7 +128,8 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
       "when there are no existing personal reps" in {
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-ind-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-ind-transformed.json")
 
         val transformer = new PersonalRepTransform(Some(newPersonalRepInd), None)
 
@@ -133,7 +147,7 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
           "estate" -> Json.obj(
             "entities" -> Json.obj(
               "personalRepresentative" -> Json.obj(
-                "estatePerRepInd"-> Json.toJson(newPersonalRepInd)
+                "estatePerRepInd" -> Json.toJson(newPersonalRepInd)
               )
             )
           )
@@ -145,7 +159,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
       "when there is an existing transform with personal rep with utr, being replaced with a transform without utr" in {
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-05-with-per-rep-org-utr.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-org-transformed-without-utr.json")
+        val afterJson = JsonUtils.getJsonValueFromFile(
+          "transformed/valid-estate-registration-01-personal-rep-org-transformed-without-utr.json"
+        )
 
         val transformer = new PersonalRepTransform(None, Some(newPersonalRepOrgWithUkAddress))
 
@@ -158,7 +174,8 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-org-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-org-transformed.json")
 
         val transformer = new PersonalRepTransform(None, Some(newPersonalRepOrgWithUkAddress))
 
@@ -170,7 +187,8 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
       "when there are no existing personal reps" in {
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-org-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-personal-rep-org-transformed.json")
 
         val transformer = new PersonalRepTransform(None, Some(newPersonalRepOrgWithUkAddress))
 
@@ -199,12 +217,21 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
     "remove isPassport field and apply phone number rules upon applying transform" in {
 
       val personalRepInd = EstatePerRepIndType(
-        name =  NameType("Alister", None, "Mc'Lovern"),
-        dateOfBirth = LocalDate.of(1980,6,1),
+        name = NameType("Alister", None, "Mc'Lovern"),
+        dateOfBirth = LocalDate.of(1980, 6, 1),
         identification = IdentificationType(
           None,
           Some(PassportType("123456789", LocalDate.parse("2025-09-28"), "ES", Some(true))),
-          Some(AddressType("Address line 1", "Address line 2", Some("Address line 3"), Some("Town or city"), Some("Z99 2YY"), "GB"))
+          Some(
+            AddressType(
+              "Address line 1",
+              "Address line 2",
+              Some("Address line 3"),
+              Some("Town or city"),
+              Some("Z99 2YY"),
+              "GB"
+            )
+          )
         ),
         phoneNumber = "(0)078888888",
         email = Some("test@abc.com")
@@ -212,7 +239,8 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
       val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-03-with-is-passport-field.json")
 
-      val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-03-personal-rep-ind-transformed.json")
+      val afterJson =
+        JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-03-personal-rep-ind-transformed.json")
 
       val transformer = new PersonalRepTransform(Some(personalRepInd), None)
 
@@ -226,32 +254,34 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
       "must remove address" - {
 
         "when personal rep has a nino" in {
-            val document = Json.obj(
-              "correspondence" -> Json.obj(
-                "name" -> "Estate of Personal Rep"
-              ),
-              "estate" -> Json.obj(
-                "entities" -> Json.obj(
-                  "personalRepresentative" -> Json.obj(
-                    "estatePerRepInd" -> Json.obj(
-                      "identification" -> Json.obj(
-                        "nino" -> "JP121212A",
-                        "address" -> Json.obj()
-                      )
+          val document = Json.obj(
+            "correspondence" -> Json.obj(
+              "name" -> "Estate of Personal Rep"
+            ),
+            "estate"         -> Json.obj(
+              "entities" -> Json.obj(
+                "personalRepresentative" -> Json.obj(
+                  "estatePerRepInd" -> Json.obj(
+                    "identification" -> Json.obj(
+                      "nino"    -> "JP121212A",
+                      "address" -> Json.obj()
                     )
                   )
                 )
               )
             )
+          )
 
-            val transformer = new PersonalRepTransform(Some(newPersonalRepIndWithUkAddress), None)
+          val transformer = new PersonalRepTransform(Some(newPersonalRepIndWithUkAddress), None)
 
-            val result = transformer.applyDeclarationTransform(document).get
+          val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-ind-address-removed.json")
+          val expectedResult = JsonUtils.getJsonValueFromFile(
+            "transformed/declared/declaration-transform-personal-rep-ind-address-removed.json"
+          )
 
-            result mustBe expectedResult
-          }
+          result mustBe expectedResult
+        }
       }
 
       "UK based" - {
@@ -266,7 +296,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-uk-address.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-uk-address.json"
+            )
 
             result mustBe expectedResult
           }
@@ -282,7 +314,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-uk-address-and-name.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-uk-address-and-name.json"
+            )
 
             result mustBe expectedResult
           }
@@ -302,7 +336,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-non-uk-address.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-non-uk-address.json"
+            )
 
             result mustBe expectedResult
           }
@@ -318,7 +354,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-non-uk-address-and-name.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-ind-correspondence-with-non-uk-address-and-name.json"
+            )
 
             result mustBe expectedResult
           }
@@ -332,32 +370,34 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
       "must remove address" - {
 
         "when personal rep has a utr" in {
-            val document = Json.obj(
-              "correspondence" -> Json.obj(
-                "name" -> "Estate of Personal Rep"
-              ),
-              "estate" -> Json.obj(
-                "entities" -> Json.obj(
-                  "personalRepresentative" -> Json.obj(
-                    "estatePerRepOrg" -> Json.obj(
-                      "identification" -> Json.obj(
-                        "utr" -> "1234567890",
-                        "address" -> Json.obj()
-                      )
+          val document = Json.obj(
+            "correspondence" -> Json.obj(
+              "name" -> "Estate of Personal Rep"
+            ),
+            "estate"         -> Json.obj(
+              "entities" -> Json.obj(
+                "personalRepresentative" -> Json.obj(
+                  "estatePerRepOrg" -> Json.obj(
+                    "identification" -> Json.obj(
+                      "utr"     -> "1234567890",
+                      "address" -> Json.obj()
                     )
                   )
                 )
               )
             )
+          )
 
-            val transformer = new PersonalRepTransform(None, Some(newPersonalRepOrgWithNonUkAddress))
+          val transformer = new PersonalRepTransform(None, Some(newPersonalRepOrgWithNonUkAddress))
 
-            val result = transformer.applyDeclarationTransform(document).get
+          val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-org-address-removed.json")
+          val expectedResult = JsonUtils.getJsonValueFromFile(
+            "transformed/declared/declaration-transform-personal-rep-org-address-removed.json"
+          )
 
-            result mustBe expectedResult
-          }
+          result mustBe expectedResult
+        }
       }
 
       "UK based" - {
@@ -372,7 +412,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-org-correspondence-with-uk-address.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-org-correspondence-with-uk-address.json"
+            )
 
             result mustBe expectedResult
           }
@@ -388,7 +430,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-org-correspondence-with-uk-address-and-name.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-org-correspondence-with-uk-address-and-name.json"
+            )
 
             result mustBe expectedResult
           }
@@ -408,7 +452,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-org-correspondence-with-non-uk-address.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-org-correspondence-with-non-uk-address.json"
+            )
 
             result mustBe expectedResult
           }
@@ -424,7 +470,9 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
 
             val result = transformer.applyDeclarationTransform(document).get
 
-            val expectedResult = JsonUtils.getJsonValueFromFile("transformed/declared/declaration-transform-personal-rep-org-correspondence-with-non-uk-address-and-name.json")
+            val expectedResult = JsonUtils.getJsonValueFromFile(
+              "transformed/declared/declaration-transform-personal-rep-org-correspondence-with-non-uk-address-and-name.json"
+            )
 
             result mustBe expectedResult
           }
@@ -434,4 +482,5 @@ class PersonalRepTransformSpec extends AnyFreeSpec with Matchers with OptionValu
     }
 
   }
+
 }

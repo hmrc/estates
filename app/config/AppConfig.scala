@@ -22,46 +22,48 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
 
   val authBaseUrl: String = servicesConfig.baseUrl("auth")
 
   val graphiteHost: String = config.get[String]("microservice.metrics.graphite.host")
 
-  val ttlInSeconds: Int = config.getOptional[Int]("mongodb.ttlSeconds").getOrElse(4*60*60)
+  val ttlInSeconds: Int = config.getOptional[Int]("mongodb.ttlSeconds").getOrElse(4 * 60 * 60)
 
-  val subscriptionBaseUrl : String = servicesConfig.baseUrl("subscription")
-  val registrationBaseUrl : String = servicesConfig.baseUrl("registration")
+  val subscriptionBaseUrl: String = servicesConfig.baseUrl("subscription")
+  val registrationBaseUrl: String = servicesConfig.baseUrl("registration")
 
-  val getEstateBaseUrl : String = servicesConfig.baseUrl("playback")
-  val varyEstateBaseUrl : String = servicesConfig.baseUrl("variation")
-  val estatesStoreBaseUrl : String = servicesConfig.baseUrl("estates-store")
+  val getEstateBaseUrl: String    = servicesConfig.baseUrl("playback")
+  val varyEstateBaseUrl: String   = servicesConfig.baseUrl("variation")
+  val estatesStoreBaseUrl: String = servicesConfig.baseUrl("estates-store")
 
-  val registrationEnvironment : String = loadConfig("microservice.services.registration.environment")
-  val registrationToken : String = loadConfig("microservice.services.registration.token")
+  val registrationEnvironment: String = loadConfig("microservice.services.registration.environment")
+  val registrationToken: String       = loadConfig("microservice.services.registration.token")
 
-  val playbackEnvironment : String = loadConfig("microservice.services.playback.environment")
-  val playbackToken : String = loadConfig("microservice.services.playback.token")
+  val playbackEnvironment: String = loadConfig("microservice.services.playback.environment")
+  val playbackToken: String       = loadConfig("microservice.services.playback.token")
 
-  val variationEnvironment : String = loadConfig("microservice.services.variation.environment")
-  val variationToken : String = loadConfig("microservice.services.variation.token")
+  val variationEnvironment: String = loadConfig("microservice.services.variation.environment")
+  val variationToken: String       = loadConfig("microservice.services.variation.token")
 
-  val subscriptionEnvironment : String = loadConfig("microservice.services.subscription.environment")
-  val subscriptionToken : String = loadConfig("microservice.services.subscription.token")
+  val subscriptionEnvironment: String = loadConfig("microservice.services.subscription.environment")
+  val subscriptionToken: String       = loadConfig("microservice.services.subscription.token")
 
-  val taxEnrolmentsBaseUrl : String = servicesConfig.baseUrl("tax-enrolments")
-  val taxEnrolmentsPayloadBodyCallback : String = loadConfig("microservice.services.tax-enrolments.callback")
+  val taxEnrolmentsBaseUrl: String             = servicesConfig.baseUrl("tax-enrolments")
+  val taxEnrolmentsPayloadBodyCallback: String = loadConfig("microservice.services.tax-enrolments.callback")
 
-  val delayToConnectTaxEnrolment : Int = loadConfig("microservice.services.estates.delayToConnectTaxEnrolment").toInt
+  val delayToConnectTaxEnrolment: Int = loadConfig("microservice.services.estates.delayToConnectTaxEnrolment").toInt
 
   val variationsApiSchema: String = "/resources/schemas/4MLD/variations-api-schema-4.0.json"
 
-  val maxRetry : Int = loadConfig("microservice.services.estates.maxRetry").toInt
+  val maxRetry: Int = loadConfig("microservice.services.estates.maxRetry").toInt
 
-  val auditingEnabled : Boolean = loadConfig("microservice.services.estates.features.auditing.enabled").toBoolean
+  val auditingEnabled: Boolean = loadConfig("microservice.services.estates.features.auditing.enabled").toBoolean
 
-  private def loadConfig(key: String) = config.getOptional[String](key).getOrElse(
-    throw new Exception(s"Missing configuration key : $key")
-  )
+  private def loadConfig(key: String) = config
+    .getOptional[String](key)
+    .getOrElse(
+      throw new Exception(s"Missing configuration key : $key")
+    )
 
 }

@@ -31,8 +31,8 @@ class AmountTaxOwedSpec extends AnyWordSpec with Matchers with MockitoSugar with
 
   "an add AmountOfTaxOwed call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanTenThousand))
-          roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
+      roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanTenThousand))
+      roundTripTest(appBuilder.build(), AmountOfTaxOwed(AmountMoreThanFiveHundredThousand))
     }
   }
 
@@ -45,7 +45,8 @@ class AmountTaxOwedSpec extends AnyWordSpec with Matchers with MockitoSugar with
     status(amendResult) mustBe OK
 
     val newResult = route(app, FakeRequest(GET, "/estates/amount-tax-owed")).get
-    status(newResult) mustBe OK
+    status(newResult)        mustBe OK
     contentAsJson(newResult) mustBe Json.toJson(amount)
   }
+
 }

@@ -28,9 +28,13 @@ object TaxAmount extends Enumerable.Implicits {
   case object AmountMoreThanTwoHalfMillion extends WithName("04") with TaxAmount
 
   val values: Set[TaxAmount] = Set(
-    AmountMoreThanTenThousand, AmountMoreThanTwoFiftyThousand, AmountMoreThanFiveHundredThousand, AmountMoreThanTwoHalfMillion
+    AmountMoreThanTenThousand,
+    AmountMoreThanTwoFiftyThousand,
+    AmountMoreThanFiveHundredThousand,
+    AmountMoreThanTwoHalfMillion
   )
 
   implicit val enumerable: Enumerable[TaxAmount] =
     Enumerable(values.toSeq.map(v => v.toString -> v): _*)
+
 }

@@ -18,9 +18,7 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class IdentificationType(nino: Option[String],
-                              passport: Option[PassportType],
-                              address: Option[AddressType])
+case class IdentificationType(nino: Option[String], passport: Option[PassportType], address: Option[AddressType])
 
 object IdentificationType {
   implicit val identificationTypeFormat: Format[IdentificationType] = Json.format[IdentificationType]

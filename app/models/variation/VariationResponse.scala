@@ -47,19 +47,19 @@ object VariationResponse extends Logging {
 
         logger.info(s"Response status received from des: ${response.status}")
         response.status match {
-          case OK =>
+          case OK                                                            =>
             response.json.as[VariationSuccessResponse](VariationSuccessResponse.formats)
           case BAD_REQUEST if response.body contains "INVALID_CORRELATIONID" =>
             failure(InvalidCorrelationIdErrorResponse)
-          case CONFLICT if response.body contains "DUPLICATE" =>
+          case CONFLICT if response.body contains "DUPLICATE"                =>
             failure(DuplicateSubmissionErrorResponse)
-          case BAD_REQUEST =>
+          case BAD_REQUEST                                                   =>
             failure(InvalidRequestErrorResponse)
-          case INTERNAL_SERVER_ERROR =>
+          case INTERNAL_SERVER_ERROR                                         =>
             failure(InternalServerErrorErrorResponse)
-          case SERVICE_UNAVAILABLE =>
+          case SERVICE_UNAVAILABLE                                           =>
             failure(ServiceUnavailableErrorResponse)
-          case status =>
+          case status                                                        =>
             failure(ErrorResponse(status.toString, s"Error response from DES: $status"))
         }
       }
@@ -69,4 +69,5 @@ object VariationResponse extends Logging {
     logger.error(s"[failure] failed due to error: ${errorResponse.message}")
     VariationFailureResponse(errorResponse)
   }
+
 }

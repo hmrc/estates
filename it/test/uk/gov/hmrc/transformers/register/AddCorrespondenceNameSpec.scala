@@ -27,13 +27,13 @@ import uk.gov.hmrc.repositories.TransformIntegrationTest
 
 class AddCorrespondenceNameSpec extends AnyWordSpec with Matchers with MockitoSugar with TransformIntegrationTest {
 
-  val newEstateName: JsString = JsString("New Estate Name")
+  val newEstateName: JsString  = JsString("New Estate Name")
   val newEstateName2: JsString = JsString("New Estate Name 2")
 
   "an add correspondence name call" should {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(appBuilder.build(), newEstateName)
-          roundTripTest(appBuilder.build(), newEstateName2)
+      roundTripTest(appBuilder.build(), newEstateName)
+      roundTripTest(appBuilder.build(), newEstateName2)
     }
   }
 
@@ -46,7 +46,8 @@ class AddCorrespondenceNameSpec extends AnyWordSpec with Matchers with MockitoSu
     status(amendResult) mustBe OK
 
     val newResult = route(app, FakeRequest(GET, "/estates/correspondence/name")).get
-    status(newResult) mustBe OK
+    status(newResult)        mustBe OK
     contentAsJson(newResult) mustBe Json.obj("name" -> name)
   }
+
 }

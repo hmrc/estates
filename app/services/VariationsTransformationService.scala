@@ -26,11 +26,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class VariationsTransformationService @Inject()(transformRepository: VariationsTransformationRepository,
-                                                estatesService: EstatesService,
-                                                auditService: AuditService)(implicit ec: ExecutionContext) extends Logging {
+class VariationsTransformationService @Inject() (
+  transformRepository: VariationsTransformationRepository,
+  estatesService: EstatesService,
+  auditService: AuditService
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  def addNewTransform(utr: String, internalId: String, newTransform: DeltaTransform) : Future[Boolean] = {
+  def addNewTransform(utr: String, internalId: String, newTransform: DeltaTransform): Future[Boolean] =
     transformRepository.get(utr, internalId) map {
       case None =>
         ComposedDeltaTransform(Seq(newTransform))
@@ -40,12 +43,10 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
 
     } flatMap { newTransforms =>
       transformRepository.set(utr, internalId, newTransforms)
-    } recoverWith {
-      case e =>
-        logger.error(s"[addNewTransform][UTR: $utr] exception adding new transform: ${e.getMessage}")
-        Future.failed(e)
+    } recoverWith { case e =>
+      logger.error(s"[addNewTransform][UTR: $utr] exception adding new transform: ${e.getMessage}")
+      Future.failed(e)
     }
-  }
 
   def getTransformations(utr: String, internalId: String): Future[Option[ComposedDeltaTransform]] =
     transformRepository.get(utr, internalId)
@@ -53,35 +54,34 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
   def removeAllTransformations(utr: String, internalId: String): Future[Option[JsObject]] =
     transformRepository.resetCache(utr, internalId)
 
-  def getTransformedData(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] = {
+  def getTransformedData(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] =
     estatesService.getEstateInfo(utr, internalId).flatMap {
       case response: GetEstateProcessedResponse =>
         populatePersonalRepAddress(response.getEstate) match {
           case JsSuccess(fixed, _) =>
             applyTransformations(utr, internalId, fixed).map {
               case JsSuccess(transformed, _) => GetEstateProcessedResponse(transformed, response.responseHeader)
-              case JsError(errors) => TransformationErrorResponse(errors.toString)
-          }
-          case JsError(errors) => Future.successful(TransformationErrorResponse(errors.toString))
+              case JsError(errors)           => TransformationErrorResponse(errors.toString)
+            }
+          case JsError(errors)     => Future.successful(TransformationErrorResponse(errors.toString))
         }
-      case response => Future.successful(response)
+      case response                             => Future.successful(response)
     }
-  }
 
-  private def applyTransformations(utr: String, internalId: String, json: JsValue): Future[JsResult[JsValue]] = {
+  private def applyTransformations(utr: String, internalId: String, json: JsValue): Future[JsResult[JsValue]] =
     transformRepository.get(utr, internalId).map {
-      case None =>
+      case None                  =>
         JsSuccess(json)
       case Some(transformations) =>
         transformations.applyTransform(json)
     }
-  }
 
-  def applyDeclarationTransformations(utr: String, internalId: String, json: JsValue)
-                                     (implicit hc : HeaderCarrier): Future[JsResult[JsValue]] = {
+  def applyDeclarationTransformations(utr: String, internalId: String, json: JsValue)(implicit
+    hc: HeaderCarrier
+  ): Future[JsResult[JsValue]] =
 
     transformRepository.get(utr, internalId).map {
-      case None =>
+      case None                  =>
         logger.info(s"[applyDeclarationTransformations][UTR: $utr]no transformations to apply")
         JsSuccess(json)
       case Some(transformations) =>
@@ -89,7 +89,7 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
         logger.debug(s"[applyDeclarationTransformations][UTR: $utr] applying the following transforms $transformations")
 
         val result = for {
-          initial <- {
+          initial     <- {
             logger.info(s"[applyDeclarationTransformations][UTR: $utr] applying transformations")
             transformations.applyTransform(json)
           }
@@ -101,29 +101,36 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
 
         auditIfError(result, utr, internalId, json, transformations, "Failed to apply declaration transformations.")
     }
-  }
 
   def populatePersonalRepAddress(beforeJson: JsValue): JsResult[JsValue] = {
-    val pathToPersonalRepAddress = __ \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative") \ Symbol("identification") \ Symbol("address")
+    val pathToPersonalRepAddress =
+      __ \ Symbol("details") \ Symbol("estate") \ Symbol("entities") \ Symbol("personalRepresentative") \ Symbol(
+        "identification"
+      ) \ Symbol("address")
 
     if (beforeJson.transform(pathToPersonalRepAddress.json.pick).isSuccess) {
-      logger.info(s"[populatePersonalRepAddress] record already has an address for the personal representative, not modifying")
+      logger.info(
+        s"[populatePersonalRepAddress] record already has an address for the personal representative, not modifying"
+      )
       JsSuccess(beforeJson)
     } else {
-      logger.info(s"[populatePersonalRepAddress] record does not have an address for personal rep, adding one from correspondence")
+      logger.info(
+        s"[populatePersonalRepAddress] record does not have an address for personal rep, adding one from correspondence"
+      )
       val pathToCorrespondenceAddress = __ \ Symbol("correspondence") \ Symbol("address")
-      val copyAddress = __.json.update(pathToPersonalRepAddress.json.copyFrom(pathToCorrespondenceAddress.json.pick))
+      val copyAddress                 = __.json.update(pathToPersonalRepAddress.json.copyFrom(pathToCorrespondenceAddress.json.pick))
       beforeJson.transform(copyAddress)
     }
   }
 
-  private def auditIfError(result: JsResult[JsValue],
-                           utr: String,
-                           internalId: String,
-                           json: JsValue,
-                           transforms: ComposedDeltaTransform,
-                           errorReason: String)
-                          (implicit hc : HeaderCarrier): JsResult[JsValue] = {
+  private def auditIfError(
+    result: JsResult[JsValue],
+    utr: String,
+    internalId: String,
+    json: JsValue,
+    transforms: ComposedDeltaTransform,
+    errorReason: String
+  )(implicit hc: HeaderCarrier): JsResult[JsValue] =
     result match {
       case JsError(e) =>
         auditService.auditVariationTransformationError(
@@ -135,7 +142,7 @@ class VariationsTransformationService @Inject()(transformRepository: VariationsT
           JsError.toJson(e)
         )
         result
-      case _ => result
+      case _          => result
     }
-  }
+
 }

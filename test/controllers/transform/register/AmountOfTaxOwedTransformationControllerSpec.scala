@@ -38,8 +38,8 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  private implicit val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
-  private val bodyParsers = injector.instanceOf[BodyParsers.Default]
+  implicit private val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
+  private val bodyParsers                       = injector.instanceOf[BodyParsers.Default]
 
   val identifierAction = new FakeIdentifierAction(bodyParsers, Organisation)
 
@@ -50,19 +50,24 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
     ".get" must {
 
       "return the amount of tax owed" in {
-        val controller = new AmountOfTaxOwedTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AmountOfTaxOwedTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
-        when(mockTransformationService.get(any())).thenReturn(Future.successful(Some(AmountOfTaxOwed(AmountMoreThanTenThousand))))
+        when(mockTransformationService.get(any()))
+          .thenReturn(Future.successful(Some(AmountOfTaxOwed(AmountMoreThanTenThousand))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |{
             | "amount": "01"
             |}
@@ -70,7 +75,12 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
       }
 
       "return an empty json object when there is no amount" in {
-        val controller = new AmountOfTaxOwedTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AmountOfTaxOwedTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         when(mockTransformationService.get(any())).thenReturn(Future.successful(None))
 
@@ -79,8 +89,8 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.obj()
       }
 
@@ -89,7 +99,12 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
     ".save" must {
 
       "add a transform" in {
-        val controller = new AmountOfTaxOwedTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AmountOfTaxOwedTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         val amount = AmountOfTaxOwed(AmountMoreThanTenThousand)
 
@@ -105,7 +120,12 @@ class AmountOfTaxOwedTransformationControllerSpec extends BaseSpec with MockitoS
       }
 
       "must return an error for malformed json" in {
-        val controller = new AmountOfTaxOwedTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AmountOfTaxOwedTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         val request = FakeRequest("POST", "path")
           .withBody(Json.toJson("{}"))

@@ -18,8 +18,7 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class Declaration(name: NameType,
-                       address: AddressType)
+case class Declaration(name: NameType, address: AddressType)
 
 object Declaration {
   implicit val declarationFormat: Format[Declaration] = Json.format[Declaration]
@@ -31,8 +30,7 @@ object DeclarationName {
   implicit val declarationFormat: Format[DeclarationName] = Json.format[DeclarationName]
 }
 
-case class DeclarationForApi(declaration: DeclarationName,
-                             agentDetails: Option[AgentDetails])
+case class DeclarationForApi(declaration: DeclarationName, agentDetails: Option[AgentDetails])
 
 object DeclarationForApi {
   implicit val declarationForApiFormat: Format[DeclarationForApi] = Json.format[DeclarationForApi]

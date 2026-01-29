@@ -18,18 +18,19 @@ package models
 
 import play.api.libs.json.{Format, Json, Writes}
 
-case class PersonalRepresentativeType (
-                                        estatePerRepInd : Option[EstatePerRepIndType] = None,
-                                        estatePerRepOrg : Option[EstatePerRepOrgType] = None
-                                      )
+case class PersonalRepresentativeType(
+  estatePerRepInd: Option[EstatePerRepIndType] = None,
+  estatePerRepOrg: Option[EstatePerRepOrgType] = None
+)
 
 object PersonalRepresentativeType {
   implicit val personalRepTypeFormat: Format[PersonalRepresentativeType] = Json.format[PersonalRepresentativeType]
 
-  val personalRepTypeWritesToDes: Writes[PersonalRepresentativeType] = Writes {
-    personalRepType => personalRepType.estatePerRepInd match {
+  val personalRepTypeWritesToDes: Writes[PersonalRepresentativeType] = Writes { personalRepType =>
+    personalRepType.estatePerRepInd match {
       case Some(indPerRep) => Json.toJson(indPerRep)
-      case None => Json.toJson(personalRepType.estatePerRepOrg)
+      case None            => Json.toJson(personalRepType.estatePerRepOrg)
     }
   }
+
 }

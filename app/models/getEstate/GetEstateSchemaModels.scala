@@ -22,90 +22,95 @@ import play.api.libs.json._
 
 import java.time.LocalDate
 
-case class PersonalRepresentativeType (
-                                        estatePerRepInd : Option[EstatePerRepIndType] = None,
-                                        estatePerRepOrg : Option[EstatePerRepOrgType] = None
-                                      )
+case class PersonalRepresentativeType(
+  estatePerRepInd: Option[EstatePerRepIndType] = None,
+  estatePerRepOrg: Option[EstatePerRepOrgType] = None
+)
 
 object PersonalRepresentativeType {
 
   implicit object PersonalRepReads extends Reads[PersonalRepresentativeType] {
 
-    override def reads(json: JsValue): JsResult[PersonalRepresentativeType] = {
-      json.validate[EstatePerRepIndType].map {
-        ind =>
+    override def reads(json: JsValue): JsResult[PersonalRepresentativeType] =
+      json
+        .validate[EstatePerRepIndType]
+        .map { ind =>
           PersonalRepresentativeType(estatePerRepInd = Some(ind))
-      }.orElse {
-        json.validate[EstatePerRepOrgType].map {
-          org =>
-            PersonalRepresentativeType(estatePerRepOrg = Some(org))
         }
-      }
-    }
+        .orElse {
+          json.validate[EstatePerRepOrgType].map { org =>
+            PersonalRepresentativeType(estatePerRepOrg = Some(org))
+          }
+        }
+
   }
 
-  implicit val writes : Writes[PersonalRepresentativeType] = Json.writes[PersonalRepresentativeType]
+  implicit val writes: Writes[PersonalRepresentativeType] = Json.writes[PersonalRepresentativeType]
 }
 
-case class EstatePerRepIndType(name: NameType,
-                               dateOfBirth: LocalDate,
-                               identification: IdentificationType,
-                               phoneNumber: String,
-                               email: Option[String],
-                               lineNo: Option[String],
-                               bpMatchStatus: Option[String],
-                               entityStart: LocalDate)
+case class EstatePerRepIndType(
+  name: NameType,
+  dateOfBirth: LocalDate,
+  identification: IdentificationType,
+  phoneNumber: String,
+  email: Option[String],
+  lineNo: Option[String],
+  bpMatchStatus: Option[String],
+  entityStart: LocalDate
+)
 
 object EstatePerRepIndType {
   implicit val estatePerRepIndTypeFormat: Format[EstatePerRepIndType] = Json.format[EstatePerRepIndType]
 }
 
-case class EstatePerRepOrgType(orgName: String,
-                               phoneNumber: String,
-                               email: Option[String] = None,
-                               identification: IdentificationOrgType,
-                               lineNo: Option[String],
-                               bpMatchStatus: Option[String],
-                               entityStart: LocalDate)
+case class EstatePerRepOrgType(
+  orgName: String,
+  phoneNumber: String,
+  email: Option[String] = None,
+  identification: IdentificationOrgType,
+  lineNo: Option[String],
+  bpMatchStatus: Option[String],
+  entityStart: LocalDate
+)
 
 object EstatePerRepOrgType {
   implicit val estatePerRepOrgTypeFormat: Format[EstatePerRepOrgType] = Json.format[EstatePerRepOrgType]
 }
 
-case class EstateWillType(name: NameType,
-                          dateOfBirth: Option[LocalDate],
-                          dateOfDeath: LocalDate,
-                          identification: Option[IdentificationType],
-                          lineNo: String,
-                          bpMatchStatus: Option[String],
-                          entityStart: LocalDate)
+case class EstateWillType(
+  name: NameType,
+  dateOfBirth: Option[LocalDate],
+  dateOfDeath: LocalDate,
+  identification: Option[IdentificationType],
+  lineNo: String,
+  bpMatchStatus: Option[String],
+  entityStart: LocalDate
+)
 
 object EstateWillType {
   implicit val estateWillTypeFormat: Format[EstateWillType] = Json.format[EstateWillType]
 }
 
-case class EntitiesType(personalRepresentative: PersonalRepresentativeType,
-                        deceased: EstateWillType)
+case class EntitiesType(personalRepresentative: PersonalRepresentativeType, deceased: EstateWillType)
 
 object EntitiesType {
   implicit val entitiesTypeFormat: Format[EntitiesType] = Json.format[EntitiesType]
 }
 
-case class Estate(entities: EntitiesType,
-                  administrationEndDate: Option[LocalDate],
-                  periodTaxDues: String)
+case class Estate(entities: EntitiesType, administrationEndDate: Option[LocalDate], periodTaxDues: String)
 
 object Estate {
   implicit val estateFormat: Format[Estate] = Json.format[Estate]
 }
 
-case class GetEstate(matchData: GetMatchData,
-                     correspondence: Correspondence,
-                     declaration: Declaration,
-                     estate: Estate,
-                     trustEndDate: Option[LocalDate],
-                     submissionDate: Option[LocalDate] // New to 5MLD response, mandatory in 5MLD
-                    )
+case class GetEstate(
+  matchData: GetMatchData,
+  correspondence: Correspondence,
+  declaration: Declaration,
+  estate: Estate,
+  trustEndDate: Option[LocalDate],
+  submissionDate: Option[LocalDate] // New to 5MLD response, mandatory in 5MLD
+)
 
 object GetEstate {
 
@@ -118,5 +123,6 @@ object GetEstate {
       (JsPath \ "details" \ "estate").read[Estate] and
       (JsPath \ "trustEndDate").readNullable[LocalDate] and
       (JsPath \ "submissionDate").readNullable[LocalDate]
-    )(GetEstate.apply _)
+  )(GetEstate.apply _)
+
 }

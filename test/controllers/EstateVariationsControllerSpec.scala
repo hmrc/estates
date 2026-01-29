@@ -39,7 +39,7 @@ import scala.concurrent.Future
 
 class EstateVariationsControllerSpec extends BaseSpec {
 
-  private implicit val cc: ControllerComponents = stubControllerComponents()
+  implicit private val cc: ControllerComponents = stubControllerComponents()
   private val mockEstateService: EstatesService = mock[EstatesService]
 
   private val mockAuditService: AuditService = mock[AuditService]
@@ -56,12 +56,13 @@ class EstateVariationsControllerSpec extends BaseSpec {
     val SUT = new EstateVariationsController(
       new FakeIdentifierAction(cc.parsers.default, Organisation),
       mockVariationService,
-      mockAuditService)
+      mockAuditService
+    )
     SUT
   }
 
   val tvnResponse = "XXTVN1234567890"
-  val utr = "1234567890"
+  val utr         = "1234567890"
 
   ".estateVariation" should {
 
@@ -104,7 +105,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
 
         val output = contentAsJson(result)
 
-        (output \ "code").as[String] mustBe "INVALID_CORRELATIONID"
+        (output \ "code").as[String]    mustBe "INVALID_CORRELATIONID"
         (output \ "message").as[String] mustBe "Submission has not passed validation. Invalid CorrelationId."
 
       }
@@ -143,7 +144,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
 
         val output = contentAsJson(result)
 
-        (output \ "code").as[String] mustBe "DUPLICATE_SUBMISSION"
+        (output \ "code").as[String]    mustBe "DUPLICATE_SUBMISSION"
         (output \ "message").as[String] mustBe "Duplicate Correlation Id was submitted."
 
       }
@@ -169,7 +170,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
 
         val output = contentAsJson(result)
 
-        (output \ "code").as[String] mustBe "INTERNAL_SERVER_ERROR"
+        (output \ "code").as[String]    mustBe "INTERNAL_SERVER_ERROR"
         (output \ "message").as[String] mustBe "Internal server error."
 
       }
@@ -177,7 +178,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
     }
 
     "Return bad request when declaring No change and there is a form bundle number mismatch" in {
-      val SUT = estateVariationsController
+      val SUT         = estateVariationsController
       val declaration = DeclarationName(
         NameType("firstname", None, "Surname")
       )
@@ -191,9 +192,9 @@ class EstateVariationsControllerSpec extends BaseSpec {
         FakeRequest("POST", "/no-change/1234567890").withBody(Json.toJson(declarationForApi))
       )
 
-      status(result) mustBe BAD_REQUEST
+      status(result)        mustBe BAD_REQUEST
       contentAsJson(result) mustBe Json.obj(
-        "code" -> "ETMP_DATA_STALE",
+        "code"    -> "ETMP_DATA_STALE",
         "message" -> "ETMP returned a changed form bundle number for the estate."
       )
     }
@@ -217,7 +218,7 @@ class EstateVariationsControllerSpec extends BaseSpec {
 
         val output = contentAsJson(result)
 
-        (output \ "code").as[String] mustBe "SERVICE_UNAVAILABLE"
+        (output \ "code").as[String]    mustBe "SERVICE_UNAVAILABLE"
         (output \ "message").as[String] mustBe "Service unavailable."
 
       }
@@ -242,5 +243,5 @@ class EstateVariationsControllerSpec extends BaseSpec {
       }
     }
   }
-}
 
+}

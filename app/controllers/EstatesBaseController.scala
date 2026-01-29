@@ -29,18 +29,16 @@ class EstatesBaseController(cc: ControllerComponents) extends BackendController(
 
   protected def noMatchResponse = """{"match": false}"""
 
-  protected def withJsonBody[T](f: T => Future[Result])
-                                        (implicit request: Request[JsValue],
-                                         m: Manifest[T],
-                                         reads: Reads[T]) : Future[Result] =
+  protected def withJsonBody[T](
+    f: T => Future[Result]
+  )(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] =
     request.body.validate[T] match {
-      case JsSuccess(payload, _) =>
+      case JsSuccess(payload, _)                                            =>
         f(payload)
       case JsError(errs: Iterable[(JsPath, Iterable[JsonValidationError])]) =>
         val response = handleErrorResultByField(errs)
         Future.successful(response)
     }
-
 
   def handleErrorResultByField(field: Iterable[(JsPath, Iterable[JsonValidationError])]): Result = {
 
@@ -50,20 +48,18 @@ class EstatesBaseController(cc: ControllerComponents) extends BackendController(
     getErrorResult(fields.head._1, fields.head._2)
   }
 
-  def getErrorResult(key: String, error: String): Result = {
+  def getErrorResult(key: String, error: String): Result =
     error match {
       case "error.path.missing" =>
         invalidRequestErrorResult
-      case _ =>
+      case _                    =>
         errorResults(key)
     }
-  }
 
   protected val errorResults: Map[String, Result] = Map(
-    "name" -> invalidNameErrorResult,
-    "utr" -> invalidUtrErrorResult,
+    "name"     -> invalidNameErrorResult,
+    "utr"      -> invalidUtrErrorResult,
     "postcode" -> invalidPostcodeErrorResult
-
   ).withDefaultValue(invalidRequestErrorResult)
 
 }

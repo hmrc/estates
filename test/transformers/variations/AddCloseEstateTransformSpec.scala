@@ -31,7 +31,7 @@ class AddCloseEstateTransformSpec extends AnyFreeSpec with Matchers {
     "successfully set the estate close date" in {
 
       val beforeJson = Json.obj()
-      val afterJson = Json.obj("trustEndDate" -> closeDate)
+      val afterJson  = Json.obj("trustEndDate" -> closeDate)
 
       val transformer = AddCloseEstateTransform(closeDate)
 
@@ -40,4 +40,5 @@ class AddCloseEstateTransformSpec extends AnyFreeSpec with Matchers {
       result mustBe afterJson
     }
   }
+
 }

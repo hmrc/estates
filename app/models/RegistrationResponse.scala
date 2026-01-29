@@ -30,17 +30,17 @@ object RegistrationTrnResponse {
   implicit val formats: OFormat[RegistrationTrnResponse] = Json.format[RegistrationTrnResponse]
 }
 
-case class RegistrationFailureResponse(status: Int, code: String="", message: String="") extends RegistrationResponse
+case class RegistrationFailureResponse(status: Int, code: String = "", message: String = "")
+    extends RegistrationResponse
 
 object RegistrationFailureResponse {
   implicit val formats: OFormat[RegistrationFailureResponse] = Json.format[RegistrationFailureResponse]
 }
 
 object AlreadyRegisteredResponse
-  extends RegistrationFailureResponse(FORBIDDEN, ALREADY_REGISTERED_CODE, ALREADY_REGISTERED_ESTATE_MESSAGE)
+    extends RegistrationFailureResponse(FORBIDDEN, ALREADY_REGISTERED_CODE, ALREADY_REGISTERED_ESTATE_MESSAGE)
 
-object NoMatchResponse
-  extends RegistrationFailureResponse(FORBIDDEN, NO_MATCH_CODE, NO_MATCH_MESSAGE)
+object NoMatchResponse extends RegistrationFailureResponse(FORBIDDEN, NO_MATCH_CODE, NO_MATCH_MESSAGE)
 
 object RegistrationResponse extends Logging {
 
@@ -49,30 +49,31 @@ object RegistrationResponse extends Logging {
     override def reads(json: JsValue): JsResult[RegistrationResponse] = json.validate[RegistrationTrnResponse]
 
     override def writes(o: RegistrationResponse): JsValue = o match {
-      case x : RegistrationTrnResponse => Json.toJson(x)(RegistrationTrnResponse.formats)
-      case x : RegistrationFailureResponse => Json.toJson(x)(RegistrationFailureResponse.formats)
+      case x: RegistrationTrnResponse     => Json.toJson(x)(RegistrationTrnResponse.formats)
+      case x: RegistrationFailureResponse => Json.toJson(x)(RegistrationFailureResponse.formats)
     }
 
   }
 
-  implicit lazy val httpReads: HttpReads[RegistrationResponse] = (method: String, url: String, response: HttpResponse) => {
+  implicit lazy val httpReads: HttpReads[RegistrationResponse] =
+    (method: String, url: String, response: HttpResponse) => {
       logger.info(s"Response status received from des: ${response.status}")
       response.status match {
-        case OK =>
+        case OK        =>
           response.json.as[RegistrationTrnResponse]
         case FORBIDDEN =>
           response.body match {
             case x if x.contains(ALREADY_REGISTERED_CODE) =>
               logger.info(s"Already registered response from des.")
               AlreadyRegisteredResponse
-            case x if x.contains(NO_MATCH_CODE) =>
+            case x if x.contains(NO_MATCH_CODE)           =>
               logger.info(s"No match response from des.")
               NoMatchResponse
-            case _ =>
+            case _                                        =>
               logger.error("Forbidden response from des.")
               RegistrationFailureResponse(response.status)
           }
-        case _ => RegistrationFailureResponse(response.status)
+        case _         => RegistrationFailureResponse(response.status)
       }
     }
 

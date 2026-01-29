@@ -28,14 +28,13 @@ import scala.concurrent.Future
 
 class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
-  private val mockEstateService = mock[EstatesService]
+  private val mockEstateService        = mock[EstatesService]
   private val mockTaxEnrolmentsService = mock[TaxEnrolmentsService]
-  private val mockAuditService = mock[AuditService]
-  private val identifier = "auth identifier"
+  private val mockAuditService         = mock[AuditService]
+  private val identifier               = "auth identifier"
 
-  override def afterEach(): Unit =  {
+  override def afterEach(): Unit =
     reset(mockAuditService)
-  }
 
   val SUT = new RosmPatternServiceImpl(mockEstateService, mockTaxEnrolmentsService, mockAuditService)
 
@@ -45,21 +44,20 @@ class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
       "successfully sets subscriptionId id in tax enrolments for provided trn." in {
 
-        when(mockEstateService.getSubscriptionId("trn123456789")).
-          thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
+        when(mockEstateService.getSubscriptionId("trn123456789"))
+          .thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
 
-        when(mockTaxEnrolmentsService.setSubscriptionId("123456789")).
-          thenReturn(Future.successful(TaxEnrolmentSuccess))
+        when(mockTaxEnrolmentsService.setSubscriptionId("123456789")).thenReturn(Future.successful(TaxEnrolmentSuccess))
 
         val futureResult = SUT.getSubscriptionIdAndEnrol("trn123456789", identifier)
 
-        whenReady(futureResult) {
-          result =>
-            result mustBe TaxEnrolmentSuccess
-            verify(mockAuditService).auditEnrolSuccess(
-              equalTo("123456789"),
-              equalTo("trn123456789"),
-              equalTo(identifier))(any())
+        whenReady(futureResult) { result =>
+          result mustBe TaxEnrolmentSuccess
+          verify(mockAuditService).auditEnrolSuccess(
+            equalTo("123456789"),
+            equalTo("trn123456789"),
+            equalTo(identifier)
+          )(any())
         }
       }
     }
@@ -68,13 +66,13 @@ class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
       "DES throws an exception" in {
 
-        when(mockEstateService.getSubscriptionId("trn123456789")).
-          thenReturn(Future.failed(InternalServerErrorException("bad juju")))
+        when(mockEstateService.getSubscriptionId("trn123456789"))
+          .thenReturn(Future.failed(InternalServerErrorException("bad juju")))
 
         val futureResult = SUT.getSubscriptionIdAndEnrol("trn123456789", identifier)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe an[InternalServerErrorException]
+        whenReady(futureResult.failed) { result =>
+          result mustBe an[InternalServerErrorException]
         }
       }
     }
@@ -83,22 +81,22 @@ class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
       "tax enrolment service returns a failure" in {
 
-        when(mockEstateService.getSubscriptionId("trn123456789")).
-          thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
+        when(mockEstateService.getSubscriptionId("trn123456789"))
+          .thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
 
-        when(mockTaxEnrolmentsService.setSubscriptionId("123456789")).
-          thenReturn(Future.successful(TaxEnrolmentFailure("test tax enrolment failure")))
+        when(mockTaxEnrolmentsService.setSubscriptionId("123456789"))
+          .thenReturn(Future.successful(TaxEnrolmentFailure("test tax enrolment failure")))
 
         val futureResult = SUT.getSubscriptionIdAndEnrol("trn123456789", identifier)
 
-        whenReady(futureResult) {
-          result =>
-            result mustBe TaxEnrolmentFailure("test tax enrolment failure")
-            verify(mockAuditService).auditEnrolFailed(
-              equalTo("123456789"),
-              equalTo("trn123456789"),
-              equalTo(identifier),
-              equalTo("test tax enrolment failure"))(any())
+        whenReady(futureResult) { result =>
+          result mustBe TaxEnrolmentFailure("test tax enrolment failure")
+          verify(mockAuditService).auditEnrolFailed(
+            equalTo("123456789"),
+            equalTo("trn123456789"),
+            equalTo(identifier),
+            equalTo("test tax enrolment failure")
+          )(any())
         }
       }
     }
@@ -107,20 +105,18 @@ class RosmPatternServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
       "tax enrolment service does not found provided subscription id." in {
 
-        when(mockEstateService.getSubscriptionId("trn123456789")).
-          thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
+        when(mockEstateService.getSubscriptionId("trn123456789"))
+          .thenReturn(Future.successful(SubscriptionIdResponse("123456789")))
 
-        when(mockTaxEnrolmentsService.setSubscriptionId("123456789")).
-          thenReturn(Future.failed(BadRequestException))
+        when(mockTaxEnrolmentsService.setSubscriptionId("123456789")).thenReturn(Future.failed(BadRequestException))
 
         val futureResult = SUT.getSubscriptionIdAndEnrol("trn123456789", identifier)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe BadRequestException
+        whenReady(futureResult.failed) { result =>
+          result mustBe BadRequestException
         }
       }
     }
   }
+
 }
-
-

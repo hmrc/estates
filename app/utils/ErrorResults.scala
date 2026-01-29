@@ -26,26 +26,26 @@ object ErrorResults {
 
   protected def toBody(response: ErrorResponse): JsValue = Json.toJson(response)
 
-  val invalidNameErrorResult: Result = BadRequest(toBody(InvalidNameErrorResponse))
-  val invalidUtrErrorResult: Result = BadRequest(toBody(InvalidUtrErrorResponse))
+  val invalidNameErrorResult: Result     = BadRequest(toBody(InvalidNameErrorResponse))
+  val invalidUtrErrorResult: Result      = BadRequest(toBody(InvalidUtrErrorResponse))
   val invalidPostcodeErrorResult: Result = BadRequest(toBody(InvalidPostcodeErrorResponse))
 
-  val invalidRequestErrorResult: Result = BadRequest(toBody(InvalidRequestErrorResponse))
+  val invalidRequestErrorResult: Result       = BadRequest(toBody(InvalidRequestErrorResponse))
   val invalidCorrelationIdErrorResult: Result = InternalServerError(toBody(InvalidCorrelationIdErrorResponse))
-  val duplicateSubmissionErrorResult: Result = Conflict(toBody(DuplicateSubmissionErrorResponse))
-  val internalServerErrorErrorResult: Result = InternalServerError(toBody(InternalServerErrorErrorResponse))
-  val serviceUnavailableErrorResult: Result = ServiceUnavailable(toBody(ServiceUnavailableErrorResponse))
-  val etmpDataStaleErrorResult: Result = BadRequest(toBody(EtmpDataStaleErrorResponse))
+  val duplicateSubmissionErrorResult: Result  = Conflict(toBody(DuplicateSubmissionErrorResponse))
+  val internalServerErrorErrorResult: Result  = InternalServerError(toBody(InternalServerErrorErrorResponse))
+  val serviceUnavailableErrorResult: Result   = ServiceUnavailable(toBody(ServiceUnavailableErrorResponse))
+  val etmpDataStaleErrorResult: Result        = BadRequest(toBody(EtmpDataStaleErrorResponse))
 
-  def fromErrorResponse(errorResponse: ErrorResponse): Result = {
+  def fromErrorResponse(errorResponse: ErrorResponse): Result =
     errorResponse match {
-      case InvalidRequestErrorResponse => invalidRequestErrorResult
+      case InvalidRequestErrorResponse       => invalidRequestErrorResult
       case InvalidCorrelationIdErrorResponse => invalidCorrelationIdErrorResult
-      case DuplicateSubmissionErrorResponse => duplicateSubmissionErrorResult
-      case InternalServerErrorErrorResponse => internalServerErrorErrorResult
-      case ServiceUnavailableErrorResponse => serviceUnavailableErrorResult
-      case EtmpDataStaleErrorResponse => etmpDataStaleErrorResult
-      case response => InternalServerError(toBody(response))
+      case DuplicateSubmissionErrorResponse  => duplicateSubmissionErrorResult
+      case InternalServerErrorErrorResponse  => internalServerErrorErrorResult
+      case ServiceUnavailableErrorResponse   => serviceUnavailableErrorResult
+      case EtmpDataStaleErrorResponse        => etmpDataStaleErrorResult
+      case response                          => InternalServerError(toBody(response))
     }
-  }
+
 }

@@ -24,29 +24,28 @@ import transformers.register.YearsReturnsTransform
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class YearsReturnsTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
+class YearsReturnsTransformationService @Inject() (transformationService: TransformationService)(implicit
+  ec: ExecutionContext
+) {
 
-  def get(internalId: String): Future[Option[YearsReturns]] = {
+  def get(internalId: String): Future[Option[YearsReturns]] =
     transformationService.getTransformations(internalId) map {
       case Some(ComposedDeltaTransform(transforms)) =>
-        transforms.flatMap{
+        transforms.flatMap {
           case YearsReturnsTransform(yearsReturns) => Some(yearsReturns)
-          case _ => None
+          case _                                   => None
         }.lastOption
-      case _ => None
+      case _                                        => None
     }
-  }
 
-  def addTransform(internalId: String, yearsReturns: YearsReturns) : Future[Success.type] = {
-    transformationService.addNewTransform(internalId, YearsReturnsTransform(yearsReturns)) map {
-      _ => Success
+  def addTransform(internalId: String, yearsReturns: YearsReturns): Future[Success.type] =
+    transformationService.addNewTransform(internalId, YearsReturnsTransform(yearsReturns)) map { _ =>
+      Success
     }
-  }
 
-  def removeTransforms(internalId: String) : Future[Success.type] = {
-    transformationService.removeYearsReturnsTransform(internalId) map {
-      _ => Success
+  def removeTransforms(internalId: String): Future[Success.type] =
+    transformationService.removeYearsReturnsTransform(internalId) map { _ =>
+      Success
     }
-  }
 
 }

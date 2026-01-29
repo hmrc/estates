@@ -31,47 +31,49 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-
-class TaxEnrolmentsServiceImpl @Inject()(taxEnrolmentConnector: TaxEnrolmentConnector,
-                                         config: AppConfig
-                                        )(implicit ec: ExecutionContext) extends TaxEnrolmentsService with Logging {
+class TaxEnrolmentsServiceImpl @Inject() (taxEnrolmentConnector: TaxEnrolmentConnector, config: AppConfig)(implicit
+  ec: ExecutionContext
+) extends TaxEnrolmentsService with Logging {
 
   private val DELAY_SECONDS_BETWEEN_REQUEST = config.delayToConnectTaxEnrolment
-  private val MAX_TRIES = config.maxRetry
+  private val MAX_TRIES                     = config.maxRetry
 
-  override def setSubscriptionId(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] = {
+  override def setSubscriptionId(
+    subscriptionId: String
+  )(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] = {
     implicit val as: ActorSystem = ActorSystem()
     enrolSubscriberWithRetry(subscriptionId, 1)
   }
 
-  private def enrolSubscriberWithRetry(subscriptionId: String, acc: Int)
-                                      (implicit as: ActorSystem, hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] = {
-    makeRequest(subscriptionId) recoverWith {
-      case NonFatal(_) =>
-        if (isMaxRetryReached(acc)) {
-          val reason = s"Maximum retry completed. Tax enrolment failed for subscription id $subscriptionId"
-          logger.error(s"[enrolSubscriberWithRetry][Session ID: ${Session.id(hc)}] $reason")
-          Future.successful(TaxEnrolmentFailure(reason))
-        } else {
-          after(DELAY_SECONDS_BETWEEN_REQUEST.seconds, as.scheduler){
-            logger.error(s"[enrolSubscriberWithRetry][Session ID: ${Session.id(hc)}]" +
-              s" Retrying to enrol subscription id $subscriptionId,  $acc")
-            enrolSubscriberWithRetry(subscriptionId, acc + 1)
-          }
+  private def enrolSubscriberWithRetry(subscriptionId: String, acc: Int)(implicit
+    as: ActorSystem,
+    hc: HeaderCarrier
+  ): Future[TaxEnrolmentSubscriberResponse] =
+    makeRequest(subscriptionId) recoverWith { case NonFatal(_) =>
+      if (isMaxRetryReached(acc)) {
+        val reason = s"Maximum retry completed. Tax enrolment failed for subscription id $subscriptionId"
+        logger.error(s"[enrolSubscriberWithRetry][Session ID: ${Session.id(hc)}] $reason")
+        Future.successful(TaxEnrolmentFailure(reason))
+      } else {
+        after(DELAY_SECONDS_BETWEEN_REQUEST.seconds, as.scheduler) {
+          logger.error(
+            s"[enrolSubscriberWithRetry][Session ID: ${Session.id(hc)}]" +
+              s" Retrying to enrol subscription id $subscriptionId,  $acc"
+          )
+          enrolSubscriberWithRetry(subscriptionId, acc + 1)
+        }
       }
     }
-  }
 
   private def isMaxRetryReached(currentCounter: Int): Boolean =
     currentCounter == MAX_TRIES
 
-  private def makeRequest(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] = {
+  private def makeRequest(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] =
     taxEnrolmentConnector.enrolSubscriber(subscriptionId)
-  }
 
 }
 
 @ImplementedBy(classOf[TaxEnrolmentsServiceImpl])
-trait TaxEnrolmentsService{
-   def setSubscriptionId(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse]
+trait TaxEnrolmentsService {
+  def setSubscriptionId(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse]
 }

@@ -31,34 +31,35 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)(implicit ec: ExecutionContext) {
+class AuditService @Inject() (auditConnector: AuditConnector, config: AppConfig)(implicit ec: ExecutionContext) {
 
   private object AuditEvent {
 
-    val GET_REGISTRATION = "GetRegistration"
+    val GET_REGISTRATION        = "GetRegistration"
     val GET_REGISTRATION_FAILED = "GetRegistrationFailed"
 
-    val GET_VARIATION = "GetVariation"
+    val GET_VARIATION        = "GetVariation"
     val GET_VARIATION_FAILED = "GetVariationFailed"
 
-    val REGISTRATION_PREPARATION_FAILED = "RegistrationPreparationFailed"
-    val REGISTRATION_SUBMISSION_FAILED = "RegistrationSubmissionFailed"
+    val REGISTRATION_PREPARATION_FAILED        = "RegistrationPreparationFailed"
+    val REGISTRATION_SUBMISSION_FAILED         = "RegistrationSubmissionFailed"
     val REGISTRATION_SUBMITTED_BY_ORGANISATION = "RegistrationSubmittedByOrganisation"
-    val REGISTRATION_SUBMITTED_BY_AGENT = "RegistrationSubmittedByAgent"
+    val REGISTRATION_SUBMITTED_BY_AGENT        = "RegistrationSubmittedByAgent"
 
-    val VARIATION_PREPARATION_FAILED = "VariationPreparationFailed"
-    val VARIATION_SUBMISSION_FAILED = "VariationSubmissionFailed"
+    val VARIATION_PREPARATION_FAILED        = "VariationPreparationFailed"
+    val VARIATION_SUBMISSION_FAILED         = "VariationSubmissionFailed"
     val VARIATION_SUBMITTED_BY_ORGANISATION = "VariationSubmittedByOrganisation"
-    val VARIATION_SUBMITTED_BY_AGENT = "VariationSubmittedByAgent"
-    val CLOSURE_SUBMITTED_BY_ORGANISATION = "ClosureSubmittedByOrganisation"
-    val CLOSURE_SUBMITTED_BY_AGENT = "ClosureSubmittedByAgent"
+    val VARIATION_SUBMITTED_BY_AGENT        = "VariationSubmittedByAgent"
+    val CLOSURE_SUBMITTED_BY_ORGANISATION   = "ClosureSubmittedByOrganisation"
+    val CLOSURE_SUBMITTED_BY_AGENT          = "ClosureSubmittedByAgent"
 
     val ENROLMENT_SUCCEEDED = "EnrolmentSucceeded"
-    val ENROLMENT_FAILED = "EnrolmentFailed"
+    val ENROLMENT_FAILED    = "EnrolmentFailed"
   }
 
-  def auditGetRegistrationSuccess(result: EstateRegistrationNoDeclaration)
-                                 (implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
+  def auditGetRegistrationSuccess(
+    result: EstateRegistrationNoDeclaration
+  )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
     audit(
       AuditEvent.GET_REGISTRATION,
       Json.obj(),
@@ -67,19 +68,22 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
 
   def auditGetRegistrationFailed(
-                                   transforms: ComposedDeltaTransform,
-                                   errorReason: String,
-                                   jsErrors: String = "")
-                                (implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
+    transforms: ComposedDeltaTransform,
+    errorReason: String,
+    jsErrors: String = ""
+  )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
     auditTransformationError(
       AuditEvent.GET_REGISTRATION_FAILED,
       Json.obj(),
       Json.toJson(transforms),
       errorReason,
-      jsErrors)
+      jsErrors
+    )
 
-  def auditGetVariationSuccess(utr: String, result: GetEstateProcessedResponse)
-                              (implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
+  def auditGetVariationSuccess(utr: String, result: GetEstateProcessedResponse)(implicit
+    hc: HeaderCarrier,
+    request: IdentifierRequest[_]
+  ): Unit =
     audit(
       AuditEvent.GET_VARIATION,
       Json.obj("utr" -> utr),
@@ -87,18 +91,18 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
       Json.toJson[GetEstateResponse](result)
     )
 
-  def auditGetVariationFailed(utr: String, errorReason: JsValue)
-                             (implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
-    auditErrorResponse(
-      AuditEvent.GET_VARIATION_FAILED,
-      Json.obj("utr" -> utr),
-      request.identifier,
-      errorReason)
+  def auditGetVariationFailed(utr: String, errorReason: JsValue)(implicit
+    hc: HeaderCarrier,
+    request: IdentifierRequest[_]
+  ): Unit =
+    auditErrorResponse(AuditEvent.GET_VARIATION_FAILED, Json.obj("utr" -> utr), request.identifier, errorReason)
 
-  def auditRegistrationSubmitted(payload: EstateRegistration, trn: String)
-                                (implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit = {
+  def auditRegistrationSubmitted(payload: EstateRegistration, trn: String)(implicit
+    hc: HeaderCarrier,
+    request: IdentifierRequest[_]
+  ): Unit = {
 
-   val event = if (request.affinityGroup == Agent) {
+    val event = if (request.affinityGroup == Agent) {
       AuditEvent.REGISTRATION_SUBMITTED_BY_AGENT
     } else {
       AuditEvent.REGISTRATION_SUBMITTED_BY_ORGANISATION
@@ -112,11 +116,9 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  def auditRegistrationFailed(
-                               internalId: String,
-                               payload: JsValue,
-                               response: RegistrationFailureResponse)
-                             (implicit hc: HeaderCarrier): Unit =
+  def auditRegistrationFailed(internalId: String, payload: JsValue, response: RegistrationFailureResponse)(implicit
+    hc: HeaderCarrier
+  ): Unit =
     audit(
       event = AuditEvent.REGISTRATION_SUBMISSION_FAILED,
       request = payload,
@@ -125,32 +127,28 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
 
   def auditRegistrationTransformationError(
-                                            data: JsValue = Json.obj(),
-                                            transforms: JsValue = Json.obj(),
-                                            errorReason: String = "",
-                                            jsErrors: String = ""
-                                          )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
-    auditTransformationError(
-      AuditEvent.REGISTRATION_PREPARATION_FAILED,
-      data,
-      transforms,
-      errorReason,
-      jsErrors)
+    data: JsValue = Json.obj(),
+    transforms: JsValue = Json.obj(),
+    errorReason: String = "",
+    jsErrors: String = ""
+  )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit =
+    auditTransformationError(AuditEvent.REGISTRATION_PREPARATION_FAILED, data, transforms, errorReason, jsErrors)
 
-  def auditTransformationError(eventName: String,
-                               data: JsValue,
-                               transforms: JsValue,
-                               errorReason: String,
-                               jsErrors: String
-                               )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit = {
+  def auditTransformationError(
+    eventName: String,
+    data: JsValue,
+    transforms: JsValue,
+    errorReason: String,
+    jsErrors: String
+  )(implicit hc: HeaderCarrier, request: IdentifierRequest[_]): Unit = {
     val requestData = Json.obj(
-      "data" -> data,
+      "data"            -> data,
       "transformations" -> transforms
     )
 
     val responseData = Json.obj(
       "errorReason" -> errorReason,
-      "jsErrors" -> jsErrors
+      "jsErrors"    -> jsErrors
     )
 
     audit(
@@ -161,21 +159,19 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  def auditVariationSubmitted(internalId: String,
-                              payload: JsValue,
-                              response: VariationSuccessResponse
-                             )(implicit hc: HeaderCarrier): Unit = {
-    val hasField = (field: String) =>
-      payload.transform((JsPath \ field).json.pick).isSuccess
+  def auditVariationSubmitted(internalId: String, payload: JsValue, response: VariationSuccessResponse)(implicit
+    hc: HeaderCarrier
+  ): Unit = {
+    val hasField = (field: String) => payload.transform((JsPath \ field).json.pick).isSuccess
 
     val isAgent = hasField("agentDetails")
     val isClose = hasField("trustEndDate")
 
     val event = (isAgent, isClose) match {
       case (false, false) => AuditEvent.VARIATION_SUBMITTED_BY_ORGANISATION
-      case (false, true) => AuditEvent.CLOSURE_SUBMITTED_BY_ORGANISATION
-      case (true, false) => AuditEvent.VARIATION_SUBMITTED_BY_AGENT
-      case (true, true) => AuditEvent.CLOSURE_SUBMITTED_BY_AGENT
+      case (false, true)  => AuditEvent.CLOSURE_SUBMITTED_BY_ORGANISATION
+      case (true, false)  => AuditEvent.VARIATION_SUBMITTED_BY_AGENT
+      case (true, true)   => AuditEvent.CLOSURE_SUBMITTED_BY_AGENT
     }
 
     audit(
@@ -186,10 +182,9 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  def auditVariationFailed(internalId: String,
-                           payload: JsValue,
-                           response: VariationFailureResponse)
-                          (implicit hc: HeaderCarrier): Unit =
+  def auditVariationFailed(internalId: String, payload: JsValue, response: VariationFailureResponse)(implicit
+    hc: HeaderCarrier
+  ): Unit =
     auditErrorResponse(
       eventName = AuditEvent.VARIATION_SUBMISSION_FAILED,
       request = Json.toJson(payload),
@@ -197,10 +192,7 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
       errorReason = Json.toJson(response.response)
     )
 
-  def auditVariationError(internalId: String,
-                           payload: JsValue,
-                           errorReason: String)
-                          (implicit hc: HeaderCarrier): Unit =
+  def auditVariationError(internalId: String, payload: JsValue, errorReason: String)(implicit hc: HeaderCarrier): Unit =
     auditErrorResponse(
       eventName = AuditEvent.VARIATION_SUBMISSION_FAILED,
       request = Json.toJson(payload),
@@ -208,22 +200,23 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
       errorReason = JsString(errorReason)
     )
 
-  def auditVariationTransformationError(internalId: String,
-                                        utr: String,
-                                        data: JsValue = Json.obj(),
-                                        transforms: JsValue,
-                                        errorReason: String = "",
-                                        jsErrors: JsValue = Json.obj()
-                                       )(implicit hc: HeaderCarrier): Unit = {
+  def auditVariationTransformationError(
+    internalId: String,
+    utr: String,
+    data: JsValue = Json.obj(),
+    transforms: JsValue,
+    errorReason: String = "",
+    jsErrors: JsValue = Json.obj()
+  )(implicit hc: HeaderCarrier): Unit = {
     val request = Json.obj(
-      "utr" -> utr,
-      "data" -> data,
+      "utr"             -> utr,
+      "data"            -> data,
       "transformations" -> transforms
     )
 
     val response = Json.obj(
       "errorReason" -> errorReason,
-      "jsErrors" -> jsErrors
+      "jsErrors"    -> jsErrors
     )
 
     audit(
@@ -234,11 +227,10 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  def auditEnrolSuccess(subscriptionId: String, trn: String, internalId: String)
-                       (implicit hc: HeaderCarrier): Unit = {
+  def auditEnrolSuccess(subscriptionId: String, trn: String, internalId: String)(implicit hc: HeaderCarrier): Unit = {
 
     val request = Json.obj(
-      "trn" -> trn,
+      "trn"            -> trn,
       "subscriptionID" -> subscriptionId
     )
 
@@ -250,11 +242,12 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  def auditEnrolFailed(subscriptionId: String, trn: String, internalId: String, errorMessage: String)
-                      (implicit hc: HeaderCarrier): Unit = {
+  def auditEnrolFailed(subscriptionId: String, trn: String, internalId: String, errorMessage: String)(implicit
+    hc: HeaderCarrier
+  ): Unit = {
 
     val request = Json.obj(
-      "trn" -> trn,
+      "trn"            -> trn,
       "subscriptionID" -> subscriptionId
     )
 
@@ -266,8 +259,9 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  private def audit(event: String, request: JsValue, internalId: String, response: JsValue)
-                   (implicit hc: HeaderCarrier): Unit = {
+  private def audit(event: String, request: JsValue, internalId: String, response: JsValue)(implicit
+    hc: HeaderCarrier
+  ): Unit = {
 
     val auditPayload = EstatesAuditData(
       request = request,
@@ -281,8 +275,9 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
     )
   }
 
-  private def auditErrorResponse(eventName: String, request: JsValue, internalId: String, errorReason: JsValue)
-                                (implicit hc: HeaderCarrier): Unit = {
+  private def auditErrorResponse(eventName: String, request: JsValue, internalId: String, errorReason: JsValue)(implicit
+    hc: HeaderCarrier
+  ): Unit = {
 
     val response = Json.obj("errorReason" -> errorReason)
 
@@ -293,4 +288,5 @@ class AuditService @Inject()(auditConnector: AuditConnector, config : AppConfig)
       response = response
     )
   }
+
 }
