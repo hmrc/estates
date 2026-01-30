@@ -41,9 +41,9 @@ class CheckEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite {
 
   private val mockEstateService = mock[EstatesService]
 
-  val validPayloadRequest: JsValue                = Json.parse("""{"name": "estate name","postcode": "NE1 1NE","utr": "1234567890"}""")
+  val validPayloadRequest: JsValue = Json.parse("""{"name": "estate name","postcode": "NE1 1NE","utr": "1234567890"}""")
 
-  val validPayloadPostCodeLowerCase: JsValue      =
+  val validPayloadPostCodeLowerCase: JsValue =
     Json.parse("""{"name": "estate name","postcode": "aa9a 9aa","utr": "1234567890"}""")
 
   val validPayloadRequestWithoutPostCode: JsValue = Json.parse("""{"name": "estate name","utr": "1234567890"}""")

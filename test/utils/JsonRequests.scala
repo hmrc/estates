@@ -25,12 +25,12 @@ trait JsonRequests extends JsonUtils {
   lazy val estateRegRequest: EstateRegistration =
     getJsonValueFromFile("mdtp/valid-estate-registration-01.json").validate[EstateRegistration].get
 
-  lazy val estateRegistration01: String         = getJsonFromFile("mdtp/valid-estate-registration-01.json")
-  lazy val estateRegistration03: String         = getJsonFromFile("mdtp/valid-estate-registration-03.json")
+  lazy val estateRegistration01: String = getJsonFromFile("mdtp/valid-estate-registration-01.json")
+  lazy val estateRegistration03: String = getJsonFromFile("mdtp/valid-estate-registration-03.json")
 
   lazy val validEstateVariationsRequestJson: String = getJsonFromFile("mdtp/valid-estate-variation-api.json")
 
-  lazy val estateVariationsRequest: JsValue         =
+  lazy val estateVariationsRequest: JsValue =
     getJsonValueFromFile("mdtp/valid-estate-variation-api.json").validate[JsValue].get
 
   lazy val invalidEstateVariationsRequestJson: String = getJsonFromFile("etmp/invalid-estate-variation-api.json")
@@ -41,7 +41,7 @@ trait JsonRequests extends JsonUtils {
   lazy val get5MLDEstateResponseJson: String = getJsonFromFile("etmp/valid-get-estate-5mld-response.json")
   lazy val get5MLDEstateResponse: JsValue    = getJsonValueFromFile("etmp/valid-get-estate-5mld-response.json")
 
-  lazy val getTransformedEstateResponse: JsValue      = getJsonValueFromFile(
+  lazy val getTransformedEstateResponse: JsValue = getJsonValueFromFile(
     "transformed/variations/valid-get-estate-response-transformed.json"
   )
 
@@ -49,7 +49,7 @@ trait JsonRequests extends JsonUtils {
     "transformed/variations/valid-get-estate-response-transformed-personal-rep-only.json"
   )
 
-  lazy val getEstateInvalidResponseJson: JsValue  = getJsonValueFromFile("etmp/valid-get-estate-invalid-response.json")
+  lazy val getEstateInvalidResponseJson: JsValue = getJsonValueFromFile("etmp/valid-get-estate-invalid-response.json")
 
   lazy val get4MLDEstateExpectedResponse: JsValue = getJsonValueFromFile(
     "mdtp/valid-get-estate-expected-4mld-response.json"
@@ -63,7 +63,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-in-processing-response.json"
   )
 
-  lazy val getTrustOrEstateProcessingResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstateProcessingResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-in-processing-response.json"
   )
 
@@ -71,7 +71,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-pending-closure-response.json"
   )
 
-  lazy val getTrustOrEstatePendingClosureResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstatePendingClosureResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-pending-closure-response.json"
   )
 
@@ -79,7 +79,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-closed-response.json"
   )
 
-  lazy val getTrustOrEstateClosedResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstateClosedResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-closed-response.json"
   )
 
@@ -87,7 +87,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-suspended-response.json"
   )
 
-  lazy val getTrustOrEstateSuspendedResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstateSuspendedResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-suspended-response.json"
   )
 
@@ -95,7 +95,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-parked-response.json"
   )
 
-  lazy val getTrustOrEstateParkedResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstateParkedResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-parked-response.json"
   )
 
@@ -103,7 +103,7 @@ trait JsonRequests extends JsonUtils {
     "etmp/valid-get-trust-or-estate-obsoleted-response.json"
   )
 
-  lazy val getTrustOrEstateObsoletedResponse: JsValue    = getJsonValueFromFile(
+  lazy val getTrustOrEstateObsoletedResponse: JsValue = getJsonValueFromFile(
     "etmp/valid-get-trust-or-estate-obsoleted-response.json"
   )
 

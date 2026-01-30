@@ -30,7 +30,7 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
 
   private lazy val validationService: ValidationService = new ValidationService()
 
-  private lazy val estateValidator: Validator           =
+  private lazy val estateValidator: Validator =
     validationService.get("/resources/schemas/4MLD/estates-api-schema-5.0.json")
 
   "a validator " should {
