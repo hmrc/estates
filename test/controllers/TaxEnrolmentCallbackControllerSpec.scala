@@ -23,7 +23,6 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-
 class TaxEnrolmentCallbackControllerSpec extends BaseSpec with GuiceOneServerPerSuite {
 
   val mockAuditConnector = mock[AuditConnector]
@@ -37,11 +36,14 @@ class TaxEnrolmentCallbackControllerSpec extends BaseSpec with GuiceOneServerPer
         val application = applicationBuilder()
           .overrides(
             bind[AuditConnector].toInstance(mockAuditConnector)
-          ).build()
+          )
+          .build()
 
         val controller = application.injector.instanceOf[TaxEnrolmentCallbackController]
 
-        val result = controller.subscriptionCallback().apply(postRequestWithPayload(Json.parse({"""{ "url" : "http//","state" : "SUCCESS"}"""})))
+        val result = controller
+          .subscriptionCallback()
+          .apply(postRequestWithPayload(Json.parse("""{ "url" : "http//","state" : "SUCCESS"}""")))
         status(result) mustBe OK
       }
     }

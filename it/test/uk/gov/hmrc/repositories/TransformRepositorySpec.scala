@@ -23,13 +23,12 @@ import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.TransformationRepository
 import transformers.ComposedDeltaTransform
 
-class TransformRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
-  with BeforeAndAfterEach {
+class TransformRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest with BeforeAndAfterEach {
 
   private val repository = appBuilder.build().injector.instanceOf[TransformationRepository]
 
   private val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
-  private val data = ComposedDeltaTransform(Seq())
+  private val data       = ComposedDeltaTransform(Seq())
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -49,4 +48,5 @@ class TransformRepositorySpec extends AnyWordSpec with Matchers with TransformIn
       retrieved.futureValue mustBe Some(data)
     }
   }
+
 }

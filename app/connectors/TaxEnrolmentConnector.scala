@@ -26,20 +26,25 @@ import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxEnrolmentConnectorImpl @Inject()(http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends TaxEnrolmentConnector {
+class TaxEnrolmentConnectorImpl @Inject() (http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
+    extends TaxEnrolmentConnector {
 
-  override def enrolSubscriber(subscriptionId: String)(implicit hc: HeaderCarrier) :  Future[TaxEnrolmentSubscriberResponse] = {
-    val taxEnrolmentsEndpoint = s"${config.taxEnrolmentsBaseUrl}/tax-enrolments/subscriptions/$subscriptionId/subscriber"
+  override def enrolSubscriber(
+    subscriptionId: String
+  )(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] = {
+    val taxEnrolmentsEndpoint =
+      s"${config.taxEnrolmentsBaseUrl}/tax-enrolments/subscriptions/$subscriptionId/subscriber"
 
     val taxEnrolmentSubscriptionRequest = TaxEnrolmentSubscription(
       serviceName = "HMRC-TERS-ORG",
       callback = config.taxEnrolmentsPayloadBodyCallback,
-      etmpId = subscriptionId)
+      etmpId = subscriptionId
+    )
 
-    val url = taxEnrolmentsEndpoint
+    val url      = taxEnrolmentsEndpoint
     val jsonBody = Json.toJson(taxEnrolmentSubscriptionRequest)
 
-     http
+    http
       .put(url"$url")
       .withBody(jsonBody)
       .execute[TaxEnrolmentSubscriberResponse]
@@ -50,5 +55,5 @@ class TaxEnrolmentConnectorImpl @Inject()(http: HttpClientV2, config: AppConfig)
 
 @ImplementedBy(classOf[TaxEnrolmentConnectorImpl])
 trait TaxEnrolmentConnector {
-  def enrolSubscriber(subscriptionId: String)(implicit hc: HeaderCarrier):  Future[TaxEnrolmentSubscriberResponse]
+  def enrolSubscriber(subscriptionId: String)(implicit hc: HeaderCarrier): Future[TaxEnrolmentSubscriberResponse]
 }

@@ -24,18 +24,16 @@ import services.VariationsTransformationService
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ClearTransformationsController @Inject()(
-                                                identify: IdentifierAction,
-                                                cc: ControllerComponents,
-                                                variationsTransformationService: VariationsTransformationService
-                                              )(implicit val executionContext: ExecutionContext) extends EstatesBaseController(cc) {
+class ClearTransformationsController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  variationsTransformationService: VariationsTransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) {
 
-  def clearTransformations(utr: String): Action[AnyContent] = identify.async {
-    implicit request => {
-
-      variationsTransformationService.removeAllTransformations(utr, request.identifier) map { _ =>
-        Ok
-      }
+  def clearTransformations(utr: String): Action[AnyContent] = identify.async { implicit request =>
+    variationsTransformationService.removeAllTransformations(utr, request.identifier) map { _ =>
+      Ok
     }
   }
 

@@ -28,25 +28,25 @@ import utils.{Session, ValidationUtil}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalRepTransformationController @Inject()(
-                                                          identify: IdentifierAction,
-                                                          cc: ControllerComponents,
-                                                          personalRepTransformationService: PersonalRepTransformationService
-                                        )(implicit val executionContext: ExecutionContext)
-                                        extends EstatesBaseController(cc) with ValidationUtil with Logging {
+class PersonalRepTransformationController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  personalRepTransformationService: PersonalRepTransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with ValidationUtil with Logging {
 
-  def addOrAmendPersonalRep(utr: String): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[PersonalRepresentativeType] match {
-        case JsSuccess(model, _) =>
-          personalRepTransformationService.addAmendPersonalRepTransformer(utr, request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}][UTR: $utr]" +
-            s" Supplied personal representative could not be read as PersonalRepresentativeType - $errors")
-          Future.successful(BadRequest)
-      }
+  def addOrAmendPersonalRep(utr: String): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[PersonalRepresentativeType] match {
+      case JsSuccess(model, _) =>
+        personalRepTransformationService.addAmendPersonalRepTransformer(utr, request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(
+          s"[Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" Supplied personal representative could not be read as PersonalRepresentativeType - $errors"
+        )
+        Future.successful(BadRequest)
     }
   }
 

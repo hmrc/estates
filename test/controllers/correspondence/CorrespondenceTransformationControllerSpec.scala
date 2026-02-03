@@ -42,40 +42,41 @@ class CorrespondenceTransformationControllerSpec extends BaseSpec with MockitoSu
 
     "add a new amend correspondence name transform" in {
 
-        val correspondenceTransformationService = mock[CorrespondenceTransformationService]
+      val correspondenceTransformationService = mock[CorrespondenceTransformationService]
 
-        val application = applicationBuilder()
-          .overrides(
-            bind[CorrespondenceTransformationService].toInstance(correspondenceTransformationService)
-          ).build()
+      val application = applicationBuilder()
+        .overrides(
+          bind[CorrespondenceTransformationService].toInstance(correspondenceTransformationService)
+        )
+        .build()
 
-        when(correspondenceTransformationService.addAmendCorrespondenceNameTransformer(any(), any()))
-          .thenReturn(Future.successful(Success))
+      when(correspondenceTransformationService.addAmendCorrespondenceNameTransformer(any(), any()))
+        .thenReturn(Future.successful(Success))
 
-        val controller = application.injector.instanceOf[CorrespondenceTransformationController]
+      val controller = application.injector.instanceOf[CorrespondenceTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(newEstateName)
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(newEstateName)
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.addCorrespondenceName().apply(request)
+      val result = controller.addCorrespondenceName().apply(request)
 
-        status(result) mustBe OK
-        verify(correspondenceTransformationService)
-          .addAmendCorrespondenceNameTransformer("id", newEstateName)
-      }
+      status(result) mustBe OK
+      verify(correspondenceTransformationService)
+        .addAmendCorrespondenceNameTransformer("id", newEstateName)
+    }
 
     "must return an error for malformed json" in {
 
-        val controller = injector.instanceOf[CorrespondenceTransformationController]
+      val controller = injector.instanceOf[CorrespondenceTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(Json.parse("{}"))
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(Json.parse("{}"))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.addCorrespondenceName().apply(request)
-        status(result) mustBe BAD_REQUEST
-      }
+      val result = controller.addCorrespondenceName().apply(request)
+      status(result) mustBe BAD_REQUEST
+    }
   }
 
   "getCorrespondenceName" should {
@@ -86,7 +87,8 @@ class CorrespondenceTransformationControllerSpec extends BaseSpec with MockitoSu
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(CorrespondenceNameTransform(newEstateName))))))
@@ -95,8 +97,8 @@ class CorrespondenceTransformationControllerSpec extends BaseSpec with MockitoSu
 
         val result = controller.getCorrespondenceName()(FakeRequest(GET, "/estates/correspondence/name"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.obj("name" -> newEstateName)
 
       }
@@ -106,7 +108,8 @@ class CorrespondenceTransformationControllerSpec extends BaseSpec with MockitoSu
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
           .thenReturn(Future.successful(None))
@@ -115,11 +118,12 @@ class CorrespondenceTransformationControllerSpec extends BaseSpec with MockitoSu
 
         val result = controller.getCorrespondenceName()(FakeRequest(GET, "/estates/correspondence/name"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(Json.obj())
       }
 
     }
   }
+
 }

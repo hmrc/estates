@@ -18,12 +18,8 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class MatchData(utr: String,
-                     name: String,
-                     postCode: Option[String]
-                    )
+case class MatchData(utr: String, name: String, postCode: Option[String])
 
 object MatchData {
   implicit val matchDataFormat: Format[MatchData] = Json.format[MatchData]
 }
-

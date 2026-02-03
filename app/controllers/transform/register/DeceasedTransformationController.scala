@@ -32,74 +32,77 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeceasedTransformationController @Inject()(
-                                                  identify: IdentifierAction,
-                                                  cc: ControllerComponents,
-                                                  transformationService: TransformationService
-                                                )(implicit val executionContext: ExecutionContext)
-  extends EstatesBaseController(cc) with Logging {
+class DeceasedTransformationController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  transformationService: TransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with Logging {
 
-  def get: Action[AnyContent] = identify.async {
-    request =>
-      val result = transformationService.getTransformations(request.identifier) map {
-        case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
-          transforms.flatMap {
-            case DeceasedTransform(deceased) => Some(Json.toJson(deceased))
-            case _ => None
-          }.lastOption
-        case _ => None
-      }
-      result.map {
-        case Some(json) => Ok(json)
-        case None => Ok(Json.obj())
-      }
+  def get: Action[AnyContent] = identify.async { request =>
+    val result = transformationService.getTransformations(request.identifier) map {
+      case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
+        transforms.flatMap {
+          case DeceasedTransform(deceased) => Some(Json.toJson(deceased))
+          case _                           => None
+        }.lastOption
+      case _                                                             => None
+    }
+    result.map {
+      case Some(json) => Ok(json)
+      case None       => Ok(Json.obj())
+    }
   }
 
-  def getDateOfDeath: Action[AnyContent] = identify.async {
-    request =>
-      val result = transformationService.getTransformations(request.identifier) map {
-        case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
-          transforms.flatMap {
-            case DeceasedTransform(deceased) => Some(Json.toJson(deceased.dateOfDeath))
-            case _ => None
-          }.lastOption
-        case _ => None
-      }
-      result.map {
-        case Some(json) => Ok(json)
-        case None => Ok(Json.obj())
-      }
+  def getDateOfDeath: Action[AnyContent] = identify.async { request =>
+    val result = transformationService.getTransformations(request.identifier) map {
+      case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
+        transforms.flatMap {
+          case DeceasedTransform(deceased) => Some(Json.toJson(deceased.dateOfDeath))
+          case _                           => None
+        }.lastOption
+      case _                                                             => None
+    }
+    result.map {
+      case Some(json) => Ok(json)
+      case None       => Ok(Json.obj())
+    }
   }
 
-  def getIsTaxRequired: Action[AnyContent] = identify.async {
-    request =>
-      val result = transformationService.getTransformations(request.identifier) map {
-        case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
-          transforms.flatMap {
-            case DeceasedTransform(deceased) =>
-              val taxYearStart = TaxYear.current.starts
-              Some(JsBoolean(deceased.dateOfDeath isBefore LocalDate.of(taxYearStart.getYear, taxYearStart.getMonthValue, taxYearStart.getDayOfMonth)))
-            case _ => None
-          }.lastOption
-        case _ => None
-      }
-      result.map {
-        case Some(json) => Ok(json)
-        case None => Ok(JsBoolean(false))
-      }
+  def getIsTaxRequired: Action[AnyContent] = identify.async { request =>
+    val result = transformationService.getTransformations(request.identifier) map {
+      case Some(ComposedDeltaTransform(transforms: Seq[DeltaTransform])) =>
+        transforms.flatMap {
+          case DeceasedTransform(deceased) =>
+            val taxYearStart = TaxYear.current.starts
+            Some(
+              JsBoolean(
+                deceased.dateOfDeath isBefore LocalDate.of(
+                  taxYearStart.getYear,
+                  taxYearStart.getMonthValue,
+                  taxYearStart.getDayOfMonth
+                )
+              )
+            )
+          case _                           => None
+        }.lastOption
+      case _                                                             => None
+    }
+    result.map {
+      case Some(json) => Ok(json)
+      case None       => Ok(JsBoolean(false))
+    }
   }
 
-  def save: Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[EstateWillType] match {
-        case JsSuccess(deceased, _) =>
-          transformationService.addNewTransform(request.identifier, DeceasedTransform(deceased)) map {
-            _ => Ok
-          }
-        case JsError(errs) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}] Supplied amount could not be read as Deceased - $errs")
-          Future.successful(BadRequest)
-      }
+  def save: Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[EstateWillType] match {
+      case JsSuccess(deceased, _) =>
+        transformationService.addNewTransform(request.identifier, DeceasedTransform(deceased)) map { _ =>
+          Ok
+        }
+      case JsError(errs)          =>
+        logger.warn(s"[Session ID: ${Session.id(hc)}] Supplied amount could not be read as Deceased - $errs")
+        Future.successful(BadRequest)
     }
   }
 

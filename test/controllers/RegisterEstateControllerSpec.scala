@@ -38,7 +38,7 @@ import scala.concurrent.Future
 class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite with JsonRequests {
 
   lazy val mockRegistrationService: RegistrationService = mock[RegistrationService]
-  lazy val mockRosmPatternService: RosmPatternService = mock[RosmPatternService]
+  lazy val mockRosmPatternService: RosmPatternService   = mock[RosmPatternService]
 
   private val estateTrnResponse = "XTRN123456"
 
@@ -112,7 +112,7 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
 
         status(result) mustBe CONFLICT
         val output = contentAsJson(result)
-        (output \ "code").as[String] mustBe "DUPLICATE_SUBMISSION"
+        (output \ "code").as[String]    mustBe "DUPLICATE_SUBMISSION"
         (output \ "message").as[String] mustBe "Duplicate Correlation Id was submitted."
       }
     }
@@ -127,7 +127,7 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
 
         status(result) mustBe INTERNAL_SERVER_ERROR
         val output = contentAsJson(result)
-        (output \ "code").as[String] mustBe "INTERNAL_SERVER_ERROR"
+        (output \ "code").as[String]    mustBe "INTERNAL_SERVER_ERROR"
         (output \ "message").as[String] mustBe "Internal server error."
       }
 
@@ -147,7 +147,8 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
     val application = applicationBuilder()
       .overrides(
         bind[RegistrationService].toInstance(mockRegistrationService)
-      ).build()
+      )
+      .build()
 
     val controller = application.injector.instanceOf[RegisterEstateController]
 
@@ -168,7 +169,16 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
       identification = IdentificationType(
         Some("JS123456A"),
         None,
-        Some(AddressType("AEstateAddress1", "AEstateAddress2", Some("AEstateAddress3"), Some("AEstateAddress4"), Some("TF3 4ER"), "GB"))
+        Some(
+          AddressType(
+            "AEstateAddress1",
+            "AEstateAddress2",
+            Some("AEstateAddress3"),
+            Some("AEstateAddress4"),
+            Some("TF3 4ER"),
+            "GB"
+          )
+        )
       ),
       phoneNumber = "078888888",
       email = Some("test@abc.com")
@@ -220,10 +230,11 @@ class RegisterEstateControllerSpec extends BaseSpec with GuiceOneServerPerSuite 
 
         status(result) mustBe INTERNAL_SERVER_ERROR
         val output = contentAsJson(result)
-        (output \ "code").as[String] mustBe "INTERNAL_SERVER_ERROR"
+        (output \ "code").as[String]    mustBe "INTERNAL_SERVER_ERROR"
         (output \ "message").as[String] mustBe "Internal server error."
       }
 
     }
   }
+
 }

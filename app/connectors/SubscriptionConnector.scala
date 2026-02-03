@@ -28,19 +28,20 @@ import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionConnector @Inject()(http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
+class SubscriptionConnector @Inject() (http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  private lazy val subscriptionUrl : String = s"${config.subscriptionBaseUrl}/trusts"
+  private lazy val subscriptionUrl: String = s"${config.subscriptionBaseUrl}/trusts"
 
   private val ENVIRONMENT_HEADER = "Environment"
   private val CORRELATION_HEADER = "CorrelationId"
 
-  private def subscriptionHeaders(correlationId : String) : Seq[(String, String)] =
+  private def subscriptionHeaders(correlationId: String): Seq[(String, String)] =
     Seq(
       HeaderNames.AUTHORIZATION -> s"Bearer ${config.subscriptionToken}",
-      CONTENT_TYPE -> CONTENT_TYPE_JSON,
-      ENVIRONMENT_HEADER -> config.subscriptionEnvironment,
-      CORRELATION_HEADER -> correlationId
+      CONTENT_TYPE              -> CONTENT_TYPE_JSON,
+      ENVIRONMENT_HEADER        -> config.subscriptionEnvironment,
+      CORRELATION_HEADER        -> correlationId
     )
 
   def getSubscriptionId(trn: String): Future[SubscriptionIdResponse] = {
@@ -50,7 +51,9 @@ class SubscriptionConnector @Inject()(http: HttpClientV2, config: AppConfig)(imp
     implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = subscriptionHeaders(correlationId))
 
     val subscriptionIdEndpointUrl = s"$subscriptionUrl/trn/$trn/subscription"
-    http.get(url"$subscriptionIdEndpointUrl")
+    http
+      .get(url"$subscriptionIdEndpointUrl")
       .execute[SubscriptionIdResponse]
   }
+
 }

@@ -21,9 +21,9 @@ import play.api.libs.json._
 import java.time.LocalDate
 import javax.inject.Inject
 
-class Estates5MLDService @Inject()(){
+class Estates5MLDService @Inject() () {
 
-  def applySubmissionDate(registration: JsValue, applySubmissionDate: Boolean = false): JsResult[JsValue] = {
+  def applySubmissionDate(registration: JsValue, applySubmissionDate: Boolean = false): JsResult[JsValue] =
     if (applySubmissionDate) {
       registration.transform(
         __.json.update((__ \ Symbol("submissionDate")).json.put(Json.toJson(LocalDate.now())))
@@ -31,6 +31,5 @@ class Estates5MLDService @Inject()(){
     } else {
       JsSuccess(registration)
     }
-  }
 
 }

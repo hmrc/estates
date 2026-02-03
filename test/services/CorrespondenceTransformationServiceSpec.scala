@@ -30,7 +30,8 @@ import transformers.register.CorrespondenceNameTransform
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CorrespondenceTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
+class CorrespondenceTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   val newEstateName = JsString("New Estate Name")
 
@@ -39,13 +40,12 @@ class CorrespondenceTransformationServiceSpec extends AnyFreeSpec with MockitoSu
     "must write a corresponding transform using the transformation service" in {
 
       val transformationService = mock[TransformationService]
-      val service = new CorrespondenceTransformationService(transformationService)
+      val service               = new CorrespondenceTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any())).thenReturn(Future.successful(true))
 
       val result = service.addAmendCorrespondenceNameTransformer("internalId", newEstateName)
       whenReady(result) { _ =>
-
         verify(transformationService).addNewTransform("internalId", CorrespondenceNameTransform(newEstateName))
 
       }
@@ -56,13 +56,12 @@ class CorrespondenceTransformationServiceSpec extends AnyFreeSpec with MockitoSu
       "when there is a single transform" in {
 
         val transformationService = mock[TransformationService]
-        val service = new CorrespondenceTransformationService(transformationService)
+        val service               = new CorrespondenceTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(CorrespondenceNameTransform(newEstateName))))))
 
         whenReady(service.getCorrespondenceName("internalId")) { result =>
-
           result mustBe Some(newEstateName)
 
         }
@@ -74,18 +73,23 @@ class CorrespondenceTransformationServiceSpec extends AnyFreeSpec with MockitoSu
         val correspondenceName2 = JsString("New Estate Name 2")
 
         val transformationService = mock[TransformationService]
-        val service = new CorrespondenceTransformationService(transformationService)
+        val service               = new CorrespondenceTransformationService(transformationService)
 
         when(transformationService.getTransformations(any[String]))
-          .thenReturn(Future.successful(Some(ComposedDeltaTransform(
-            Seq(
-              CorrespondenceNameTransform(correspondenceName1),
-              CorrespondenceNameTransform(correspondenceName2)
+          .thenReturn(
+            Future.successful(
+              Some(
+                ComposedDeltaTransform(
+                  Seq(
+                    CorrespondenceNameTransform(correspondenceName1),
+                    CorrespondenceNameTransform(correspondenceName2)
+                  )
+                )
+              )
             )
-          ))))
+          )
 
         whenReady(service.getCorrespondenceName("internalId")) { result =>
-
           result mustBe Some(correspondenceName2)
 
         }

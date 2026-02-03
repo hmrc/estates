@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class CloseEstateTransformationControllerSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {
 
-  private val cc = stubControllerComponents()
+  private val cc       = stubControllerComponents()
   val identifierAction = new FakeIdentifierAction(cc.parsers.default, Agent)
 
   val fakeUtr: String = "utr"
@@ -44,7 +44,7 @@ class CloseEstateTransformationControllerSpec extends AnyFreeSpec with MockitoSu
   "close estate" - {
 
     val closeEstateTransformationService = mock[CloseEstateTransformationService]
-    val controller = new CloseEstateTransformationController(identifierAction, cc, closeEstateTransformationService)
+    val controller                       = new CloseEstateTransformationController(identifierAction, cc, closeEstateTransformationService)
 
     "must add a new close estate transform" in {
 
@@ -73,4 +73,5 @@ class CloseEstateTransformationControllerSpec extends AnyFreeSpec with MockitoSu
       status(result) mustBe BAD_REQUEST
     }
   }
+
 }

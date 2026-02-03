@@ -24,69 +24,75 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext,Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
+class RosmPatternServiceImpl @Inject() (
+  estateService: EstatesService,
+  taxEnrolmentService: TaxEnrolmentsService,
+  auditService: AuditService
+)(implicit ec: ExecutionContext)
+    extends RosmPatternService with Logging {
 
-class RosmPatternServiceImpl @Inject()(estateService: EstatesService,
-                                       taxEnrolmentService : TaxEnrolmentsService,
-                                       auditService: AuditService
-                                      )(implicit ec: ExecutionContext) extends RosmPatternService with Logging {
-
-  def getSubscriptionIdAndEnrol(trn : String, identifier: String)(implicit hc : HeaderCarrier): Future[TaxEnrolmentSubscriberResponse] ={
+  def getSubscriptionIdAndEnrol(trn: String, identifier: String)(implicit
+    hc: HeaderCarrier
+  ): Future[TaxEnrolmentSubscriberResponse] =
 
     for {
       subscriptionIdResponse <- estateService.getSubscriptionId(trn = trn)
-      taxEnrolmentResponse <- taxEnrolmentService.setSubscriptionId(subscriptionIdResponse.subscriptionId)
-    } yield {
-      taxEnrolmentResponse match {
-        case TaxEnrolmentSuccess =>
-          auditService.auditEnrolSuccess(
-            subscriptionIdResponse.subscriptionId,
-            trn,
-            identifier
-          )
-          TaxEnrolmentSuccess
+      taxEnrolmentResponse   <- taxEnrolmentService.setSubscriptionId(subscriptionIdResponse.subscriptionId)
+    } yield taxEnrolmentResponse match {
+      case TaxEnrolmentSuccess =>
+        auditService.auditEnrolSuccess(
+          subscriptionIdResponse.subscriptionId,
+          trn,
+          identifier
+        )
+        TaxEnrolmentSuccess
 
-        case response: TaxEnrolmentFailure =>
-          auditService.auditEnrolFailed(
-            subscriptionIdResponse.subscriptionId,
-            trn,
-            identifier,
-            response.reason
-          )
-          response
-        case r => r
-      }
+      case response: TaxEnrolmentFailure =>
+        auditService.auditEnrolFailed(
+          subscriptionIdResponse.subscriptionId,
+          trn,
+          identifier,
+          response.reason
+        )
+        response
+      case r                             => r
     }
-  }
 
-  override def enrol(trn: String, affinityGroup: AffinityGroup, identifier: String)
-                    (implicit hc: HeaderCarrier) : Future[TaxEnrolmentSubscriberResponse] = {
+  override def enrol(trn: String, affinityGroup: AffinityGroup, identifier: String)(implicit
+    hc: HeaderCarrier
+  ): Future[TaxEnrolmentSubscriberResponse] =
     affinityGroup match {
       case AffinityGroup.Organisation =>
         getSubscriptionIdAndEnrol(trn, identifier) map {
-          case TaxEnrolmentSuccess =>
+          case TaxEnrolmentSuccess           =>
             logger.info(s"[Session ID: ${Session.id(hc)}] Rosm completed successfully for provided trn: $trn.")
             TaxEnrolmentSuccess
           case response: TaxEnrolmentFailure =>
-            logger.error(s"[Session ID: ${Session.id(hc)}]" +
-              s" Rosm pattern is not completed for trn: $trn. with reason: ${response.reason}")
+            logger.error(
+              s"[Session ID: ${Session.id(hc)}]" +
+                s" Rosm pattern is not completed for trn: $trn. with reason: ${response.reason}"
+            )
             response
-          case r => r
-        } recover {
-          case NonFatal(e) =>
-            logger.error(s"[Session ID: ${Session.id(hc)}] Rosm pattern is not completed for trn: $trn.")
-            TaxEnrolmentFailure(s"Non-fatal error: ${e.getMessage}")
-          }
-      case _ =>
+          case r                             => r
+        } recover { case NonFatal(e) =>
+          logger.error(s"[Session ID: ${Session.id(hc)}] Rosm pattern is not completed for trn: $trn.")
+          TaxEnrolmentFailure(s"Non-fatal error: ${e.getMessage}")
+        }
+      case _                          =>
         logger.info(s"[Session ID: ${Session.id(hc)}] Tax enrolments is not required for Agent.")
         Future.successful(TaxEnrolmentNotProcessed)
     }
-  }
 
 }
+
 @ImplementedBy(classOf[RosmPatternServiceImpl])
 trait RosmPatternService {
-  def enrol(trn: String, affinityGroup: AffinityGroup, identifier: String)(implicit hc: HeaderCarrier) : Future[TaxEnrolmentSubscriberResponse]
+
+  def enrol(trn: String, affinityGroup: AffinityGroup, identifier: String)(implicit
+    hc: HeaderCarrier
+  ): Future[TaxEnrolmentSubscriberResponse]
+
 }

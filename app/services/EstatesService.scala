@@ -30,47 +30,54 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EstatesService @Inject()(val estatesConnector: EstatesConnector,
-                               val subscriptionConnector: SubscriptionConnector,
-                               repository: CacheRepository)(implicit ec: ExecutionContext) extends Logging {
+class EstatesService @Inject() (
+  val estatesConnector: EstatesConnector,
+  val subscriptionConnector: SubscriptionConnector,
+  repository: CacheRepository
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   def getEstateInfoFormBundleNo(utr: String)(implicit hc: HeaderCarrier): Future[String] =
     estatesConnector.getEstateInfo(utr).map {
       case response: GetEstateProcessedResponse =>
         response.responseHeader.formBundleNo
-      case response =>
-        val msg = s"[Session ID: ${Session.id(hc)}][UTR: $utr] Failed to retrieve latest form bundle no from ETMP due to $response"
+      case response                             =>
+        val msg =
+          s"[Session ID: ${Session.id(hc)}][UTR: $utr] Failed to retrieve latest form bundle no from ETMP due to $response"
         logger.warn(msg)
         throw InternalServerErrorException(s"Submission could not proceed, $msg")
     }
 
-  def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest): Future[ExistingCheckResponse] = {
+  def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest): Future[ExistingCheckResponse] =
     estatesConnector.checkExistingEstate(existingEstateCheckRequest)
-  }
 
-  def registerEstate(estateRegistration: EstateRegistration): Future[RegistrationResponse] = {
+  def registerEstate(estateRegistration: EstateRegistration): Future[RegistrationResponse] =
     estatesConnector.registerEstate(estateRegistration)
-  }
 
-  def getSubscriptionId(trn: String): Future[SubscriptionIdResponse] = {
+  def getSubscriptionId(trn: String): Future[SubscriptionIdResponse] =
     subscriptionConnector.getSubscriptionId(trn)
-  }
 
-  def refreshCacheAndGetEstateInfo(utr: String, internalId: String)(implicit hc: HeaderCarrier): Future[GetEstateResponse] = {
+  def refreshCacheAndGetEstateInfo(utr: String, internalId: String)(implicit
+    hc: HeaderCarrier
+  ): Future[GetEstateResponse] = {
 
     logger.info(s"[refreshCacheAndGetEstateInfo][Session ID: ${Session.id(hc)}][UTR: $utr] refreshing cache for $utr")
 
     repository.resetCache(utr, internalId).flatMap { _ =>
       estatesConnector.getEstateInfo(utr).flatMap {
         case response: GetEstateProcessedResponse =>
-          logger.info(s"[refreshCacheAndGetEstateInfo][[Session ID: ${Session.id(hc)}][UTR: $utr]" +
-            s" setting cached record for $utr")
-          repository.set(utr, internalId, Json.toJson(response)(GetEstateProcessedResponse.mongoWrites)).map{ _ =>
+          logger.info(
+            s"[refreshCacheAndGetEstateInfo][[Session ID: ${Session.id(hc)}][UTR: $utr]" +
+              s" setting cached record for $utr"
+          )
+          repository.set(utr, internalId, Json.toJson(response)(GetEstateProcessedResponse.mongoWrites)).map { _ =>
             response
           }
-        case otherResponse =>
-          logger.info(s"[refreshCacheAndGetEstateInfo][[Session ID: ${Session.id(hc)}][UTR: $utr]" +
-            s" document returned for $utr was not in processed state")
+        case otherResponse                        =>
+          logger.info(
+            s"[refreshCacheAndGetEstateInfo][[Session ID: ${Session.id(hc)}][UTR: $utr]" +
+              s" document returned for $utr was not in processed state"
+          )
           Future.successful(otherResponse)
       }
     }
@@ -80,21 +87,25 @@ class EstatesService @Inject()(val estatesConnector: EstatesConnector,
     logger.info(s"[getEstateInfo][[Session ID: ${Session.id(hc)}][UTR: $utr] getting cached record for utr $utr")
     repository.get(utr, internalId).flatMap {
       case Some(x) =>
-        x.validate[GetEstateResponse].fold(
-          errs => {
-            logger.error(s"[getEstateInfo][Session ID: ${Session.id(hc)}][UTR: $utr]" +
-              s" unable to parse json from cache for $utr as GetEstateResponse $errs")
-            Future.failed[GetEstateResponse](new Exception(errs.toString))
-        },
-        response => {
-          logger.info(s"[getEstateInfo][Session ID: ${Session.id(hc)}][UTR: $utr] found cached record for $utr")
-          Future.successful(response)
-        }
-      )
-      case None => refreshCacheAndGetEstateInfo(utr, internalId)
+        x.validate[GetEstateResponse]
+          .fold(
+            errs => {
+              logger.error(
+                s"[getEstateInfo][Session ID: ${Session.id(hc)}][UTR: $utr]" +
+                  s" unable to parse json from cache for $utr as GetEstateResponse $errs"
+              )
+              Future.failed[GetEstateResponse](new Exception(errs.toString))
+            },
+            response => {
+              logger.info(s"[getEstateInfo][Session ID: ${Session.id(hc)}][UTR: $utr] found cached record for $utr")
+              Future.successful(response)
+            }
+          )
+      case None    => refreshCacheAndGetEstateInfo(utr, internalId)
     }
   }
 
   def estateVariation(estateVariation: JsValue): Future[VariationResponse] =
     estatesConnector.estateVariation(estateVariation: JsValue)
+
 }

@@ -21,11 +21,13 @@ import java.time.LocalDate
 
 import play.api.libs.functional.syntax.{toFunctionalBuilderOps, unlift}
 
-case class EstateWillType(name: NameType,
-                          dateOfBirth: Option[LocalDate],
-                          dateOfDeath: LocalDate,
-                          identification: Option[IdentificationType],
-                          addressYesNo: Option[Boolean] = None)
+case class EstateWillType(
+  name: NameType,
+  dateOfBirth: Option[LocalDate],
+  dateOfDeath: LocalDate,
+  identification: Option[IdentificationType],
+  addressYesNo: Option[Boolean] = None
+)
 
 object EstateWillType {
   implicit val estateWillTypeFormat: Format[EstateWillType] = Json.format[EstateWillType]
@@ -37,6 +39,7 @@ object EstateWillType {
       (JsPath \ "dateOfBirth").writeNullable[LocalDate] and
       (JsPath \ "dateOfDeath").write[LocalDate] and
       (JsPath \ "identification").writeNullable[IdentificationType] and
-      ignore                                                             // We don't want to send this field to DES, but it is required up until now, so are omitting it when building the payload for final registration
-    ).apply(unlift(EstateWillType.unapply))
+      ignore // We don't want to send this field to DES, but it is required up until now, so are omitting it when building the payload for final registration
+  ).apply(unlift(EstateWillType.unapply))
+
 }

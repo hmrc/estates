@@ -36,8 +36,8 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  private implicit val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
-  private val bodyParsers = injector.instanceOf[BodyParsers.Default]
+  implicit private val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
+  private val bodyParsers                       = injector.instanceOf[BodyParsers.Default]
 
   private val agentDetails = AgentDetails(
     arn = "AARN1234567",
@@ -50,7 +50,7 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
       postCode = Some("TF3 2BX"),
       country = "GB"
     ),
-    agentTelephoneNumber =  "07912180120",
+    agentTelephoneNumber = "07912180120",
     clientReference = "clientReference"
   )
 
@@ -63,7 +63,12 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
     ".get" must {
 
       "return agent details" in {
-        val controller = new AgentDetailsTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AgentDetailsTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         when(mockTransformationService.get(any())).thenReturn(Future.successful(Some(agentDetails)))
 
@@ -72,13 +77,18 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(agentDetails)
       }
 
       "return an empty json object when there is no agent details" in {
-        val controller = new AgentDetailsTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AgentDetailsTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         when(mockTransformationService.get(any())).thenReturn(Future.successful(None))
 
@@ -87,8 +97,8 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.obj()
       }
 
@@ -97,7 +107,12 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
     ".save" must {
 
       "add a transform" in {
-        val controller = new AgentDetailsTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AgentDetailsTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         val details = agentDetails
 
@@ -113,7 +128,12 @@ class AgentDetailsTransformationControllerSpec extends BaseSpec with MockitoSuga
       }
 
       "must return an error for malformed json" in {
-        val controller = new AgentDetailsTransformationController(identifierAction, cc, LocalDateServiceStub, mockTransformationService)
+        val controller = new AgentDetailsTransformationController(
+          identifierAction,
+          cc,
+          LocalDateServiceStub,
+          mockTransformationService
+        )
 
         val request = FakeRequest("POST", "path")
           .withBody(Json.toJson("{}"))

@@ -25,23 +25,23 @@ import transformers.register.AmountOfTaxOwedTransform
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AmountOfTaxTransformationService @Inject()(transformationService: TransformationService)(implicit ec: ExecutionContext) {
+class AmountOfTaxTransformationService @Inject() (transformationService: TransformationService)(implicit
+  ec: ExecutionContext
+) {
 
-  def get(internalId: String): Future[Option[AmountOfTaxOwed]] = {
+  def get(internalId: String): Future[Option[AmountOfTaxOwed]] =
     transformationService.getTransformations(internalId) map {
       case Some(ComposedDeltaTransform(transforms)) =>
-        transforms.flatMap{
+        transforms.flatMap {
           case AmountOfTaxOwedTransform(amount) => Some(AmountOfTaxOwed(amount))
-          case _ => None
+          case _                                => None
         }.lastOption
-      case _ => None
+      case _                                        => None
     }
-  }
 
-  def addTransform(internalId: String, amount: AmountOfTaxOwed) : Future[Success.type] = {
-    transformationService.addNewTransform(internalId, AmountOfTaxOwedTransform(amount.amount)) map {
-      _ => Success
+  def addTransform(internalId: String, amount: AmountOfTaxOwed): Future[Success.type] =
+    transformationService.addNewTransform(internalId, AmountOfTaxOwedTransform(amount.amount)) map { _ =>
+      Success
     }
-  }
 
 }

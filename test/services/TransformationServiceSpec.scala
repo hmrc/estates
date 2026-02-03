@@ -34,7 +34,7 @@ import scala.concurrent.Future
 
 class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers {
 
-  private implicit val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
+  implicit private val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
 
   "addNewTransform" - {
 
@@ -42,7 +42,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "with no existing transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
           name = NameType("First", None, "Last"),
@@ -60,7 +60,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val result = service.addNewTransform("internalId", transform)
 
         whenReady(result) { _ =>
-
           verify(repository).set(
             "internalId",
             ComposedDeltaTransform(Seq(transform))
@@ -72,7 +71,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "with existing transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
           name = NameType("First", None, "Last"),
@@ -85,7 +84,8 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val existingTransforms = Seq(PersonalRepTransform(Some(personalRep), None))
 
         val newTransform = PersonalRepTransform(
-          Some(personalRep.copy(email = Some("e@mail.com"))), None
+          Some(personalRep.copy(email = Some("e@mail.com"))),
+          None
         )
 
         when(repository.get(any())).thenReturn(Future.successful(Some(ComposedDeltaTransform(existingTransforms))))
@@ -94,7 +94,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val result = service.addNewTransform("internalId", newTransform)
 
         whenReady(result) { _ =>
-
           verify(repository).set(
             "internalId",
             ComposedDeltaTransform(existingTransforms :+ newTransform)
@@ -106,7 +105,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "return a failure if unable to get transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         when(repository.get(any())).thenReturn(Future.failed(new RuntimeException))
 
@@ -119,7 +118,8 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         )
 
         val newTransform = PersonalRepTransform(
-          Some(personalRep.copy(email = Some("e@mail.com"))), None
+          Some(personalRep.copy(email = Some("e@mail.com"))),
+          None
         )
 
         val result = service.addNewTransform("internalId", newTransform)
@@ -137,7 +137,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "with no existing transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         when(repository.get(any())).thenReturn(Future.successful(Some(ComposedDeltaTransform(Nil))))
         when(repository.set(any(), any())).thenReturn(Future.successful(true))
@@ -145,7 +145,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val result = service.removeYearsReturnsTransform("internalId")
 
         whenReady(result) { _ =>
-
           verify(repository).set(
             "internalId",
             ComposedDeltaTransform(Seq())
@@ -157,7 +156,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "with existing transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         val personalRep = EstatePerRepIndType(
           name = NameType("First", None, "Last"),
@@ -178,7 +177,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val result = service.removeYearsReturnsTransform("internalId")
 
         whenReady(result) { _ =>
-
           verify(repository).set(
             "internalId",
             ComposedDeltaTransform(Seq(PersonalRepTransform(Some(personalRep), None)))
@@ -190,7 +188,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "with only YearsReturns existing transform" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         val existingTransforms = Seq(
           YearsReturnsTransform(YearsReturns(List(YearReturnType("19", taxConsequence = false)))),
@@ -203,7 +201,6 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
         val result = service.removeYearsReturnsTransform("internalId")
 
         whenReady(result) { _ =>
-
           verify(repository).set(
             "internalId",
             ComposedDeltaTransform(Seq())
@@ -215,7 +212,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
       "return failure if unable to get transforms" in {
 
         val repository = mock[TransformationRepositoryImpl]
-        val service = new TransformationService(repository)
+        val service    = new TransformationService(repository)
 
         when(repository.get(any())).thenReturn(Future.failed(new RuntimeException))
         val result = service.removeYearsReturnsTransform("internalId")
@@ -230,7 +227,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
 
     "return existing transformations" in {
       val repository = mock[TransformationRepositoryImpl]
-      val service = new TransformationService(repository)
+      val service    = new TransformationService(repository)
 
       when(repository.get(any())).thenReturn(Future.successful(None))
 
@@ -247,7 +244,7 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
 
     "reset cache" in {
       val repository = mock[TransformationRepositoryImpl]
-      val service = new TransformationService(repository)
+      val service    = new TransformationService(repository)
 
       when(repository.resetCache(any())).thenReturn(Future.successful(None))
 
@@ -259,4 +256,5 @@ class TransformationServiceSpec extends AnyFreeSpec with MockitoSugar with Scala
     }
 
   }
+
 }

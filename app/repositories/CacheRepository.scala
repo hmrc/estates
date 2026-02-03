@@ -32,40 +32,45 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CacheRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[JsObject](
-    mongoComponent = mongo,
-    collectionName = "estates",
-    domainFormat = implicitly[Format[JsObject]],
-    indexes = Seq(
-      IndexModel(
-        Indexes.ascending("updatedAt"),
-        IndexOptions()
-          .name("etmp-data-updated-at-index")
-          .expireAfter(config.ttlInSeconds, SECONDS)
-      ),
-      IndexModel(
-        Indexes.ascending("id"),
-        IndexOptions()
-          .name("id-index")
+class CacheRepositoryImpl @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[JsObject](
+      mongoComponent = mongo,
+      collectionName = "estates",
+      domainFormat = implicitly[Format[JsObject]],
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("updatedAt"),
+          IndexOptions()
+            .name("etmp-data-updated-at-index")
+            .expireAfter(config.ttlInSeconds, SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("id"),
+          IndexOptions()
+            .name("id-index")
+        )
       )
     )
-  ) with CacheRepository with Logging {
+    with CacheRepository
+    with Logging {
 
   override def get(utr: String, internalId: String): Future[Option[JsValue]] = {
 
     val selector = equal("id", createKey(utr, internalId))
 
-    collection.find(selector).headOption().map(opt =>
-      for {
-        document <- opt
-        etmpData <- (document \ "etmpData").toOption
-      } yield etmpData)
+    collection
+      .find(selector)
+      .headOption()
+      .map(opt =>
+        for {
+          document <- opt
+          etmpData <- (document \ "etmpData").toOption
+        } yield etmpData
+      )
   }
 
-  private def createKey(utr: String, internalId: String) = {
-    (utr + '-' + internalId)
-  }
+  private def createKey(utr: String, internalId: String) =
+    utr + '-' + internalId
 
   override def set(utr: String, internalId: String, data: JsValue): Future[Boolean] = {
 
@@ -80,8 +85,8 @@ class CacheRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(im
     val updateOptions = new UpdateOptions().upsert(true)
 
     collection.updateOne(selector, modifier, updateOptions).toFutureOption().map {
-      case Some(_)  => true
-      case None => false
+      case Some(_) => true
+      case None    => false
     }
   }
 
@@ -90,6 +95,7 @@ class CacheRepositoryImpl @Inject()(mongo: MongoComponent, config: AppConfig)(im
 
     collection.findOneAndDelete(selector).toFutureOption()
   }
+
 }
 
 trait CacheRepository {

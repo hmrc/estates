@@ -28,59 +28,57 @@ import utils.{Session, ValidationUtil}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalRepTransformationController @Inject()(
-                                          identify: IdentifierAction,
-                                          personalRepTransformationService: PersonalRepTransformationService,
-                                          cc: ControllerComponents,
-                                          localDateService: LocalDateService
-                                        )(implicit val executionContext: ExecutionContext
-) extends EstatesBaseController(cc) with ValidationUtil with Logging {
+class PersonalRepTransformationController @Inject() (
+  identify: IdentifierAction,
+  personalRepTransformationService: PersonalRepTransformationService,
+  cc: ControllerComponents,
+  localDateService: LocalDateService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with ValidationUtil with Logging {
 
-  def getPersonalRepInd(): Action[AnyContent] = identify.async {
-    implicit request =>
-      personalRepTransformationService.getPersonalRepInd(request.identifier) map { personalRep =>
-        Ok(
-          personalRep map Json.toJson[EstatePerRepIndType] getOrElse Json.obj()
-        )
-      }
-  }
-
-  def getPersonalRepOrg(): Action[AnyContent] = identify.async {
-    implicit request =>
-      personalRepTransformationService.getPersonalRepOrg(request.identifier) map { personalRep =>
-        Ok(
-          personalRep map Json.toJson[EstatePerRepOrgType] getOrElse Json.obj()
-        )
-      }
-  }
-
-  def amendPersonalRepInd(): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[EstatePerRepIndType] match {
-        case JsSuccess(model, _) =>
-          personalRepTransformationService.addAmendEstatePerRepIndTransformer(request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}] " +
-            s"Supplied Personal Rep could not be read as EstatePerRepIndType - $errors")
-          Future.successful(BadRequest)
-      }
+  def getPersonalRepInd(): Action[AnyContent] = identify.async { implicit request =>
+    personalRepTransformationService.getPersonalRepInd(request.identifier) map { personalRep =>
+      Ok(
+        personalRep map Json.toJson[EstatePerRepIndType] getOrElse Json.obj()
+      )
     }
   }
 
-  def amendPersonalRepOrg(): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[EstatePerRepOrgType] match {
-        case JsSuccess(model, _) =>
-          personalRepTransformationService.addAmendEstatePerRepOrgTransformer(request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}] " +
-            s"Supplied Personal Rep could not be read as EstatePerRepIndType - $errors")
-          Future.successful(BadRequest)
-      }
+  def getPersonalRepOrg(): Action[AnyContent] = identify.async { implicit request =>
+    personalRepTransformationService.getPersonalRepOrg(request.identifier) map { personalRep =>
+      Ok(
+        personalRep map Json.toJson[EstatePerRepOrgType] getOrElse Json.obj()
+      )
+    }
+  }
+
+  def amendPersonalRepInd(): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[EstatePerRepIndType] match {
+      case JsSuccess(model, _) =>
+        personalRepTransformationService.addAmendEstatePerRepIndTransformer(request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(
+          s"[Session ID: ${Session.id(hc)}] " +
+            s"Supplied Personal Rep could not be read as EstatePerRepIndType - $errors"
+        )
+        Future.successful(BadRequest)
+    }
+  }
+
+  def amendPersonalRepOrg(): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[EstatePerRepOrgType] match {
+      case JsSuccess(model, _) =>
+        personalRepTransformationService.addAmendEstatePerRepOrgTransformer(request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(
+          s"[Session ID: ${Session.id(hc)}] " +
+            s"Supplied Personal Rep could not be read as EstatePerRepIndType - $errors"
+        )
+        Future.successful(BadRequest)
     }
   }
 

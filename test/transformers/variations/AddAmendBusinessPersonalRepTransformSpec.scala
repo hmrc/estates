@@ -28,8 +28,10 @@ class AddAmendBusinessPersonalRepTransformSpec extends AnyFreeSpec with Matchers
 
   "the modify business personal rep transformer should" - {
     "successfully set a new business personal rep details" in {
-      val beforeJson = JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-before.json")
-      val afterJson = JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-after-org.json")
+      val beforeJson     =
+        JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-before.json")
+      val afterJson      =
+        JsonUtils.getJsonValueFromFile("transformed/variations/estates-personal-rep-transform-after-org.json")
       val newPersonalRep = EstatePerRepOrgType(
         lineNo = Some("newLineNo"),
         bpMatchStatus = Some("newMatchStatus"),
@@ -40,11 +42,12 @@ class AddAmendBusinessPersonalRepTransformSpec extends AnyFreeSpec with Matchers
         LocalDate.of(2011, 11, 21),
         None
       )
-      val transformer = AddAmendBusinessPersonalRepTransform(newPersonalRep)
+      val transformer    = AddAmendBusinessPersonalRepTransform(newPersonalRep)
 
       val result = transformer.applyTransform(beforeJson).get
       result mustBe afterJson
     }
 
   }
+
 }

@@ -32,70 +32,70 @@ class SubscriptionConnectorSpec extends BaseConnectorSpec with JsonRequests {
 
     "return subscription Id" when {
       "valid trn has been submitted" in {
-        val trn = "XTRN1234567"
+        val trn                       = "XTRN1234567"
         val subscriptionIdEndpointUrl = s"/trusts/trn/$trn/subscription"
-        stubForGet(server, subscriptionIdEndpointUrl,  OK, """{"subscriptionId": "987654321"}""")
+        stubForGet(server, subscriptionIdEndpointUrl, OK, """{"subscriptionId": "987654321"}""")
 
         val futureResult = connector.getSubscriptionId(trn)
 
-        whenReady(futureResult) {
-          result => result mustBe SubscriptionIdResponse("987654321")
+        whenReady(futureResult) { result =>
+          result mustBe SubscriptionIdResponse("987654321")
         }
       }
     }
 
     "return BadRequestException" when {
       "invalid trn has been submitted" in {
-        val trn = "invalidtrn"
+        val trn                       = "invalidtrn"
         val subscriptionIdEndpointUrl = s"/trusts/trn/$trn/subscription"
-        stubForGet(server, subscriptionIdEndpointUrl,  BAD_REQUEST,Json.stringify(jsonResponse400GetSubscriptionId))
+        stubForGet(server, subscriptionIdEndpointUrl, BAD_REQUEST, Json.stringify(jsonResponse400GetSubscriptionId))
 
         val futureResult = connector.getSubscriptionId(trn)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe BadRequestException
+        whenReady(futureResult.failed) { result =>
+          result mustBe BadRequestException
         }
       }
     }
 
     "return NotFoundException" when {
       "trn submitted has no data in des " in {
-        val trn = "notfoundtrn"
+        val trn                       = "notfoundtrn"
         val subscriptionIdEndpointUrl = s"/trusts/trn/$trn/subscription"
-        stubForGet(server, subscriptionIdEndpointUrl,  NOT_FOUND ,Json.stringify(jsonResponse404GetSubscriptionId))
+        stubForGet(server, subscriptionIdEndpointUrl, NOT_FOUND, Json.stringify(jsonResponse404GetSubscriptionId))
 
         val futureResult = connector.getSubscriptionId(trn)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe NotFoundException
+        whenReady(futureResult.failed) { result =>
+          result mustBe NotFoundException
         }
       }
     }
 
     "return ServiceUnavailableException" when {
       "DES dependent service is not responding" in {
-        val trn = "XTRN1234567"
+        val trn                       = "XTRN1234567"
         val subscriptionIdEndpointUrl = s"/trusts/trn/$trn/subscription"
-        stubForGet(server, subscriptionIdEndpointUrl,  SERVICE_UNAVAILABLE ,Json.stringify(jsonResponse503))
+        stubForGet(server, subscriptionIdEndpointUrl, SERVICE_UNAVAILABLE, Json.stringify(jsonResponse503))
 
         val futureResult = connector.getSubscriptionId(trn)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe an[ServiceNotAvailableException]
+        whenReady(futureResult.failed) { result =>
+          result mustBe an[ServiceNotAvailableException]
         }
       }
     }
 
     "return InternalServerErrorException" when {
       "DES is experiencing some problem" in {
-        val trn = "XTRN1234567"
+        val trn                       = "XTRN1234567"
         val subscriptionIdEndpointUrl = s"/trusts/trn/$trn/subscription"
-        stubForGet(server, subscriptionIdEndpointUrl,  INTERNAL_SERVER_ERROR ,Json.stringify(jsonResponse500))
+        stubForGet(server, subscriptionIdEndpointUrl, INTERNAL_SERVER_ERROR, Json.stringify(jsonResponse500))
 
         val futureResult = connector.getSubscriptionId(trn)
 
-        whenReady(futureResult.failed) {
-          result => result mustBe an[InternalServerErrorException]
+        whenReady(futureResult.failed) { result =>
+          result mustBe an[InternalServerErrorException]
         }
       }
     }

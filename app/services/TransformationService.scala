@@ -25,9 +25,10 @@ import transformers.{ComposedDeltaTransform, DeltaTransform}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TransformationService @Inject()(repository: TransformationRepository)(implicit ec: ExecutionContext) extends Logging {
+class TransformationService @Inject() (repository: TransformationRepository)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  def addNewTransform(internalId: String, newTransform: DeltaTransform) : Future[Boolean] = {
+  def addNewTransform(internalId: String, newTransform: DeltaTransform): Future[Boolean] =
     repository.get(internalId) map {
       case None =>
         ComposedDeltaTransform(Seq(newTransform))
@@ -37,14 +38,12 @@ class TransformationService @Inject()(repository: TransformationRepository)(impl
 
     } flatMap { newTransforms =>
       repository.set(internalId, newTransforms)
-    } recoverWith {
-      case e =>
-        logger.error(s"[TransformationService] exception adding new transform: ${e.getMessage}")
-        Future.failed(e)
+    } recoverWith { case e =>
+      logger.error(s"[TransformationService] exception adding new transform: ${e.getMessage}")
+      Future.failed(e)
     }
-  }
 
-  def removeYearsReturnsTransform(internalId: String) : Future[Boolean] = {
+  def removeYearsReturnsTransform(internalId: String): Future[Boolean] =
     repository.get(internalId) map {
       case None =>
         ComposedDeltaTransform(Seq())
@@ -54,16 +53,15 @@ class TransformationService @Inject()(repository: TransformationRepository)(impl
 
     } flatMap { newTransforms =>
       repository.set(internalId, newTransforms)
-    } recoverWith {
-      case e =>
-        logger.error(s"[TransformationService] exception removing transform: ${e.getMessage}")
-        Future.failed(e)
+    } recoverWith { case e =>
+      logger.error(s"[TransformationService] exception removing transform: ${e.getMessage}")
+      Future.failed(e)
     }
-  }
 
   def getTransformations(internalId: String): Future[Option[ComposedDeltaTransform]] =
     repository.get(internalId)
 
   def removeAllTransformations(internalId: String): Future[Option[JsObject]] =
     repository.resetCache(internalId)
+
 }

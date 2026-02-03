@@ -31,25 +31,26 @@ import transformers.register.YearsReturnsTransform
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
+class YearsReturnsTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   "YearsReturnsTransformationService" - {
 
-    val cyMinusOneReturn =  YearReturnType(taxReturnYear = "20", taxConsequence = true)
-    val cyMinusTwoReturn =  YearReturnType(taxReturnYear = "19", taxConsequence = false)
+    val cyMinusOneReturn = YearReturnType(taxReturnYear = "20", taxConsequence = true)
+    val cyMinusTwoReturn = YearReturnType(taxReturnYear = "19", taxConsequence = false)
 
     "must write a corresponding transform using the transformation service" in {
 
       val transformationService = mock[TransformationService]
-      val service = new YearsReturnsTransformationService(transformationService)
+      val service               = new YearsReturnsTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any())).thenReturn(Future.successful(true))
 
       val result = service.addTransform("internalId", YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
       whenReady(result) { _ =>
-
         verify(transformationService).addNewTransform(
-          "internalId", YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
+          "internalId",
+          YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn)))
         )
 
       }
@@ -59,13 +60,12 @@ class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
 
       "due to there being no data" in {
         val transformationService = mock[TransformationService]
-        val service = new YearsReturnsTransformationService(transformationService)
+        val service               = new YearsReturnsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Nil))))
 
         whenReady(service.get("internalId")) { result =>
-
           result mustBe None
 
         }
@@ -73,7 +73,7 @@ class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
 
       "due to there being no transforms" in {
         val transformationService = mock[TransformationService]
-        val service = new YearsReturnsTransformationService(transformationService)
+        val service               = new YearsReturnsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(None))
@@ -89,14 +89,21 @@ class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
       "when there is a single transform" in {
 
         val transformationService = mock[TransformationService]
-        val service = new YearsReturnsTransformationService(transformationService)
+        val service               = new YearsReturnsTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
-          .thenReturn(Future.successful(Some(ComposedDeltaTransform(
-            Seq(
-              YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn))),
-              YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn))))
-          ))))
+          .thenReturn(
+            Future.successful(
+              Some(
+                ComposedDeltaTransform(
+                  Seq(
+                    YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn, cyMinusTwoReturn))),
+                    YearsReturnsTransform(YearsReturns(List(cyMinusOneReturn)))
+                  )
+                )
+              )
+            )
+          )
 
         whenReady(service.get("internalId")) { result =>
           result.value mustBe YearsReturns(List(cyMinusOneReturn))
@@ -107,7 +114,7 @@ class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
     "must reset all corresponding transforms using the transformation service" in {
 
       val transformationService = mock[TransformationService]
-      val service = new YearsReturnsTransformationService(transformationService)
+      val service               = new YearsReturnsTransformationService(transformationService)
 
       when(transformationService.removeYearsReturnsTransform(any())).thenReturn(Future.successful(true))
 
@@ -117,4 +124,5 @@ class YearsReturnsTransformationServiceSpec extends AnyFreeSpec with MockitoSuga
       }
     }
   }
+
 }

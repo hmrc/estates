@@ -21,25 +21,27 @@ import play.api.libs.json._
 
 import java.time.LocalDate
 
-case class EstateRegistration(matchData: Option[MatchData],
-                              correspondence: Correspondence,
-                              yearsReturns: Option[YearsReturns],
-                              declaration: Declaration,
-                              estate: Estate,
-                              agentDetails: Option[AgentDetails] = None,
-                              submissionDate: Option[LocalDate] = None
-                             )
+case class EstateRegistration(
+  matchData: Option[MatchData],
+  correspondence: Correspondence,
+  yearsReturns: Option[YearsReturns],
+  declaration: Declaration,
+  estate: Estate,
+  agentDetails: Option[AgentDetails] = None,
+  submissionDate: Option[LocalDate] = None
+)
 
 object EstateRegistration {
   implicit val estateRegistrationFormat: Format[EstateRegistration] = Json.format[EstateRegistration]
 
-  val estateRegistrationWriteToDes :Writes[EstateRegistration] = (
+  val estateRegistrationWriteToDes: Writes[EstateRegistration] = (
     (JsPath \ "matchData").writeNullable[MatchData] and
       (JsPath \ "correspondence").write[Correspondence] and
       (JsPath \ "declaration").write[Declaration] and
       (JsPath \ "yearsReturns").writeNullable[YearsReturns] and
       (JsPath \ "details" \ "estate").write[Estate](Estate.estateWriteToDes) and
-      (JsPath \ "agentDetails" ).writeNullable[AgentDetails] and
-      (JsPath \ "submissionDate" ).writeNullable[LocalDate]
-    )(r => (r.matchData, r.correspondence,r.declaration, r.yearsReturns, r.estate,r.agentDetails, r.submissionDate))
+      (JsPath \ "agentDetails").writeNullable[AgentDetails] and
+      (JsPath \ "submissionDate").writeNullable[LocalDate]
+  )(r => (r.matchData, r.correspondence, r.declaration, r.yearsReturns, r.estate, r.agentDetails, r.submissionDate))
+
 }

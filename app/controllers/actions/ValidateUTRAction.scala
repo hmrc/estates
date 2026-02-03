@@ -24,18 +24,21 @@ import play.api.mvc._
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-case class ValidateUTRAction(input: String)
-                            (implicit override val executionContext: ExecutionContext, override val parser: BodyParsers.Default)
-    extends ActionFilter[Request] with ActionBuilder[Request, AnyContent] {
-  override protected def filter[A](request: Request[A]): Future[Option[Result]] = Future.successful{
+case class ValidateUTRAction(input: String)(implicit
+  override val executionContext: ExecutionContext,
+  override val parser: BodyParsers.Default
+) extends ActionFilter[Request] with ActionBuilder[Request, AnyContent] {
+
+  override protected def filter[A](request: Request[A]): Future[Option[Result]] = Future.successful {
     if (input.matches("^[0-9]{10}$")) {
       None
     } else {
       Some(BadRequest(toJson(invalidUTRErrorResponse)))
     }
   }
+
 }
 
-class ValidateUTRActionFactory @Inject()()(implicit ec: ExecutionContext, parser: BodyParsers.Default){
+class ValidateUTRActionFactory @Inject() ()(implicit ec: ExecutionContext, parser: BodyParsers.Default) {
   def create(input: String): ValidateUTRAction = ValidateUTRAction(input)
 }

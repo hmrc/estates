@@ -25,8 +25,7 @@ object MatchData {
   implicit val matchDataFormat: Format[MatchData] = Json.format[MatchData]
 }
 
-case class ResponseHeader(status: String,
-                          formBundleNo: String)
+case class ResponseHeader(status: String, formBundleNo: String)
 
 object ResponseHeader {
   implicit val apiWrites: Writes[ResponseHeader] = Json.writes[ResponseHeader]
@@ -34,12 +33,13 @@ object ResponseHeader {
   val mongoWrites: Writes[ResponseHeader] = new Writes[ResponseHeader] {
     override def writes(header: ResponseHeader): JsValue = Json.obj(
       "dfmcaReturnUserStatus" -> header.status,
-      "formBundleNo" -> header.formBundleNo
+      "formBundleNo"          -> header.formBundleNo
     )
   }
 
   implicit val reads: Reads[ResponseHeader] = (
     (JsPath \ "dfmcaReturnUserStatus").read[String] and
       (JsPath \ "formBundleNo").read[String]
-    )(ResponseHeader.apply _)
+  )(ResponseHeader.apply _)
+
 }

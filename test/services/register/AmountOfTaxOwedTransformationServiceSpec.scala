@@ -32,22 +32,23 @@ import transformers.register.AmountOfTaxOwedTransform
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
+class AmountOfTaxOwedTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with OptionValues {
 
   "AmountOfTaxTransformationService" - {
 
     "must write a corresponding transform using the transformation service" in {
 
       val transformationService = mock[TransformationService]
-      val service = new AmountOfTaxTransformationService(transformationService)
+      val service               = new AmountOfTaxTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any())).thenReturn(Future.successful(true))
 
       val result = service.addTransform("internalId", AmountOfTaxOwed(AmountMoreThanTenThousand))
       whenReady(result) { _ =>
-
         verify(transformationService).addNewTransform(
-          "internalId", AmountOfTaxOwedTransform(AmountMoreThanTenThousand)
+          "internalId",
+          AmountOfTaxOwedTransform(AmountMoreThanTenThousand)
         )
 
       }
@@ -57,13 +58,12 @@ class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoS
 
       "due to there being no data" in {
         val transformationService = mock[TransformationService]
-        val service = new AmountOfTaxTransformationService(transformationService)
+        val service               = new AmountOfTaxTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(Some(ComposedDeltaTransform(Nil))))
 
         whenReady(service.get("internalId")) { result =>
-
           result mustBe None
 
         }
@@ -71,7 +71,7 @@ class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoS
 
       "due to there being no transforms" in {
         val transformationService = mock[TransformationService]
-        val service = new AmountOfTaxTransformationService(transformationService)
+        val service               = new AmountOfTaxTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
           .thenReturn(Future.successful(None))
@@ -87,14 +87,21 @@ class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoS
       "when there is a single transform" in {
 
         val transformationService = mock[TransformationService]
-        val service = new AmountOfTaxTransformationService(transformationService)
+        val service               = new AmountOfTaxTransformationService(transformationService)
 
         when(transformationService.getTransformations(any()))
-          .thenReturn(Future.successful(Some(ComposedDeltaTransform(
-            Seq(
-              AmountOfTaxOwedTransform(AmountMoreThanFiveHundredThousand),
-              AmountOfTaxOwedTransform(AmountMoreThanTenThousand))
-          ))))
+          .thenReturn(
+            Future.successful(
+              Some(
+                ComposedDeltaTransform(
+                  Seq(
+                    AmountOfTaxOwedTransform(AmountMoreThanFiveHundredThousand),
+                    AmountOfTaxOwedTransform(AmountMoreThanTenThousand)
+                  )
+                )
+              )
+            )
+          )
 
         whenReady(service.get("internalId")) { result =>
           result.value mustBe AmountOfTaxOwed(AmountMoreThanTenThousand)
@@ -102,4 +109,5 @@ class AmountOfTaxOwedTransformationServiceSpec extends AnyFreeSpec with MockitoS
       }
     }
   }
+
 }

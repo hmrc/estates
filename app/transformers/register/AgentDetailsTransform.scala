@@ -20,8 +20,7 @@ import models.AgentDetails
 import play.api.libs.json.{JsPath, _}
 import utils.JsonOps._
 
-case class AgentDetailsTransform(agentDetails: AgentDetails)
-  extends SetValueAtPathDeltaTransform {
+case class AgentDetailsTransform(agentDetails: AgentDetails) extends SetValueAtPathDeltaTransform {
 
   override val path: JsPath = __ \ Symbol("agentDetails")
 
@@ -38,6 +37,3 @@ object AgentDetailsTransform {
 
   implicit val format: Format[AgentDetailsTransform] = Json.format[AgentDetailsTransform]
 }
-
-
-

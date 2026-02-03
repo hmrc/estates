@@ -30,16 +30,17 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CloseEstateTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
+class CloseEstateTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
 
-  private val fakeUtr: String = "utr"
-  private val internalId: String = "id"
+  private val fakeUtr: String      = "utr"
+  private val internalId: String   = "id"
   private val closeDate: LocalDate = LocalDate.parse("2000-01-01")
 
   "the close estate transformation service" - {
 
     val transformationService = mock[VariationsTransformationService]
-    val service = new CloseEstateTransformationService(transformationService)
+    val service               = new CloseEstateTransformationService(transformationService)
 
     "must add a new close estate transform using the variations transformation service" in {
 
@@ -56,4 +57,5 @@ class CloseEstateTransformationServiceSpec extends AnyFreeSpec with MockitoSugar
       }
     }
   }
+
 }

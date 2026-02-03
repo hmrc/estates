@@ -31,11 +31,13 @@ class DeceasedTransformSpec extends AnyFreeSpec with Matchers with OptionValues 
     NameType("New First", None, "New Last"),
     Some(LocalDate.of(1996, 4, 15)),
     LocalDate.of(2016, 7, 2),
-    Some(IdentificationType(
-      nino = Some("AA123456B"),
-      address = None,
-      passport = None
-    )),
+    Some(
+      IdentificationType(
+        nino = Some("AA123456B"),
+        address = None,
+        passport = None
+      )
+    ),
     addressYesNo = None
   )
 
@@ -47,7 +49,8 @@ class DeceasedTransformSpec extends AnyFreeSpec with Matchers with OptionValues 
 
         val trustJson = JsonUtils.getJsonValueFromFile("mdtp/valid-estate-registration-01.json")
 
-        val afterJson = JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-deceased-transformed.json")
+        val afterJson =
+          JsonUtils.getJsonValueFromFile("transformed/valid-estate-registration-01-deceased-transformed.json")
 
         val transformer = DeceasedTransform(newDeceased)
 
@@ -71,4 +74,5 @@ class DeceasedTransformSpec extends AnyFreeSpec with Matchers with OptionValues 
       }
     }
   }
+
 }

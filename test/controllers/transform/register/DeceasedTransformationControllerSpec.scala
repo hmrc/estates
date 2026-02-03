@@ -39,8 +39,8 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
 
   import scala.concurrent.ExecutionContext.Implicits._
 
-  private implicit val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
-  private val bodyParsers = injector.instanceOf[BodyParsers.Default]
+  implicit private val cc: ControllerComponents = injector.instanceOf[ControllerComponents]
+  private val bodyParsers                       = injector.instanceOf[BodyParsers.Default]
 
   private val identifierAction = new FakeIdentifierAction(bodyParsers, Organisation)
 
@@ -50,11 +50,13 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
     NameType("OldFirst", None, "OldLast"),
     Some(LocalDate.of(1997, 4, 15)),
     LocalDate.of(2018, 7, 2),
-    Some(IdentificationType(
-      nino = Some("AB111111C"),
-      address = None,
-      passport = None
-    )),
+    Some(
+      IdentificationType(
+        nino = Some("AB111111C"),
+        address = None,
+        passport = None
+      )
+    ),
     addressYesNo = None
   )
 
@@ -62,11 +64,13 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
     NameType("First", None, "Last"),
     Some(LocalDate.of(1996, 4, 15)),
     LocalDate.of(2016, 7, 2),
-    Some(IdentificationType(
-      nino = Some("AB000000C"),
-      address = None,
-      passport = None
-    )),
+    Some(
+      IdentificationType(
+        nino = Some("AB000000C"),
+        address = None,
+        passport = None
+      )
+    ),
     addressYesNo = None
   )
 
@@ -77,18 +81,17 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
       "return the deceased person details" in {
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)
 
-        when(mockTransformationService.getTransformations(any())).thenReturn(
-          Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
+        when(mockTransformationService.getTransformations(any()))
+          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |{
             | "name": {
             |   "firstName":"First",
@@ -107,21 +110,26 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)
 
         when(mockTransformationService.getTransformations(any())).thenReturn(
-          Future.successful(Some(ComposedDeltaTransform(
-            Seq(
-              DeceasedTransform(previousDeceased),
-              DeceasedTransform(deceased)
-            )))))
+          Future.successful(
+            Some(
+              ComposedDeltaTransform(
+                Seq(
+                  DeceasedTransform(previousDeceased),
+                  DeceasedTransform(deceased)
+                )
+              )
+            )
+          )
+        )
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |{
             | "name": {
             |   "firstName":"First",
@@ -146,8 +154,8 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
 
         val result = controller.get.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.obj()
       }
 
@@ -158,18 +166,17 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
       "return the deceased person date of death" in {
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)
 
-        when(mockTransformationService.getTransformations(any())).thenReturn(
-          Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
+        when(mockTransformationService.getTransformations(any()))
+          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.getDateOfDeath.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |"2016-07-02"
             |""".stripMargin)
       }
@@ -180,18 +187,17 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
       "return true if the date of death is before the current tax year" in {
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)
 
-        when(mockTransformationService.getTransformations(any())).thenReturn(
-          Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
+        when(mockTransformationService.getTransformations(any()))
+          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.getIsTaxRequired.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |true
             |""".stripMargin)
       }
@@ -201,28 +207,29 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
           NameType("First", None, "Last"),
           Some(LocalDate.of(1996, 4, 15)),
           LocalDate.now(),
-          Some(IdentificationType(
-            nino = Some("AB000000C"),
-            address = None,
-            passport = None
-          )),
+          Some(
+            IdentificationType(
+              nino = Some("AB000000C"),
+              address = None,
+              passport = None
+            )
+          ),
           addressYesNo = None
         )
 
         val controller = new DeceasedTransformationController(identifierAction, cc, mockTransformationService)
 
-        when(mockTransformationService.getTransformations(any())).thenReturn(
-          Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
+        when(mockTransformationService.getTransformations(any()))
+          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(DeceasedTransform(deceased))))))
 
         val request = FakeRequest("GET", "path")
           .withHeaders(CONTENT_TYPE -> "application/json")
 
         val result = controller.getIsTaxRequired.apply(request)
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
-        contentAsJson(result) mustBe Json.parse(
-          """
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
+        contentAsJson(result) mustBe Json.parse("""
             |false
             |""".stripMargin)
       }
@@ -238,10 +245,9 @@ class DeceasedTransformationControllerSpec extends BaseSpec with MockitoSugar wi
 
       val result = controller.getIsTaxRequired.apply(request)
 
-      status(result) mustBe OK
-      contentType(result) mustBe Some(JSON)
-      contentAsJson(result) mustBe Json.parse(
-        """
+      status(result)        mustBe OK
+      contentType(result)   mustBe Some(JSON)
+      contentAsJson(result) mustBe Json.parse("""
           |false
           |""".stripMargin)
     }

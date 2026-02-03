@@ -29,34 +29,30 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentDetailsTransformationController @Inject()(
-                                                         identify: IdentifierAction,
-                                                         cc: ControllerComponents,
-                                                         localDateService: LocalDateService,
-                                                         agentDetailsTransformationService : AgentDetailsTransformationService
-                                                       )(implicit val executionContext: ExecutionContext)
-  extends EstatesBaseController(cc) with Logging {
+class AgentDetailsTransformationController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  localDateService: LocalDateService,
+  agentDetailsTransformationService: AgentDetailsTransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with Logging {
 
-  def get : Action[AnyContent] = identify.async {
-    implicit request =>
-
-      agentDetailsTransformationService.get(request.identifier) map {
-        case Some(x) => Ok(Json.toJson(x))
-        case None => Ok(Json.obj())
-      }
+  def get: Action[AnyContent] = identify.async { implicit request =>
+    agentDetailsTransformationService.get(request.identifier) map {
+      case Some(x) => Ok(Json.toJson(x))
+      case None    => Ok(Json.obj())
+    }
   }
 
-  def save: Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[AgentDetails] match {
-        case JsSuccess(model, _) =>
-          agentDetailsTransformationService.addTransform(request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}] Agent details could not be read as AgentDetails - $errors")
-          Future.successful(BadRequest)
-      }
+  def save: Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[AgentDetails] match {
+      case JsSuccess(model, _) =>
+        agentDetailsTransformationService.addTransform(request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(s"[Session ID: ${Session.id(hc)}] Agent details could not be read as AgentDetails - $errors")
+        Future.successful(BadRequest)
     }
   }
 

@@ -52,7 +52,7 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
   )
 
   private val personalRepOrg = EstatePerRepOrgType(
-    orgName =  "Personal Rep Org",
+    orgName = "Personal Rep Org",
     identification = IdentificationOrgType(None, None),
     phoneNumber = "07987654",
     email = None
@@ -62,79 +62,81 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
 
     "add a new amend personal rep transform" in {
 
-        val personalRepTransformationService = mock[PersonalRepTransformationService]
+      val personalRepTransformationService = mock[PersonalRepTransformationService]
 
-        val application = applicationBuilder()
-          .overrides(
-            bind[PersonalRepTransformationService].toInstance(personalRepTransformationService)
-          ).build()
+      val application = applicationBuilder()
+        .overrides(
+          bind[PersonalRepTransformationService].toInstance(personalRepTransformationService)
+        )
+        .build()
 
-        when(personalRepTransformationService.addAmendEstatePerRepIndTransformer(any(), any()))
-          .thenReturn(Future.successful(Success))
+      when(personalRepTransformationService.addAmendEstatePerRepIndTransformer(any(), any()))
+        .thenReturn(Future.successful(Success))
 
-        val controller = application.injector.instanceOf[PersonalRepTransformationController]
+      val controller = application.injector.instanceOf[PersonalRepTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(Json.toJson(personalRepInd))
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(Json.toJson(personalRepInd))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.amendPersonalRepInd().apply(request)
+      val result = controller.amendPersonalRepInd().apply(request)
 
-        status(result) mustBe OK
-        verify(personalRepTransformationService)
-          .addAmendEstatePerRepIndTransformer("id", personalRepInd)
-      }
+      status(result) mustBe OK
+      verify(personalRepTransformationService)
+        .addAmendEstatePerRepIndTransformer("id", personalRepInd)
+    }
 
     "must return an error for malformed json" in {
 
-        val controller = injector.instanceOf[PersonalRepTransformationController]
+      val controller = injector.instanceOf[PersonalRepTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(Json.parse("{}"))
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(Json.parse("{}"))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.amendPersonalRepInd().apply(request)
-        status(result) mustBe BAD_REQUEST
-      }
+      val result = controller.amendPersonalRepInd().apply(request)
+      status(result) mustBe BAD_REQUEST
+    }
   }
 
   "amend personal rep org" must {
 
     "add a new amend personal rep transform" in {
 
-        val personalRepTransformationService = mock[PersonalRepTransformationService]
+      val personalRepTransformationService = mock[PersonalRepTransformationService]
 
-        val application = applicationBuilder()
-          .overrides(
-            bind[PersonalRepTransformationService].toInstance(personalRepTransformationService)
-          ).build()
+      val application = applicationBuilder()
+        .overrides(
+          bind[PersonalRepTransformationService].toInstance(personalRepTransformationService)
+        )
+        .build()
 
-        when(personalRepTransformationService.addAmendEstatePerRepOrgTransformer(any(), any()))
-          .thenReturn(Future.successful(Success))
+      when(personalRepTransformationService.addAmendEstatePerRepOrgTransformer(any(), any()))
+        .thenReturn(Future.successful(Success))
 
-        val controller = application.injector.instanceOf[PersonalRepTransformationController]
+      val controller = application.injector.instanceOf[PersonalRepTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(Json.toJson(personalRepOrg))
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(Json.toJson(personalRepOrg))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.amendPersonalRepOrg().apply(request)
+      val result = controller.amendPersonalRepOrg().apply(request)
 
-        status(result) mustBe OK
-        verify(personalRepTransformationService)
-          .addAmendEstatePerRepOrgTransformer("id", personalRepOrg)
+      status(result) mustBe OK
+      verify(personalRepTransformationService)
+        .addAmendEstatePerRepOrgTransformer("id", personalRepOrg)
     }
 
     "must return an error for malformed json" in {
 
-        val controller = injector.instanceOf[PersonalRepTransformationController]
+      val controller = injector.instanceOf[PersonalRepTransformationController]
 
-        val request = FakeRequest("POST", "path")
-          .withBody(Json.parse("{}"))
-          .withHeaders(CONTENT_TYPE -> "application/json")
+      val request = FakeRequest("POST", "path")
+        .withBody(Json.parse("{}"))
+        .withHeaders(CONTENT_TYPE -> "application/json")
 
-        val result = controller.amendPersonalRepOrg().apply(request)
-        status(result) mustBe BAD_REQUEST
+      val result = controller.amendPersonalRepOrg().apply(request)
+      status(result) mustBe BAD_REQUEST
     }
   }
 
@@ -146,17 +148,20 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
-          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(PersonalRepTransform(Some(personalRepInd), None))))))
+          .thenReturn(
+            Future.successful(Some(ComposedDeltaTransform(Seq(PersonalRepTransform(Some(personalRepInd), None)))))
+          )
 
         val controller = application.injector.instanceOf[PersonalRepTransformationController]
 
         val result = controller.getPersonalRepInd()(FakeRequest(GET, "/estates/personal-rep/individual"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(personalRepInd)
 
       }
@@ -166,7 +171,8 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
           .thenReturn(Future.successful(None))
@@ -175,8 +181,8 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
 
         val result = controller.getPersonalRepInd()(FakeRequest(GET, "/estates/personal-rep/individual"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(Json.obj())
       }
 
@@ -191,17 +197,20 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
-          .thenReturn(Future.successful(Some(ComposedDeltaTransform(Seq(PersonalRepTransform(None, Some(personalRepOrg)))))))
+          .thenReturn(
+            Future.successful(Some(ComposedDeltaTransform(Seq(PersonalRepTransform(None, Some(personalRepOrg))))))
+          )
 
         val controller = application.injector.instanceOf[PersonalRepTransformationController]
 
         val result = controller.getPersonalRepOrg()(FakeRequest(GET, "/estates/personal-rep/organisation"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(personalRepOrg)
 
       }
@@ -211,7 +220,8 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
         val application = applicationBuilder()
           .overrides(
             bind[TransformationService].toInstance(transformationService)
-          ).build()
+          )
+          .build()
 
         when(transformationService.getTransformations(any[String]))
           .thenReturn(Future.successful(None))
@@ -220,11 +230,12 @@ class PersonalRepTransformationControllerSpec extends BaseSpec with MockitoSugar
 
         val result = controller.getPersonalRepOrg()(FakeRequest(GET, "/estates/personal-rep/organisation"))
 
-        status(result) mustBe OK
-        contentType(result) mustBe Some(JSON)
+        status(result)        mustBe OK
+        contentType(result)   mustBe Some(JSON)
         contentAsJson(result) mustBe Json.toJson(Json.obj())
       }
 
     }
   }
+
 }

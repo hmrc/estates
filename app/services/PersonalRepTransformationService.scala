@@ -24,39 +24,46 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
-class PersonalRepTransformationService @Inject()(
-                                                  transformationService: TransformationService
-                                                )(implicit val ec: ExecutionContext) {
+class PersonalRepTransformationService @Inject() (
+  transformationService: TransformationService
+)(implicit val ec: ExecutionContext) {
 
-  def addAmendEstatePerRepIndTransformer(internalId: String, newPersonalRep: EstatePerRepIndType): Future[Success.type] =
-    transformationService.addNewTransform(internalId, PersonalRepTransform(Some(newPersonalRep), None)).map(_ => Success)
+  def addAmendEstatePerRepIndTransformer(
+    internalId: String,
+    newPersonalRep: EstatePerRepIndType
+  ): Future[Success.type] =
+    transformationService
+      .addNewTransform(internalId, PersonalRepTransform(Some(newPersonalRep), None))
+      .map(_ => Success)
 
-  def addAmendEstatePerRepOrgTransformer(internalId: String, newPersonalRep: EstatePerRepOrgType): Future[Success.type] =
-    transformationService.addNewTransform(internalId, PersonalRepTransform(None, Some(newPersonalRep))).map(_ => Success)
+  def addAmendEstatePerRepOrgTransformer(
+    internalId: String,
+    newPersonalRep: EstatePerRepOrgType
+  ): Future[Success.type] =
+    transformationService
+      .addNewTransform(internalId, PersonalRepTransform(None, Some(newPersonalRep)))
+      .map(_ => Success)
 
-  def getPersonalRepInd(internalId: String): Future[Option[EstatePerRepIndType]] = {
+  def getPersonalRepInd(internalId: String): Future[Option[EstatePerRepIndType]] =
     getMostRecentPerRepTransform(internalId).map {
       case Some(transform) => transform.newPersonalIndRep
-      case None => None
+      case None            => None
     }
-  }
 
-  def getPersonalRepOrg(internalId: String): Future[Option[EstatePerRepOrgType]] = {
+  def getPersonalRepOrg(internalId: String): Future[Option[EstatePerRepOrgType]] =
     getMostRecentPerRepTransform(internalId).map {
       case Some(transform) => transform.newPersonalOrgRep
-      case None => None
+      case None            => None
     }
-  }
 
-  private def getMostRecentPerRepTransform(internalId: String): Future[Option[PersonalRepTransform]] = {
+  private def getMostRecentPerRepTransform(internalId: String): Future[Option[PersonalRepTransform]] =
     transformationService.getTransformations(internalId) map {
       case Some(ComposedDeltaTransform(transforms)) =>
-        transforms.flatMap{
+        transforms.flatMap {
           case transform: PersonalRepTransform => Some(transform)
-          case _ => None
+          case _                               => None
         }.lastOption
-      case _ => None
+      case _                                        => None
     }
-  }
 
 }

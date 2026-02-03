@@ -25,7 +25,7 @@ abstract class SetValueAtPathDeltaTransform extends DeltaTransform {
 
   val value: JsValue
 
-  override def applyTransform(input: JsValue): JsResult[JsValue] = {
+  override def applyTransform(input: JsValue): JsResult[JsValue] =
     if (input.transform(path.json.pick).isSuccess) {
       input.transform(
         path.json.prune andThen __.json.update(path.json.put(Json.toJson(value)))
@@ -35,6 +35,5 @@ abstract class SetValueAtPathDeltaTransform extends DeltaTransform {
         __.json.update(path.json.put(Json.toJson(value)))
       )
     }
-  }
 
 }

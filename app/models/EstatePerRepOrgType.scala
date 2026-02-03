@@ -18,10 +18,12 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class EstatePerRepOrgType(orgName: String,
-                               phoneNumber: String,
-                               email: Option[String] = None,
-                               identification: IdentificationOrgType)
+case class EstatePerRepOrgType(
+  orgName: String,
+  phoneNumber: String,
+  email: Option[String] = None,
+  identification: IdentificationOrgType
+)
 
 object EstatePerRepOrgType {
   implicit val estatePerRepOrgTypeFormat: Format[EstatePerRepOrgType] = Json.format[EstatePerRepOrgType]

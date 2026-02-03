@@ -19,14 +19,16 @@ package models
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, JsPath, Json, Writes}
 
-case class EntitiesType(personalRepresentative: PersonalRepresentativeType,
-                        deceased: EstateWillType)
+case class EntitiesType(personalRepresentative: PersonalRepresentativeType, deceased: EstateWillType)
 
 object EntitiesType {
   implicit val entitiesTypeFormat: Format[EntitiesType] = Json.format[EntitiesType]
 
   val entitiesWriteToDes: Writes[EntitiesType] = (
-    (JsPath \ "personalRepresentative").write[PersonalRepresentativeType](PersonalRepresentativeType.personalRepTypeWritesToDes) and
+    (JsPath \ "personalRepresentative").write[PersonalRepresentativeType](
+      PersonalRepresentativeType.personalRepTypeWritesToDes
+    ) and
       (JsPath \ "deceased").write[EstateWillType](EstateWillType.estateWillTypeWriteToDes)
-    ).apply(unlift(EntitiesType.unapply))
+  ).apply(unlift(EntitiesType.unapply))
+
 }

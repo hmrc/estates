@@ -22,27 +22,33 @@ import services.EstatesValidationError
 class EstateDomainValidator(estateRegistration: EstateRegistration) extends ValidationUtil {
 
   def perRepDobIsNotFutureDate: Option[EstatesValidationError] = {
-    val response = estateRegistration.estate.entities.personalRepresentative.estatePerRepInd.map {
-      personalRepInd =>
-        isNotFutureDate(personalRepInd.dateOfBirth,
-          "/estate/entities/personalRepresentative/estatePerRepInd/dateOfBirth", "Date of birth")
+    val response = estateRegistration.estate.entities.personalRepresentative.estatePerRepInd.map { personalRepInd =>
+      isNotFutureDate(
+        personalRepInd.dateOfBirth,
+        "/estate/entities/personalRepresentative/estatePerRepInd/dateOfBirth",
+        "Date of birth"
+      )
     }
     response.flatten
   }
 
   def personalRepOrgUtrIsNotSameEstateUtr: Option[EstatesValidationError] = {
     val estateUtr = estateRegistration.matchData.map(x => x.utr)
-    estateRegistration.estate.entities.personalRepresentative.estatePerRepOrg.flatMap {
-      estatePerRepOrg =>
-        if (estateUtr.isDefined && (estateUtr == estatePerRepOrg.identification.utr)) {
-          Some(EstatesValidationError(s"Personal representative organisation utr is same as estate utr.",
-            s"/estate/entities/personalRepresentative/estatePerRepOrg/identification/utr"))
-        } else {
-          None
-        }
+    estateRegistration.estate.entities.personalRepresentative.estatePerRepOrg.flatMap { estatePerRepOrg =>
+      if (estateUtr.isDefined && (estateUtr == estatePerRepOrg.identification.utr)) {
+        Some(
+          EstatesValidationError(
+            s"Personal representative organisation utr is same as estate utr.",
+            s"/estate/entities/personalRepresentative/estatePerRepOrg/identification/utr"
+          )
+        )
+      } else {
+        None
+      }
 
     }
   }
+
 }
 
 object EstateBusinessValidation {
@@ -57,4 +63,5 @@ object EstateBusinessValidation {
 
     errorsList
   }
+
 }

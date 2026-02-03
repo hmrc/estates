@@ -28,41 +28,39 @@ import utils.Session
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class YearsReturnsTransformationController @Inject()(
-                                                      identify: IdentifierAction,
-                                                      cc: ControllerComponents,
-                                                      yearsReturnsService : YearsReturnsTransformationService
-                                                       )(implicit val executionContext: ExecutionContext)
-  extends EstatesBaseController(cc) with Logging {
+class YearsReturnsTransformationController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  yearsReturnsService: YearsReturnsTransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with Logging {
 
-  def get : Action[AnyContent] = identify.async {
-    implicit request =>
-
-      yearsReturnsService.get(request.identifier) map {
-        case Some(x) => Ok(Json.toJson(x))
-        case None => Ok(Json.obj())
-      }
-  }
-
-  def save: Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[YearsReturns] match {
-        case JsSuccess(model, _) =>
-          yearsReturnsService.addTransform(request.identifier, model) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}]" +
-            s" Supplied amount could not be read as YearsReturns - $errors")
-          Future.successful(BadRequest)
-      }
+  def get: Action[AnyContent] = identify.async { implicit request =>
+    yearsReturnsService.get(request.identifier) map {
+      case Some(x) => Ok(Json.toJson(x))
+      case None    => Ok(Json.obj())
     }
   }
 
-  def reset : Action[AnyContent] = identify.async {
-    implicit request =>
-      yearsReturnsService.removeTransforms(request.identifier) map { _ =>
-        Ok
-      }
+  def save: Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[YearsReturns] match {
+      case JsSuccess(model, _) =>
+        yearsReturnsService.addTransform(request.identifier, model) map { _ =>
+          Ok
+        }
+      case JsError(errors)     =>
+        logger.warn(
+          s"[Session ID: ${Session.id(hc)}]" +
+            s" Supplied amount could not be read as YearsReturns - $errors"
+        )
+        Future.successful(BadRequest)
+    }
   }
+
+  def reset: Action[AnyContent] = identify.async { implicit request =>
+    yearsReturnsService.removeTransforms(request.identifier) map { _ =>
+      Ok
+    }
+  }
+
 }

@@ -24,11 +24,11 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CloseEstateTransformationService @Inject()(transformationService: VariationsTransformationService)
-                                                (implicit ec: ExecutionContext) {
+class CloseEstateTransformationService @Inject() (transformationService: VariationsTransformationService)(implicit
+  ec: ExecutionContext
+) {
 
-  def addCloseEstateTransformer(utr: String, internalId: String, closeDate: LocalDate): Future[Success.type] = {
+  def addCloseEstateTransformer(utr: String, internalId: String, closeDate: LocalDate): Future[Success.type] =
     transformationService.addNewTransform(utr, internalId, AddCloseEstateTransform(closeDate)).map(_ => Success)
-  }
 
 }

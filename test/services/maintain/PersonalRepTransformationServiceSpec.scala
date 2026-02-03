@@ -33,8 +33,9 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PersonalRepTransformationServiceSpec extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
-  private implicit val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
+class PersonalRepTransformationServiceSpec
+    extends AnyFreeSpec with MockitoSugar with ScalaFutures with Matchers with JsonRequests {
+  implicit private val pc: PatienceConfig = PatienceConfig(timeout = Span(1000, Millis), interval = Span(15, Millis))
 
   val newPersonalRepIndInfo = EstatePerRepIndType(
     lineNo = Some("newLineNo"),
@@ -64,32 +65,45 @@ class PersonalRepTransformationServiceSpec extends AnyFreeSpec with MockitoSugar
     "must add a new amend personal rep transform using the variations transformation service" in {
 
       val transformationService = mock[VariationsTransformationService]
-      val service = new PersonalRepTransformationService(transformationService)
+      val service               = new PersonalRepTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any(), any())).thenReturn(Future.successful(true))
 
-      val result = service.addAmendPersonalRepTransformer("utr", "internalId", PersonalRepresentativeType(Some(newPersonalRepIndInfo), None))
+      val result = service.addAmendPersonalRepTransformer(
+        "utr",
+        "internalId",
+        PersonalRepresentativeType(Some(newPersonalRepIndInfo), None)
+      )
       whenReady(result) { _ =>
-
-        verify(transformationService).addNewTransform("utr",
-          "internalId",AddAmendIndividualPersonalRepTransform(newPersonalRepIndInfo))
+        verify(transformationService).addNewTransform(
+          "utr",
+          "internalId",
+          AddAmendIndividualPersonalRepTransform(newPersonalRepIndInfo)
+        )
 
       }
     }
 
     "must write a corresponding transform using the transformation service" in {
       val transformationService = mock[VariationsTransformationService]
-      val service = new PersonalRepTransformationService(transformationService)
+      val service               = new PersonalRepTransformationService(transformationService)
 
       when(transformationService.addNewTransform(any(), any(), any())).thenReturn(Future.successful(true))
 
-      val result = service.addAmendPersonalRepTransformer("utr", "internalId", PersonalRepresentativeType(Some(newPersonalRepIndInfo), None))
+      val result = service.addAmendPersonalRepTransformer(
+        "utr",
+        "internalId",
+        PersonalRepresentativeType(Some(newPersonalRepIndInfo), None)
+      )
       whenReady(result) { _ =>
-
-        verify(transformationService).addNewTransform("utr",
-          "internalId", AddAmendIndividualPersonalRepTransform(newPersonalRepIndInfo))
+        verify(transformationService).addNewTransform(
+          "utr",
+          "internalId",
+          AddAmendIndividualPersonalRepTransform(newPersonalRepIndInfo)
+        )
 
       }
     }
   }
+
 }

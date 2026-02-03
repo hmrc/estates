@@ -18,7 +18,9 @@ package transformers
 
 import play.api.libs.json._
 import transformers.register._
-import transformers.variations.{AddAmendBusinessPersonalRepTransform, AddAmendIndividualPersonalRepTransform, AddCloseEstateTransform}
+import transformers.variations.{
+  AddAmendBusinessPersonalRepTransform, AddAmendIndividualPersonalRepTransform, AddCloseEstateTransform
+}
 
 trait DeltaTransform {
 
@@ -34,110 +36,102 @@ object DeltaTransform {
       (json \ key).validate[T]
   }
 
-  def personalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def personalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[PersonalRepTransform](PersonalRepTransform.key)
-  }
 
-  def correspondenceNameReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def correspondenceNameReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[CorrespondenceNameTransform](CorrespondenceNameTransform.key)
-  }
 
-  def deceasedReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def deceasedReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[DeceasedTransform](DeceasedTransform.key)
-  }
 
-  def agentDetailsReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def agentDetailsReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[AgentDetailsTransform](AgentDetailsTransform.key)
-  }
 
-  def amountTaxOwedReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def amountTaxOwedReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[AmountOfTaxOwedTransform](AmountOfTaxOwedTransform.key)
-  }
 
-  def yearsReturnsReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def yearsReturnsReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[YearsReturnsTransform](YearsReturnsTransform.key)
-  }
 
-  def amendIndividualPersonalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def amendIndividualPersonalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[AddAmendIndividualPersonalRepTransform](AddAmendIndividualPersonalRepTransform.key)
-  }
 
-  def amendBusinessPersonalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  def amendBusinessPersonalRepReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[AddAmendBusinessPersonalRepTransform](AddAmendBusinessPersonalRepTransform.key)
-  }
 
-  private def closeEstateReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
+  private def closeEstateReads: PartialFunction[JsObject, JsResult[DeltaTransform]] =
     readsForTransform[AddCloseEstateTransform](AddCloseEstateTransform.key)
+
+  def defaultReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = { case _ =>
+    throw new Exception("Don't know how to de-serialise transform")
   }
 
-  def defaultReads: PartialFunction[JsObject, JsResult[DeltaTransform]] = {
-    case _ => throw new Exception("Don't know how to de-serialise transform")
-  }
-
-  implicit val reads: Reads[DeltaTransform] = Reads[DeltaTransform](
-    value =>
-      (
-        personalRepReads orElse
-          agentDetailsReads orElse
-          deceasedReads orElse
-          amountTaxOwedReads orElse
-          correspondenceNameReads orElse
-          yearsReturnsReads orElse
-          amendIndividualPersonalRepReads orElse
-          amendBusinessPersonalRepReads orElse
-          readsForTransform[DeceasedTransform](DeceasedTransform.key) orElse
-          closeEstateReads orElse
-          defaultReads
-        )(value.as[JsObject])
+  implicit val reads: Reads[DeltaTransform] = Reads[DeltaTransform](value =>
+    (
+      personalRepReads orElse
+        agentDetailsReads orElse
+        deceasedReads orElse
+        amountTaxOwedReads orElse
+        correspondenceNameReads orElse
+        yearsReturnsReads orElse
+        amendIndividualPersonalRepReads orElse
+        amendBusinessPersonalRepReads orElse
+        readsForTransform[DeceasedTransform](DeceasedTransform.key) orElse
+        closeEstateReads orElse
+        defaultReads
+    )(value.as[JsObject])
   )
 
-  def personalRepWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
-    case transform: PersonalRepTransform =>
-      Json.obj(PersonalRepTransform.key -> Json.toJson(transform)(PersonalRepTransform.format))
+  def personalRepWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = { case transform: PersonalRepTransform =>
+    Json.obj(PersonalRepTransform.key -> Json.toJson(transform)(PersonalRepTransform.format))
   }
 
-  def correspondenceNameWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
+  def correspondenceNameWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
     case transform: CorrespondenceNameTransform =>
       Json.obj(CorrespondenceNameTransform.key -> Json.toJson(transform)(CorrespondenceNameTransform.format))
   }
 
-  def yearsReturnsWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
-    case transform: YearsReturnsTransform =>
-      Json.obj(YearsReturnsTransform.key -> Json.toJson(transform)(YearsReturnsTransform.format))
+  def yearsReturnsWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = { case transform: YearsReturnsTransform =>
+    Json.obj(YearsReturnsTransform.key -> Json.toJson(transform)(YearsReturnsTransform.format))
   }
 
-  def agentDetailsWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
-    case transform: AgentDetailsTransform =>
-      Json.obj(AgentDetailsTransform.key -> Json.toJson(transform)(AgentDetailsTransform.format))
+  def agentDetailsWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = { case transform: AgentDetailsTransform =>
+    Json.obj(AgentDetailsTransform.key -> Json.toJson(transform)(AgentDetailsTransform.format))
   }
 
-  def amountOfTaxOwedWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
+  def amountOfTaxOwedWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
     case transform: AmountOfTaxOwedTransform =>
       Json.obj(AmountOfTaxOwedTransform.key -> Json.toJson(transform)(AmountOfTaxOwedTransform.format))
   }
 
-  def deceasedWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
-    case transform: DeceasedTransform =>
-      Json.obj(DeceasedTransform.key -> Json.toJson(transform)(DeceasedTransform.format))
+  def deceasedWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = { case transform: DeceasedTransform =>
+    Json.obj(DeceasedTransform.key -> Json.toJson(transform)(DeceasedTransform.format))
   }
 
-  def amendIndividualPersonalRepWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
+  def amendIndividualPersonalRepWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
     case transform: AddAmendIndividualPersonalRepTransform =>
-      Json.obj(AddAmendIndividualPersonalRepTransform.key -> Json.toJson(transform)(AddAmendIndividualPersonalRepTransform.format))
+      Json.obj(
+        AddAmendIndividualPersonalRepTransform.key -> Json.toJson(transform)(
+          AddAmendIndividualPersonalRepTransform.format
+        )
+      )
   }
 
-  def amendBusinessPersonalRepWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
+  def amendBusinessPersonalRepWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
     case transform: AddAmendBusinessPersonalRepTransform =>
-      Json.obj(AddAmendBusinessPersonalRepTransform.key -> Json.toJson(transform)(AddAmendBusinessPersonalRepTransform.format))
+      Json.obj(
+        AddAmendBusinessPersonalRepTransform.key -> Json.toJson(transform)(AddAmendBusinessPersonalRepTransform.format)
+      )
   }
 
-  private def closeEstateWrites[T <: DeltaTransform] : PartialFunction[T, JsValue] = {
+  private def closeEstateWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
     case transform: AddCloseEstateTransform =>
       Json.obj(AddCloseEstateTransform.key -> Json.toJson(transform)(AddCloseEstateTransform.format))
   }
 
-  def defaultWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = {
-    case transform => throw new Exception(s"Don't know how to serialise transform - $transform")
+  def defaultWrites[T <: DeltaTransform]: PartialFunction[T, JsValue] = { case transform =>
+    throw new Exception(s"Don't know how to serialise transform - $transform")
   }
 
   implicit val writes: Writes[DeltaTransform] = Writes[DeltaTransform] { deltaTransform =>
@@ -152,19 +146,20 @@ object DeltaTransform {
         amendBusinessPersonalRepWrites orElse
         closeEstateWrites orElse
         defaultWrites
-      ).apply(deltaTransform)
+    ).apply(deltaTransform)
   }
 
 }
 
 case class ComposedDeltaTransform(deltaTransforms: Seq[DeltaTransform]) extends DeltaTransform {
-  override def applyTransform(input: JsValue): JsResult[JsValue] = {
-    deltaTransforms.foldLeft[JsResult[JsValue]](JsSuccess(input))((cur, xform) => cur.flatMap(xform.applyTransform))
-  }
 
-  override def applyDeclarationTransform(input: JsValue): JsResult[JsValue] = {
-    deltaTransforms.foldLeft[JsResult[JsValue]](JsSuccess(input))((cur, xform) => cur.flatMap(xform.applyDeclarationTransform))
-  }
+  override def applyTransform(input: JsValue): JsResult[JsValue] =
+    deltaTransforms.foldLeft[JsResult[JsValue]](JsSuccess(input))((cur, xform) => cur.flatMap(xform.applyTransform))
+
+  override def applyDeclarationTransform(input: JsValue): JsResult[JsValue] =
+    deltaTransforms.foldLeft[JsResult[JsValue]](JsSuccess(input))((cur, xform) =>
+      cur.flatMap(xform.applyDeclarationTransform)
+    )
 
   def :+(transform: DeltaTransform): ComposedDeltaTransform = ComposedDeltaTransform(deltaTransforms :+ transform)
 }

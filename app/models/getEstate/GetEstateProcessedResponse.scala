@@ -18,14 +18,15 @@ package models.getEstate
 
 import play.api.libs.json.{JsValue, Json, Writes}
 
-case class GetEstateProcessedResponse(getEstate: JsValue,
-                                      responseHeader: ResponseHeader) extends GetEstateResponse
+case class GetEstateProcessedResponse(getEstate: JsValue, responseHeader: ResponseHeader) extends GetEstateResponse
 
 object GetEstateProcessedResponse {
 
   val mongoWrites: Writes[GetEstateProcessedResponse] = new Writes[GetEstateProcessedResponse] {
     override def writes(o: GetEstateProcessedResponse): JsValue = Json.obj(
-      "responseHeader" -> Json.toJson(o.responseHeader)(ResponseHeader.mongoWrites),
-      "trustOrEstateDisplay" -> o.getEstate)
+      "responseHeader"       -> Json.toJson(o.responseHeader)(ResponseHeader.mongoWrites),
+      "trustOrEstateDisplay" -> o.getEstate
+    )
   }
+
 }

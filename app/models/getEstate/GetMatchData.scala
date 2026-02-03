@@ -23,4 +23,3 @@ case class GetMatchData(utr: String)
 object GetMatchData {
   implicit val matchDataFormat: Format[GetMatchData] = Json.format[GetMatchData]
 }
-

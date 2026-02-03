@@ -34,28 +34,32 @@ class DeceasedSpec extends AnyWordSpec with Matchers with MockitoSugar with Tran
     NameType("First", None, "Last"),
     Some(LocalDate.of(1996, 4, 15)),
     LocalDate.of(2016, 7, 2),
-    Some(IdentificationType(
-      nino = Some("AB000000C"),
-      address = None,
-      passport = None
-    ))
+    Some(
+      IdentificationType(
+        nino = Some("AB000000C"),
+        address = None,
+        passport = None
+      )
+    )
   )
 
   private val newDeceased = EstateWillType(
     NameType("New First", Some("New Normal"), "New Last"),
     Some(LocalDate.of(1992, 4, 15)),
     LocalDate.of(2012, 7, 2),
-    Some(IdentificationType(
-      nino = Some("AB654321C"),
-      address = None,
-      passport = None
-    ))
+    Some(
+      IdentificationType(
+        nino = Some("AB654321C"),
+        address = None,
+        passport = None
+      )
+    )
   )
 
   "an add Deceased call" must {
     "return added data in a subsequent 'GET' call" in {
-          roundTripTest(appBuilder.build(), originalDeceased)
-          roundTripTest(appBuilder.build(), newDeceased)
+      roundTripTest(appBuilder.build(), originalDeceased)
+      roundTripTest(appBuilder.build(), newDeceased)
     }
   }
 
@@ -67,7 +71,8 @@ class DeceasedSpec extends AnyWordSpec with Matchers with MockitoSugar with Tran
     status(route(app, amendRequest).get) mustBe OK
 
     val newResult = route(app, FakeRequest(GET, "/estates/deceased")).get
-    status(newResult) mustBe OK
+    status(newResult)        mustBe OK
     contentAsJson(newResult) mustBe Json.toJson(deceased)
   }
+
 }

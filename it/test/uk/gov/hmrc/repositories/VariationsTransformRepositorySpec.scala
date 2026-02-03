@@ -28,13 +28,13 @@ import transformers.variations.AddAmendIndividualPersonalRepTransform
 
 import java.time.LocalDate
 
-class VariationsTransformRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
-  with BeforeAndAfterEach {
+class VariationsTransformRepositorySpec
+    extends AnyWordSpec with Matchers with TransformIntegrationTest with BeforeAndAfterEach {
 
   private val repository = appBuilder.build().injector.instanceOf[VariationsTransformationRepository]
 
   private val internalId = "Int-074d0597107e-557e-4559-96ba-328969d0"
-  private val utr = "UTRUTRUTR"
+  private val utr        = "UTRUTRUTR"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -71,4 +71,5 @@ class VariationsTransformRepositorySpec extends AnyWordSpec with Matchers with T
       retrieved.futureValue mustBe Some(data)
     }
   }
+
 }

@@ -36,21 +36,21 @@ import scala.concurrent.{Await, Future}
 
 class VariationServiceSpec extends BaseConnectorSpec {
 
-  private val formBundleNo = "001234567890"
-  private val utr = "1234567890"
-  private val internalId = "InternalId"
-  private val fullEtmpResponseJson = get4MLDEstateResponse
-  private val transformedEtmpResponseJson = Json.parse("""{ "field": "Arbitrary transformed JSON" }""")
-  private val estateInfoJson = (fullEtmpResponseJson \ "trustOrEstateDisplay").as[JsValue]
-  private val transformedJson = Json.obj("field" -> "value")
-  private val transformedJsonWithSubmission = Json.obj("field" -> "value", "submissionDate" -> LocalDate.now())
-  private val declarationName = DeclarationName(NameType("Handy", None, "Andy"))
+  private val formBundleNo                   = "001234567890"
+  private val utr                            = "1234567890"
+  private val internalId                     = "InternalId"
+  private val fullEtmpResponseJson           = get4MLDEstateResponse
+  private val transformedEtmpResponseJson    = Json.parse("""{ "field": "Arbitrary transformed JSON" }""")
+  private val estateInfoJson                 = (fullEtmpResponseJson \ "trustOrEstateDisplay").as[JsValue]
+  private val transformedJson                = Json.obj("field" -> "value")
+  private val transformedJsonWithSubmission  = Json.obj("field" -> "value", "submissionDate" -> LocalDate.now())
+  private val declarationName                = DeclarationName(NameType("Handy", None, "Andy"))
   private val declaration: DeclarationForApi = DeclarationForApi(declarationName, None)
 
-  val estateService = mock[EstatesService]
+  val estateService                   = mock[EstatesService]
   val variationsTransformationService = mock[VariationsTransformationService]
-  val auditService = mock[AuditService]
-  val declarationService = mock[VariationDeclarationService]
+  val auditService                    = mock[AuditService]
+  val declarationService              = mock[VariationDeclarationService]
 
   val estates5MLDService = new Estates5MLDService()
 
@@ -76,27 +76,33 @@ class VariationServiceSpec extends BaseConnectorSpec {
 
       val responseHeader = ResponseHeader("Processed", formBundleNo)
 
-      whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse => {
-
+      whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse =>
         variationResponse mustBe successfulResponse
 
         verify(variationsTransformationService, times(1))
-          .applyDeclarationTransformations(equalTo(utr), equalTo(internalId), equalTo(estateInfoJson))(any[HeaderCarrier])
+          .applyDeclarationTransformations(equalTo(utr), equalTo(internalId), equalTo(estateInfoJson))(
+            any[HeaderCarrier]
+          )
 
         verify(declarationService, times(1))
-          .transform(equalTo(transformedEtmpResponseJson), equalTo(responseHeader), equalTo(response.getEstate), equalTo(declaration))
+          .transform(
+            equalTo(transformedEtmpResponseJson),
+            equalTo(responseHeader),
+            equalTo(response.getEstate),
+            equalTo(declaration)
+          )
 
         verify(auditService).auditVariationSubmitted(
           equalTo(internalId),
           equalTo(transformedJsonWithSubmission),
-          equalTo(successfulResponse))(any())
+          equalTo(successfulResponse)
+        )(any())
 
         val arg: ArgumentCaptor[JsValue] = ArgumentCaptor.forClass(classOf[JsValue])
 
         verify(estateService, times(1)).estateVariation(arg.capture())
 
         arg.getValue mustBe transformedJsonWithSubmission
-      }
       }
 
     }
@@ -109,7 +115,8 @@ class VariationServiceSpec extends BaseConnectorSpec {
       when(estateService.getEstateInfoFormBundleNo(utr))
         .thenReturn(Future.successful(formBundleNo))
 
-      val response: GetEstateProcessedResponse = GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))
+      val response: GetEstateProcessedResponse =
+        GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))
 
       when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
         .thenReturn(Future.successful(response))
@@ -126,35 +133,40 @@ class VariationServiceSpec extends BaseConnectorSpec {
       setupForTest(failedResponse)
 
       whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse =>
-
         variationResponse mustBe failedResponse
 
         verify(auditService).auditVariationFailed(
           equalTo(internalId),
           equalTo(transformedJsonWithSubmission),
-          equalTo(failedResponse))(any())
+          equalTo(failedResponse)
+        )(any())
       }
     }
 
     "return an EtmpCacheDataStaleResponse given the form bundle number returned from estatesService.getEstateInfo" +
       "and estatesService.getEstateInfoFormBundleNo do not match" in {
 
-      when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
-        .thenReturn(JsError(__, "no personal rep address"))
+        when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
+          .thenReturn(JsError(__, "no personal rep address"))
 
-      when(estateService.getEstateInfoFormBundleNo(utr))
-        .thenReturn(Future.successful(formBundleNo))
+        when(estateService.getEstateInfoFormBundleNo(utr))
+          .thenReturn(Future.successful(formBundleNo))
 
-      val response: GetEstateProcessedResponse = GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", "x"))
+        val response: GetEstateProcessedResponse =
+          GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", "x"))
 
-      when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(response))
+        when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(response))
 
-      whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse =>
-        assert(variationResponse ==
-          VariationFailureResponse(ErrorResponse("ETMP_DATA_STALE", "ETMP returned a changed form bundle number for the estate.")))
+        whenReady(service.submitDeclaration(utr, internalId, declaration)) { variationResponse =>
+          assert(
+            variationResponse ==
+              VariationFailureResponse(
+                ErrorResponse("ETMP_DATA_STALE", "ETMP returned a changed form bundle number for the estate.")
+              )
+          )
+        }
       }
-    }
 
     "throw an InternalServerErrorException given the call to estateService.getEstateInfo returns a NotEnoughDataResponse" in {
 
@@ -164,15 +176,22 @@ class VariationServiceSpec extends BaseConnectorSpec {
       when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
         .thenReturn(Future.successful(NotEnoughDataResponse(Json.obj(), Json.obj())))
 
-      val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
+      val result =
+        intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
 
-      result mustBe InternalServerErrorException("Submission could not proceed, Estate data was not in a processed state")
+      result mustBe InternalServerErrorException(
+        "Submission could not proceed, Estate data was not in a processed state"
+      )
     }
 
     "return an InternalServerErrorException given VariationsTransformationService.applyDeclarationTransformations returns JsError" in {
-      setupForTest(VariationSuccessResponse("TVN34567890"), variationsTransformationServiceError = Some(JsError("blah")))
+      setupForTest(
+        VariationSuccessResponse("TVN34567890"),
+        variationsTransformationServiceError = Some(JsError("blah"))
+      )
 
-      val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
+      val result =
+        intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
 
       result mustBe InternalServerErrorException("There was a problem transforming data for submission to ETMP")
     }
@@ -180,7 +199,8 @@ class VariationServiceSpec extends BaseConnectorSpec {
     "return an InternalServerErrorException given DeclarationService.transform returns a JsError" in {
       setupForTest(VariationSuccessResponse("TVN34567890"), declarationServiceError = Some(JsError("oh no")))
 
-      val result = intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
+      val result =
+        intercept[Exception](Await.result(service.submitDeclaration(utr, internalId, declaration), Duration.Inf))
 
       verify(auditService, times(1)).auditVariationTransformationError(any, any, any, any, any, any)(any[HeaderCarrier])
       result mustBe InternalServerErrorException("There was a problem transforming data for submission to ETMP")
@@ -193,7 +213,9 @@ class VariationServiceSpec extends BaseConnectorSpec {
       .thenReturn(Future.successful("31415900000"))
 
     when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
-      .thenReturn(Future.successful(GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))))
+      .thenReturn(
+        Future.successful(GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo)))
+      )
 
     whenReady(service.submitDeclaration(utr, internalId, declaration)) { response =>
       response mustBe VariationFailureResponse(EtmpDataStaleErrorResponse)
@@ -201,20 +223,25 @@ class VariationServiceSpec extends BaseConnectorSpec {
     }
   }
 
-  private def setupForTest(variationResponse: VariationResponse,
-                           declarationServiceError: Option[JsError] = None,
-                           variationsTransformationServiceError: Option[JsError] = None): GetEstateProcessedResponse = {
+  private def setupForTest(
+    variationResponse: VariationResponse,
+    declarationServiceError: Option[JsError] = None,
+    variationsTransformationServiceError: Option[JsError] = None
+  ): GetEstateProcessedResponse = {
 
     when(variationsTransformationService.populatePersonalRepAddress(any[JsValue]))
       .thenReturn(JsSuccess(estateInfoJson))
 
     when(variationsTransformationService.applyDeclarationTransformations(any(), any(), any())(any[HeaderCarrier]))
-      .thenReturn(Future.successful(variationsTransformationServiceError.getOrElse(JsSuccess(transformedEtmpResponseJson))))
+      .thenReturn(
+        Future.successful(variationsTransformationServiceError.getOrElse(JsSuccess(transformedEtmpResponseJson)))
+      )
 
     when(estateService.getEstateInfoFormBundleNo(utr))
       .thenReturn(Future.successful(formBundleNo))
 
-    val response: GetEstateProcessedResponse = GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))
+    val response: GetEstateProcessedResponse =
+      GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", formBundleNo))
 
     when(estateService.getEstateInfo(equalTo(utr), equalTo(internalId))(any[HeaderCarrier]()))
       .thenReturn(Future.successful(response))

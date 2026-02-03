@@ -22,22 +22,19 @@ import java.time.LocalDate
 
 trait ValidationUtil {
 
-  def isNotFutureDate(date: LocalDate, path: String, key: String): Option[EstatesValidationError] = {
+  def isNotFutureDate(date: LocalDate, path: String, key: String): Option[EstatesValidationError] =
     if (isAfterToday(date)) {
       Some(EstatesValidationError(s"$key must be today or in the past.", path))
     } else {
       None
     }
-  }
 
-  def isNotFutureDate(date: Option[LocalDate], path: String, key: String): Option[EstatesValidationError] = {
-    date flatMap {
-      d =>
-        isNotFutureDate(d, path, key)
+  def isNotFutureDate(date: Option[LocalDate], path: String, key: String): Option[EstatesValidationError] =
+    date flatMap { d =>
+      isNotFutureDate(d, path, key)
     }
-  }
 
-  def isAfterToday(date: LocalDate): Boolean = {
+  def isAfterToday(date: LocalDate): Boolean =
     date.isAfter(LocalDate.now)
-  }
+
 }

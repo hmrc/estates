@@ -30,29 +30,32 @@ import utils.{ErrorResults, Session}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EstateVariationsController @Inject()(
-                                            identify: IdentifierAction,
-                                            variationService: VariationService,
-                                            auditService: AuditService
-                                          )(implicit ec: ExecutionContext, cc: ControllerComponents
-) extends EstatesBaseController(cc) with Logging {
+class EstateVariationsController @Inject() (
+  identify: IdentifierAction,
+  variationService: VariationService,
+  auditService: AuditService
+)(implicit ec: ExecutionContext, cc: ControllerComponents)
+    extends EstatesBaseController(cc) with Logging {
 
-  def declare(utr: String): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[DeclarationForApi].fold(
+  def declare(utr: String): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body
+      .validate[DeclarationForApi]
+      .fold(
         errors => {
-          logger.error(s"[declare][Session ID: ${Session.id(hc)}][UTR: $utr] unable to parse json as DeclarationForApi, $errors")
+          logger.error(
+            s"[declare][Session ID: ${Session.id(hc)}][UTR: $utr] unable to parse json as DeclarationForApi, $errors"
+          )
           Future.successful(BadRequest)
         },
-        declarationForApi => {
-          variationService
-            .submitDeclaration(utr, request.identifier, declarationForApi)
-            .map {
-              case response: VariationSuccessResponse => Ok(Json.toJson(response))
-              case VariationFailureResponse(errorResponse) => ErrorResults.fromErrorResponse(errorResponse)
-            }
-        } recover {
-          case e =>
+        declarationForApi =>
+          {
+            variationService
+              .submitDeclaration(utr, request.identifier, declarationForApi)
+              .map {
+                case response: VariationSuccessResponse      => Ok(Json.toJson(response))
+                case VariationFailureResponse(errorResponse) => ErrorResults.fromErrorResponse(errorResponse)
+              }
+          } recover { case e =>
             logger.error(s"[ErrorHandler][Session ID: ${Session.id(hc)}] Exception returned ${e.getMessage}")
 
             auditService.auditVariationError(
@@ -61,8 +64,8 @@ class EstateVariationsController @Inject()(
               e.getMessage
             )
             internalServerErrorErrorResult
-        }
+          }
       )
-    }
   }
+
 }

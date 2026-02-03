@@ -28,7 +28,6 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 
-
 class TaxEnrolmentsServiceSpec extends BaseSpec {
 
   lazy val mockConnector = mock[TaxEnrolmentConnector]
@@ -43,24 +42,21 @@ class TaxEnrolmentsServiceSpec extends BaseSpec {
 
     "return TaxEnrolmentSuccess  " when {
       "connector returns success taxEnrolmentSuscriberResponse" in {
-        when(mockConnector.enrolSubscriber("123456789")).
-          thenReturn(Future.successful(TaxEnrolmentSuccess))
+        when(mockConnector.enrolSubscriber("123456789")).thenReturn(Future.successful(TaxEnrolmentSuccess))
 
         val futureResult = SUT.setSubscriptionId("123456789")
 
-        whenReady(futureResult) {
-          result => result mustBe TaxEnrolmentSuccess
+        whenReady(futureResult) { result =>
+          result mustBe TaxEnrolmentSuccess
         }
         verify(mockConnector, times(1)).enrolSubscriber(any())(any[HeaderCarrier])
       }
     }
 
-
     "return TaxEnrolmentFailure " when {
 
       "tax enrolment returns internal server error" in {
-        when(mockConnector.enrolSubscriber("123456789")).
-          thenReturn(Future.failed(InternalServerErrorException("")))
+        when(mockConnector.enrolSubscriber("123456789")).thenReturn(Future.failed(InternalServerErrorException("")))
         val result = Await.result(SUT.setSubscriptionId("123456789"), Duration.Inf)
         result mustBe a[TaxEnrolmentFailure]
         verify(mockConnector, times(10)).enrolSubscriber(any())(any[HeaderCarrier])
@@ -70,8 +66,7 @@ class TaxEnrolmentsServiceSpec extends BaseSpec {
     "return TaxEnrolmentFailure " when {
 
       "tax enrolment returns error" in {
-        when(mockConnector.enrolSubscriber("123456789")).
-          thenReturn(Future.failed(BadRequestException))
+        when(mockConnector.enrolSubscriber("123456789")).thenReturn(Future.failed(BadRequestException))
 
         val result = Await.result(SUT.setSubscriptionId("123456789"), Duration.Inf)
         result mustBe a[TaxEnrolmentFailure]

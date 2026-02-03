@@ -44,7 +44,7 @@ class PersonalRepTransformationControllerSpec extends AnyFreeSpec with MockitoSu
 
     "must add a new amend personal rep transform" in {
       val personalRepTransformationService = mock[PersonalRepTransformationService]
-      val controller = new PersonalRepTransformationController(identifierAction, cc, personalRepTransformationService)
+      val controller                       = new PersonalRepTransformationController(identifierAction, cc, personalRepTransformationService)
 
       val newPersonalRepIndInfo = EstatePerRepIndType(
         lineNo = Some("newLineNo"),
@@ -75,7 +75,7 @@ class PersonalRepTransformationControllerSpec extends AnyFreeSpec with MockitoSu
 
     "must return an error for malformed json" in {
       val personalRepTransformationService = mock[PersonalRepTransformationService]
-      val controller = new PersonalRepTransformationController(identifierAction, cc, personalRepTransformationService)
+      val controller                       = new PersonalRepTransformationController(identifierAction, cc, personalRepTransformationService)
 
       val request = FakeRequest("POST", "path")
         .withBody(Json.toJson("{}"))
@@ -85,4 +85,5 @@ class PersonalRepTransformationControllerSpec extends AnyFreeSpec with MockitoSu
       status(result) mustBe BAD_REQUEST
     }
   }
+
 }

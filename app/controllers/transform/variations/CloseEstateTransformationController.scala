@@ -28,25 +28,25 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CloseEstateTransformationController @Inject()(
-                                                     identify: IdentifierAction,
-                                                     cc: ControllerComponents,
-                                                     closeEstateTransformationService: CloseEstateTransformationService
-                                                   )(implicit val executionContext: ExecutionContext)
-  extends EstatesBaseController(cc) with ValidationUtil with Logging {
+class CloseEstateTransformationController @Inject() (
+  identify: IdentifierAction,
+  cc: ControllerComponents,
+  closeEstateTransformationService: CloseEstateTransformationService
+)(implicit val executionContext: ExecutionContext)
+    extends EstatesBaseController(cc) with ValidationUtil with Logging {
 
-  def close(utr: String): Action[JsValue] = identify.async(parse.json) {
-    implicit request => {
-      request.body.validate[LocalDate] match {
-        case JsSuccess(date, _) =>
-          closeEstateTransformationService.addCloseEstateTransformer(utr, request.identifier, date) map { _ =>
-            Ok
-          }
-        case JsError(errors) =>
-          logger.warn(s"[Session ID: ${Session.id(hc)}][UTR: $utr]" +
-            s" Supplied payload could not be read as LocalDate - $errors")
-          Future.successful(BadRequest)
-      }
+  def close(utr: String): Action[JsValue] = identify.async(parse.json) { implicit request =>
+    request.body.validate[LocalDate] match {
+      case JsSuccess(date, _) =>
+        closeEstateTransformationService.addCloseEstateTransformer(utr, request.identifier, date) map { _ =>
+          Ok
+        }
+      case JsError(errors)    =>
+        logger.warn(
+          s"[Session ID: ${Session.id(hc)}][UTR: $utr]" +
+            s" Supplied payload could not be read as LocalDate - $errors"
+        )
+        Future.successful(BadRequest)
     }
   }
 

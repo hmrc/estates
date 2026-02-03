@@ -33,21 +33,22 @@ object SubscriptionIdResponse extends Logging {
       override def read(method: String, url: String, response: HttpResponse): SubscriptionIdResponse = {
         logger.info(s"Response status received from des: ${response.status}")
         response.status match {
-          case OK =>
+          case OK                  =>
             response.json.as[SubscriptionIdResponse]
-          case BAD_REQUEST =>
+          case BAD_REQUEST         =>
             logger.error(s"Bad Request response from des ")
             throw BadRequestException
-          case NOT_FOUND =>
+          case NOT_FOUND           =>
             logger.error(s"Not found response from des")
             throw NotFoundException
           case SERVICE_UNAVAILABLE =>
             logger.error("Service unavailable response from des.")
             throw ServiceNotAvailableException("Des dependent service is down.")
-          case status =>
+          case status              =>
             logger.error(s"Error response from des : $status")
             throw InternalServerErrorException(s"Error response from des $status")
         }
       }
     }
+
 }

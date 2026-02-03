@@ -33,61 +33,69 @@ object GetEstateResponse extends GetEstateHttpReads {
     header match {
       case Some(parsedHeader) =>
         (json \ "trustOrEstateDisplay").toOption match {
-          case None =>
+          case None    =>
             JsSuccess(GetEstateStatusResponse(parsedHeader))
           case Some(x) =>
             x.validate[GetEstate] match {
               case JsSuccess(_, _) =>
                 JsSuccess(GetEstateProcessedResponse(x, parsedHeader))
-              case x: JsError =>
+              case x: JsError      =>
                 JsSuccess(NotEnoughDataResponse(json, JsError.toJson(x)))
             }
         }
-      case None =>
+      case None               =>
         JsSuccess(NotEnoughDataResponse(json, JsError.toJson(JsError("responseHeader not defined on response"))))
     }
   }
 
   implicit val writes: Writes[GetEstateResponse] = Writes {
-    case GetEstateProcessedResponse(estate, header) => Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
-    case GetEstateStatusResponse(header) => Json.obj("responseHeader" -> header)
-    case NotEnoughDataResponse(_, errors) => Json.obj("error" -> errors)
-    case _ => Json.obj("error" -> "There was an internal server error parsing response as GetEstateResponse")
+    case GetEstateProcessedResponse(estate, header) =>
+      Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
+    case GetEstateStatusResponse(header)            => Json.obj("responseHeader" -> header)
+    case NotEnoughDataResponse(_, errors)           => Json.obj("error" -> errors)
+    case _                                          => Json.obj("error" -> "There was an internal server error parsing response as GetEstateResponse")
   }
 
 }
 
 sealed trait GetEstateHttpReads extends Logging {
 
-  implicit def httpReads(utr: String): HttpReads[GetEstateResponse] = (_: String, _: String, response: HttpResponse) => {
+  implicit def httpReads(utr: String): HttpReads[GetEstateResponse] = (_: String, _: String, response: HttpResponse) =>
     response.status match {
-      case OK =>
+      case OK                  =>
         parseOkResponse(response, utr)
-      case BAD_REQUEST =>
-        logger.warn(s"[UTR: $utr]" +
-          s" bad request returned from des: ${response.json}")
+      case BAD_REQUEST         =>
+        logger.warn(
+          s"[UTR: $utr]" +
+            s" bad request returned from des: ${response.json}"
+        )
         BadRequestResponse
-      case NOT_FOUND =>
-        logger.info(s"[UTR: $utr]" +
-          s" trust not found in ETMP for given identifier")
+      case NOT_FOUND           =>
+        logger.info(
+          s"[UTR: $utr]" +
+            s" trust not found in ETMP for given identifier"
+        )
         ResourceNotFoundResponse
       case SERVICE_UNAVAILABLE =>
-        logger.warn(s"[UTR: $utr]" +
-          s" service is unavailable, unable to get trust")
+        logger.warn(
+          s"[UTR: $utr]" +
+            s" service is unavailable, unable to get trust"
+        )
         ServiceUnavailableResponse
-      case status =>
-        logger.error(s"[UTR: $utr]" +
-          s" error occurred when getting trust, status: $status")
+      case status              =>
+        logger.error(
+          s"[UTR: $utr]" +
+            s" error occurred when getting trust, status: $status"
+        )
         InternalServerErrorResponse
     }
-  }
 
-  private def parseOkResponse(response: HttpResponse, utr: String) : GetEstateResponse = {
+  private def parseOkResponse(response: HttpResponse, utr: String): GetEstateResponse =
     response.json.validate[GetEstateResponse] match {
       case JsSuccess(estateFound, _) => estateFound
-      case JsError(errors) =>
+      case JsError(errors)           =>
         logger.error(s"[UTR: $utr] Cannot parse as EstateFoundResponse due to ${JsError.toJson(errors)}")
         NotEnoughDataResponse(response.json, JsError.toJson(errors))
     }
-  }
+
 }

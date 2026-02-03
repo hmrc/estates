@@ -23,14 +23,13 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import repositories.CacheRepository
 
-class CacheRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest
-  with BeforeAndAfterEach {
+class CacheRepositorySpec extends AnyWordSpec with Matchers with TransformIntegrationTest with BeforeAndAfterEach {
 
   private val repository = appBuilder.build().injector.instanceOf[CacheRepository]
 
-  private val data = Json.obj("testField" -> "testValue")
+  private val data       = Json.obj("testField" -> "testValue")
   private val internalId = "Int-328969d0-96ba-4559-557e-074d0597107e"
-  private val utr = "UTRUTRUTR"
+  private val utr        = "UTRUTRUTR"
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -49,4 +48,5 @@ class CacheRepositorySpec extends AnyWordSpec with Matchers with TransformIntegr
       await(retrieved) mustBe Some(data)
     }
   }
+
 }
