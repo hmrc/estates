@@ -38,7 +38,7 @@ class ClearTransformationsSpec extends AnyWordSpec with Matchers with MockitoSug
   val getEstateResponseFromDES: GetEstateResponse =
     JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
 
-  val noTransformsAppliedJson: JsValue            = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
+  val noTransformsAppliedJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
 
   "a clear transformations call" should {
 

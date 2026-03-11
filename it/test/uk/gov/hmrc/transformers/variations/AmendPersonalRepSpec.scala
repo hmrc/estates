@@ -40,7 +40,7 @@ class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar w
   val getEstateResponseFromDES: GetEstateResponse =
     JsonUtils.getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json").as[GetEstateResponse]
 
-  val expectedInitialGetJson: JsValue             = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
+  val expectedInitialGetJson: JsValue = JsonUtils.getJsonValueFromFile("it/estates-integration-get-initial.json")
 
   "an amend personal rep call" should {
 
