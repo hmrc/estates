@@ -16,10 +16,8 @@
 
 package services
 
-import com.github.fge.jackson.JsonLoader
-import com.github.fge.jsonschema.core.report.LogLevel.ERROR
-import com.github.fge.jsonschema.core.report.ProcessingReport
-import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.networknt.schema.{Schema, SchemaRegistry, SpecificationVersion}
 import models.EstateRegistration
 import play.api.Logging
 import play.api.libs.json._
@@ -32,32 +30,35 @@ import scala.util.{Failure, Success, Try}
 
 class ValidationService @Inject() () {
 
-  private val factory = JsonSchemaFactory.byDefault()
+  private val schemaMapper: ObjectMapper = new ObjectMapper()
+
+  private val schemaRegistry: SchemaRegistry =
+    SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4)
 
   def get(schemaFile: String): Validator = {
     val resource             = getClass.getResourceAsStream(schemaFile)
     val source               = Source.fromInputStream(resource)
     val schemaJsonFileString = source.mkString
     source.close()
-    val schemaJson           = JsonLoader.fromString(schemaJsonFileString)
-    val schema               = factory.getJsonSchema(schemaJson)
-    new Validator(schema)
+    val schemaJson           = schemaMapper.readTree(schemaJsonFileString)
+    val schema               = schemaRegistry.getSchema(schemaJson)
+    new Validator(schema, schemaMapper)
   }
 
 }
 
-class Validator(schema: JsonSchema) extends Logging {
+class Validator(schema: Schema, mapper: ObjectMapper) extends Logging {
 
-  private val JsonErrorMessageTag  = "message"
-  private val JsonErrorInstanceTag = "instance"
-  private val JsonErrorPointerTag  = "pointer"
+//  private val JsonErrorMessageTag  = "message"
+//  private val JsonErrorInstanceTag = "instance"
+//  private val JsonErrorPointerTag  = "pointer"
 
   def validate[T](inputJson: String)(implicit reads: Reads[T]): Either[List[EstatesValidationError], T] =
-    Try(JsonLoader.fromString(inputJson)) match {
+    Try(mapper.readTree(inputJson)) match {
       case Success(json) =>
         val result = schema.validate(json)
 
-        if (result.isSuccess) {
+        if (result.isEmpty) {
           Json
             .parse(inputJson)
             .validate[T]
@@ -96,16 +97,23 @@ class Validator(schema: JsonSchema) extends Logging {
     validationErrors
   }
 
-  private def getValidationErrors(validationOutput: ProcessingReport): List[EstatesValidationError] = {
-    val validationErrors: List[EstatesValidationError] =
-      validationOutput.iterator.asScala.toList.filter(m => m.getLogLevel == ERROR).map { m =>
-        val error     = m.asJson()
-        val message   = error.findValue(JsonErrorMessageTag).asText("")
-        val location  = error.findValue(JsonErrorInstanceTag).at(s"/$JsonErrorPointerTag").asText()
-        val locations = error.findValues(JsonErrorPointerTag)
-        logger.error(s"[getValidationErrors] validation failed at locations :  $locations")
-        EstatesValidationError(message, location)
-      }
+  private def getValidationErrors(errors: java.util.List[com.networknt.schema.Error]): List[EstatesValidationError] = {
+    val validationErrors = errors.asScala.toList.map { err =>
+      val message = err.getMessage
+      val loc     = err.getInstanceLocation.toString
+      logger.error(s"[getValidationErrors] validation failed at locations :  $loc")
+      EstatesValidationError(message, loc)
+    }
+
+//    val validationErrors: List[EstatesValidationError] =
+//      validationOutput.iterator.asScala.toList.filter(m => m.getLogLevel == ERROR).map { m =>
+//        val error     = m.asJson()
+//        val message   = error.findValue(JsonErrorMessageTag).asText("")
+//        val location  = error.findValue(JsonErrorInstanceTag).at(s"/$JsonErrorPointerTag").asText()
+//        val locations = error.findValues(JsonErrorPointerTag)
+//        logger.error(s"[getValidationErrors] validation failed at locations :  $locations")
+//        EstatesValidationError(message, location)
+//      }
     validationErrors
   }
 
