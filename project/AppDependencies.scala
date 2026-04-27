@@ -8,9 +8,9 @@ object AppDependencies {
   private val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-30"        % mongoVersion,
     "uk.gov.hmrc"                  %% "bootstrap-backend-play-30" % boostrapVersion,
-    "com.github.java-json-tools"    % "json-schema-validator"     % "2.2.14",
+    "com.networknt"                 % "json-schema-validator"     % "3.0.2" exclude ("com.fasterxml.jackson.core", "jackson-databind"),
     "uk.gov.hmrc"                  %% "tax-year"                  % "6.0.0",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala"      % "2.21.1"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala"      % "2.21.2"
   )
 
   private val test: Seq[ModuleID] = Seq(
