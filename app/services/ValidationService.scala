@@ -16,64 +16,60 @@
 
 package services
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.networknt.schema.{Schema, SchemaRegistry, SpecificationVersion}
+import com.networknt.schema.{Error, InputFormat, Schema, SchemaRegistry, SpecificationVersion}
 import models.EstateRegistration
 import play.api.Logging
 import play.api.libs.json._
 import utils.EstateBusinessValidation
 
+import java.io.InputStream
 import javax.inject.Inject
 import scala.io.Source
 import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Success, Try}
 
-class ValidationService @Inject() () {
-
-  private val schemaMapper: ObjectMapper = new ObjectMapper()
-
-  private val schemaRegistry: SchemaRegistry =
-    SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4)
+class ValidationService @Inject() {
 
   def get(schemaFile: String): Validator = {
-    val resource             = getClass.getResourceAsStream(schemaFile)
-    val source               = Source.fromInputStream(resource)
-    val schemaJsonFileString = source.mkString
-    source.close()
-    val schemaJson           = schemaMapper.readTree(schemaJsonFileString)
-    val schema               = schemaRegistry.getSchema(schemaJson)
-    new Validator(schema, schemaMapper)
+    val resource = resourceAsString(schemaFile)
+      .getOrElse(throw new RuntimeException("Missing schema: " + schemaFile))
+
+    val schema = SchemaRegistry
+      .withDefaultDialect(SpecificationVersion.DRAFT_4)
+      .getSchema(resource, InputFormat.JSON)
+    new Validator(schema)
   }
+
+  private def resourceAsString(resourcePath: String): Option[String] =
+    resourceAsInputStream(resourcePath) map { is =>
+      Source.fromInputStream(is).getLines().mkString("\n")
+    }
+
+  private def resourceAsInputStream(resourcePath: String): Option[InputStream] =
+    Option(getClass.getResourceAsStream(resourcePath))
 
 }
 
-class Validator(schema: Schema, mapper: ObjectMapper) extends Logging {
+class Validator(schema: Schema) extends Logging {
 
-//  private val JsonErrorMessageTag  = "message"
-//  private val JsonErrorInstanceTag = "instance"
-//  private val JsonErrorPointerTag  = "pointer"
-
-  def validate[T](inputJson: String)(implicit reads: Reads[T]): Either[List[EstatesValidationError], T] =
-    Try(mapper.readTree(inputJson)) match {
-      case Success(json) =>
-        val result = schema.validate(json)
-
-        if (result.isEmpty) {
-          Json
-            .parse(inputJson)
-            .validate[T]
-            .fold(
-              errors => Left(getValidationErrors(errors)),
-              request => validateBusinessRules(request)
-            )
-        } else {
-          logger.error(s"[validate] unable to validate to schema")
-          Left(getValidationErrors(result))
-        }
-      case Failure(e)    =>
-        logger.error(s"[validate] IOException $e")
-        Left(List(EstatesValidationError(s"[Validator][validate] IOException $e", "")))
+  def validate[T](inputJson: String)(implicit reads: Reads[T]): Either[List[EstatesValidationError], T] = {
+    val errorsNew: List[Error] = validateInternal(inputJson)
+    if (errorsNew.isEmpty) {
+      Json
+        .parse(inputJson)
+        .validate[T]
+        .fold(
+          errors => Left(getValidationErrorsForJSPath(errors)),
+          request => validateBusinessRules(request)
+        )
+    } else {
+      logger.error(s"[validate] unable to validate to schema")
+      Left(getValidationErrors(errorsNew))
     }
+
+  }
+
+  private def validateInternal(subject: String): List[Error] =
+    schema.validate(subject, InputFormat.JSON).asScala.toList
 
   private def validateBusinessRules[T](request: T): Either[List[EstatesValidationError], T] =
     request match {
@@ -87,7 +83,7 @@ class Validator(schema: Schema, mapper: ObjectMapper) extends Logging {
       case _                                      => Right(request)
     }
 
-  protected def getValidationErrors(
+  private def getValidationErrorsForJSPath(
     errors: Iterable[(JsPath, Iterable[JsonValidationError])]
   ): List[EstatesValidationError] = {
     val validationErrors = errors
@@ -97,23 +93,13 @@ class Validator(schema: Schema, mapper: ObjectMapper) extends Logging {
     validationErrors
   }
 
-  private def getValidationErrors(errors: java.util.List[com.networknt.schema.Error]): List[EstatesValidationError] = {
-    val validationErrors = errors.asScala.toList.map { err =>
+  private def getValidationErrors(errors: List[Error]): List[EstatesValidationError] = {
+    val validationErrors = errors.map { err =>
       val message = err.getMessage
       val loc     = err.getInstanceLocation.toString
       logger.error(s"[getValidationErrors] validation failed at locations :  $loc")
       EstatesValidationError(message, loc)
     }
-
-//    val validationErrors: List[EstatesValidationError] =
-//      validationOutput.iterator.asScala.toList.filter(m => m.getLogLevel == ERROR).map { m =>
-//        val error     = m.asJson()
-//        val message   = error.findValue(JsonErrorMessageTag).asText("")
-//        val location  = error.findValue(JsonErrorInstanceTag).at(s"/$JsonErrorPointerTag").asText()
-//        val locations = error.findValues(JsonErrorPointerTag)
-//        logger.error(s"[getValidationErrors] validation failed at locations :  $locations")
-//        EstatesValidationError(message, location)
-//      }
     validationErrors
   }
 
