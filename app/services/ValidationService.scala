@@ -35,7 +35,7 @@ class ValidationService @Inject() {
 
     val schema = SchemaRegistry
       .withDefaultDialect(SpecificationVersion.DRAFT_4)
-      .getSchema(resource, InputFormat.JSON)
+      .getSchema(resource)
     new Validator(schema)
   }
 
