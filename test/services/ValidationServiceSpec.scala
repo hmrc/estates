@@ -57,20 +57,26 @@ class ValidationServiceSpec extends BaseSpec with EitherValues with EstateDataEx
         rightValue.estate.entities.personalRepresentative.estatePerRepOrg mustBe defined
         rightValue.estate.entities.deceased.identification mustNot be(defined)
       }
+
+      "throws Exception when file is not present" in {
+        val exception = intercept[RuntimeException] {
+          validationService.get("/missing-schema.json")
+        }
+        exception.getMessage mustBe "Missing schema: /missing-schema.json"
+      }
     }
 
     "return registration domain" when {
 
       "no personal representative provided" in {
         val jsonString     = JsonUtils.getJsonFromFile("mdtp/invalid-estate-registration-01.json")
-        val expectedErrors = List("object has missing required properties ([\"personalRepresentative\"])")
+        val expectedErrors = List("required property 'personalRepresentative' not found")
         val errorList      = estateValidator.validate[EstateRegistration](jsonString).left.value.map(_.message)
-
         errorList mustBe expectedErrors
       }
 
       "no correspodence address provided for estate" in {
-        val expectedErrors = List("object has missing required properties ([\"address\"])")
+        val expectedErrors = List("required property 'address' not found")
         val errorList      =
           estateValidator.validate[EstateRegistration](estateWithoutCorrespondenceAddress).left.value.map(_.message)
 
