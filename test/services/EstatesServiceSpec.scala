@@ -17,7 +17,8 @@
 package services
 
 import base.BaseSpec
-import connectors.{EstatesConnector, SubscriptionConnector}
+import config.AppConfig
+import connectors.{DesEstatesConnector, HipEstatesConnector, SubscriptionConnector}
 import exceptions._
 import models.ExistingCheckResponse._
 import models._
@@ -37,14 +38,23 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
   private trait EstateServiceFixture {
     lazy val request                                     = ExistingCheckRequest("estate name", postcode = Some("NE65TA"), "1234567890")
-    val mockEstateConnector: EstatesConnector            = mock[EstatesConnector]
+    val mockDesEstateConnector: DesEstatesConnector      = mock[DesEstatesConnector]
     val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
     val mockRepository: CacheRepositoryImpl              = mock[CacheRepositoryImpl]
+    val mockHipEstateConnector: HipEstatesConnector      = mock[HipEstatesConnector]
+    val mockAppConfig                                    = mock[AppConfig]
     when(mockRepository.get(any[String], any[String])).thenReturn(Future.successful(None))
     when(mockRepository.resetCache(any[String], any[String])).thenReturn(Future.successful(None))
     val myId                                             = "myId"
 
-    val SUT = new EstatesService(mockEstateConnector, mockSubscriptionConnector, mockRepository)
+    val SUT = new EstatesService(
+      mockDesEstateConnector,
+      mockHipEstateConnector,
+      mockSubscriptionConnector,
+      mockRepository,
+      mockAppConfig
+    )
+
   }
 
   ".getEstateInfoFormBundleNo" should {
@@ -54,12 +64,20 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         .getJsonValueFromFile("etmp/valid-get-estate-5mld-response.json")
         .as[GetEstateResponse]
         .asInstanceOf[GetEstateProcessedResponse]
-      val mockEstatesConnector                             = mock[EstatesConnector]
+      val mockEstatesConnector                             = mock[DesEstatesConnector]
       val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
       val mockRepository                                   = mock[CacheRepositoryImpl]
+      val mockHipEstateConnector: HipEstatesConnector      = mock[HipEstatesConnector]
+      val mockAppConfig                                    = mock[AppConfig]
       when(mockEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(etmpData))
 
-      val OUT = new EstatesService(mockEstatesConnector, mockSubscriptionConnector, mockRepository)
+      val OUT = new EstatesService(
+        mockEstatesConnector,
+        mockHipEstateConnector,
+        mockSubscriptionConnector,
+        mockRepository,
+        mockAppConfig
+      )
 
       whenReady(OUT.getEstateInfoFormBundleNo("75464876")) { formBundleNo =>
         formBundleNo mustBe etmpData.responseHeader.formBundleNo
@@ -68,13 +86,21 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return InternalServerError when unable to get formBundleNo" in {
 
-      val mockEstatesConnector                             = mock[EstatesConnector]
+      val mockEstatesConnector                             = mock[DesEstatesConnector]
       val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
       val mockRepository                                   = mock[CacheRepositoryImpl]
+      val mockHipEstateConnector: HipEstatesConnector      = mock[HipEstatesConnector]
+      val mockAppConfig                                    = mock[AppConfig]
 
       when(mockEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(BadRequestResponse))
 
-      val OUT = new EstatesService(mockEstatesConnector, mockSubscriptionConnector, mockRepository)
+      val OUT = new EstatesService(
+        mockEstatesConnector,
+        mockHipEstateConnector,
+        mockSubscriptionConnector,
+        mockRepository,
+        mockAppConfig
+      )
 
       val r = OUT.getEstateInfoFormBundleNo("75464876").failed.futureValue
 
@@ -86,7 +112,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
   ".checkExistingEstate" should {
     "return Matched " when {
       "connector returns Matched." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(Matched))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(Matched))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe Matched
@@ -96,7 +122,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return NotMatched " when {
       "connector returns NotMatched." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(NotMatched))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(NotMatched))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe NotMatched
@@ -106,7 +132,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return BadRequest " when {
       "connector returns BadRequest." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(BadRequest))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(BadRequest))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe BadRequest
@@ -116,7 +142,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return AlreadyRegistered " when {
       "connector returns AlreadyRegistered." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(AlreadyRegistered))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(AlreadyRegistered))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe AlreadyRegistered
@@ -126,7 +152,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return ServiceUnavailable " when {
       "connector returns ServiceUnavailable." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(ServiceUnavailable))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(ServiceUnavailable))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe ServiceUnavailable
@@ -137,7 +163,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return ServerError " when {
       "connector returns ServerError." in new EstateServiceFixture {
-        when(mockEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(ServerError))
+        when(mockDesEstateConnector.checkExistingEstate(request)).thenReturn(Future.successful(ServerError))
         val futureResult = SUT.checkExistingEstate(request)
         whenReady(futureResult) { result =>
           result mustBe ServerError
@@ -150,7 +176,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return RegistrationTrnResponse " when {
       "connector returns RegistrationTrnResponse." in new EstateServiceFixture {
-        when(mockEstateConnector.registerEstate(estateRegRequest))
+        when(mockDesEstateConnector.registerEstate(estateRegRequest))
           .thenReturn(Future.successful(RegistrationTrnResponse("trn123")))
         val futureResult = SUT.registerEstate(estateRegRequest)
         whenReady(futureResult) { result =>
@@ -161,7 +187,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
     "return same Exception " when {
       "connector returns exception." in new EstateServiceFixture {
-        when(mockEstateConnector.registerEstate(estateRegRequest))
+        when(mockDesEstateConnector.registerEstate(estateRegRequest))
           .thenReturn(Future.failed(InternalServerErrorException("")))
         val futureResult = SUT.registerEstate(estateRegRequest)
 
@@ -210,7 +236,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         when(mockRepository.get(any[String], any[String])).thenReturn(Future.successful(None))
         when(mockRepository.set(any[String], any[String], any[JsValue])).thenReturn(Future.successful(true))
         when(mockRepository.resetCache(any[String], any[String])).thenReturn(Future.successful(None))
-        when(mockEstateConnector.getEstateInfo(any()))
+        when(mockDesEstateConnector.getEstateInfo(any()))
           .thenReturn(Future.successful(GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", "1"))))
 
         val futureResult = SUT.getEstateInfo(utr, myId)
@@ -227,13 +253,13 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
         val estateInfoJson       = (fullEtmpResponseJson \ "trustOrEstateDisplay").as[JsValue]
 
         when(mockRepository.get(any[String], any[String])).thenReturn(Future.successful(Some(fullEtmpResponseJson)))
-        when(mockEstateConnector.getEstateInfo(any()))
+        when(mockDesEstateConnector.getEstateInfo(any()))
           .thenReturn(Future.failed(new Exception("Connector should not have been called")))
 
         val futureResult = SUT.getEstateInfo(utr, myId)
         whenReady(futureResult) { result =>
           result mustBe GetEstateProcessedResponse(estateInfoJson, ResponseHeader("Processed", "1"))
-          verifyNoMoreInteractions(mockEstateConnector)
+          verifyNoMoreInteractions(mockDesEstateConnector)
         }
       }
     }
@@ -241,7 +267,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
     "return BadRequestResponse" when {
       "BadRequestResponse is returned from DES Connector" in new EstateServiceFixture {
 
-        when(mockEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(BadRequestResponse))
+        when(mockDesEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(BadRequestResponse))
 
         val utr          = "123456789"
         val futureResult = SUT.getEstateInfo(utr, myId)
@@ -255,7 +281,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
     "return ResourceNotFoundResponse" when {
       "ResourceNotFoundResponse is returned from DES Connector" in new EstateServiceFixture {
 
-        when(mockEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(ResourceNotFoundResponse))
+        when(mockDesEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(ResourceNotFoundResponse))
 
         val utr          = "123456789"
         val futureResult = SUT.getEstateInfo(utr, myId)
@@ -269,7 +295,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
     "return InternalServerErrorResponse" when {
       "InternalServerErrorResponse is returned from DES Connector" in new EstateServiceFixture {
 
-        when(mockEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(InternalServerErrorResponse))
+        when(mockDesEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(InternalServerErrorResponse))
 
         val utr          = "123456789"
         val futureResult = SUT.getEstateInfo(utr, myId)
@@ -283,7 +309,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
     "return ServiceUnavailableResponse" when {
       "ServiceUnavailableResponse is returned from DES Connector" in new EstateServiceFixture {
 
-        when(mockEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(ServiceUnavailableResponse))
+        when(mockDesEstateConnector.getEstateInfo(any())).thenReturn(Future.successful(ServiceUnavailableResponse))
 
         val utr          = "123456789"
         val futureResult = SUT.getEstateInfo(utr, myId)
@@ -301,7 +327,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
       "connector returns VariationResponse." in new EstateServiceFixture {
 
-        when(mockEstateConnector.estateVariation(estateVariationsRequest))
+        when(mockDesEstateConnector.estateVariation(estateVariationsRequest))
           .thenReturn(Future.successful(VariationSuccessResponse("tvn123")))
 
         val futureResult = SUT.estateVariation(estateVariationsRequest)
@@ -316,7 +342,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
 
         "connector returns  DuplicateSubmissionException." in new EstateServiceFixture {
 
-          when(mockEstateConnector.estateVariation(estateVariationsRequest))
+          when(mockDesEstateConnector.estateVariation(estateVariationsRequest))
             .thenReturn(Future.successful(VariationFailureResponse(DuplicateSubmissionErrorResponse)))
 
           val futureResult = SUT.estateVariation(estateVariationsRequest)
@@ -332,7 +358,7 @@ class EstatesServiceSpec extends BaseSpec with JsonRequests {
       "return same Exception " when {
         "connector returns  exception." in new EstateServiceFixture {
 
-          when(mockEstateConnector.estateVariation(estateVariationsRequest))
+          when(mockDesEstateConnector.estateVariation(estateVariationsRequest))
             .thenReturn(Future.failed(InternalServerErrorException("")))
 
           val futureResult = SUT.estateVariation(estateVariationsRequest)

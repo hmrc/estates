@@ -10,7 +10,8 @@ object AppDependencies {
     "uk.gov.hmrc"                  %% "bootstrap-backend-play-30" % boostrapVersion,
     "com.networknt"                 % "json-schema-validator"     % "3.0.2" exclude ("com.fasterxml.jackson.core", "jackson-databind"),
     "uk.gov.hmrc"                  %% "tax-year"                  % "6.0.0",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala"      % "2.21.2"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala"      % "2.21.2",
+    "org.typelevel"                %% "cats-core"                 % "2.13.0"
   )
 
   private val test: Seq[ModuleID] = Seq(

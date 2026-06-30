@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.transformers.variations
 
-import connectors.EstatesConnector
+import connectors.DesEstatesConnector
 import models.getEstate.GetEstateResponse
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito.when
@@ -42,12 +42,12 @@ class ClearTransformationsSpec extends AnyWordSpec with Matchers with MockitoSug
 
   "a clear transformations call" should {
 
-    val stubbedEstatesConnector = mock[EstatesConnector]
+    val stubbedEstatesConnector = mock[DesEstatesConnector]
     when(stubbedEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(getEstateResponseFromDES))
 
     val application = appBuilder
       .overrides(
-        bind[EstatesConnector].toInstance(stubbedEstatesConnector)
+        bind[DesEstatesConnector].toInstance(stubbedEstatesConnector)
       )
       .build()
 
