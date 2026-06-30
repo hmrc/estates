@@ -18,13 +18,11 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-
 case class ExistingEstateResponse(`match`: Boolean)
 
 object ExistingEstateResponse {
   implicit val formats: OFormat[ExistingEstateResponse] = Json.format[ExistingEstateResponse]
 }
-
 
 case class HipEstateMatchResponse(success: ExistingEstateResponse)
 

@@ -53,7 +53,8 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
-  private lazy val estateVariationsEndpoint: String = s"${config.varyEstateBaseUrl}/etmp/RESTAdapter/trustsandestates/variation"
+  private lazy val estateVariationsEndpoint: String =
+    s"${config.varyEstateBaseUrl}/etmp/RESTAdapter/trustsandestates/variation"
 
   protected def hipHeaders: Seq[(String, String)] =
     Seq(
