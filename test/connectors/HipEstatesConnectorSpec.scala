@@ -85,7 +85,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
     }
 
     "return NotMatched" when {
-      "estate data does not with existing estate" in {
+      "estate data does not match with existing estate" in {
         val requestBody = Json.stringify(Json.toJson(request))
 
         stubForPost(
