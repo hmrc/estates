@@ -18,12 +18,14 @@ package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.ExistingCheckRequest
 import models.ExistingCheckResponse._
+import models.variation.{VariationFailureResponse, VariationSuccessResponse}
+import models.{ErrorResponse, ExistingCheckRequest}
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.CONTENT_TYPE
+import utils.ErrorResponses._
 import utils.JsonRequests
 
 class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
@@ -61,6 +63,199 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             .withFixedDelay(delayResponse)
         )
     )
+
+  ".EstateVariation" should {
+
+    val url = "/etmp/RESTAdapter/trustsandestates/registration"
+
+    "return a VariationTrnResponse" when {
+
+      "Hip has returned a 200 with a trn" in {
+
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+        stubForPutWithResponseBody(server, url, requestBody, OK, """{"success": {"tvn": "XXTVN1234567890"}}""")
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe a[VariationSuccessResponse]
+          inside(result) { case VariationSuccessResponse(tvn) => tvn must fullyMatch regex """^[a-zA-Z0-9]{15}$""".r }
+        }
+      }
+    }
+
+    "return InvalidRequestErrorResponse" when {
+      "payload sent to hip is invalid" in {
+        val variation   = estateVariationsRequest
+        val requestBody = Json.stringify(Json.toJson(variation))
+        stubForPutWithResponseBody(
+          server,
+          url,
+          requestBody,
+          BAD_REQUEST,
+          s"""
+             |{
+             | "code": "400",
+             | "message": "String",
+             | "logID": "00000000000000000000000000000000"
+             |}""".stripMargin
+        )
+
+        val futureResult = connector.estateVariation(Json.toJson(variation))
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(InvalidRequestErrorResponse)
+        }
+      }
+    }
+
+    "return DuplicateSubmission response" when {
+      "trusts two requests are submitted with the same Correlation ID" in {
+
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPutWithResponseBody(
+          server,
+          url,
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+             |{
+             |  "error":
+             |    {
+             |      "errorId": "004",
+             |      "processingDate": "2001-12-17T09:30:47.0",
+             |      "text": "Duplicate submission acknowledgment reference"
+             |    }
+             |}
+             |""".stripMargin
+        )
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(DuplicateSubmissionErrorResponse)
+        }
+      }
+    }
+
+    "return ServiceUnavailable response" when {
+      "HIP dependent service is not responding" in {
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPut(
+          server,
+          url,
+          SERVICE_UNAVAILABLE
+        )
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(ServiceUnavailableErrorResponse)
+        }
+      }
+    }
+
+    "return InternalServerErrorErrorResponse response" when {
+      "HIP returns 500" in {
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPut(
+          server,
+          url,
+          INTERNAL_SERVER_ERROR
+        )
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(InternalServerErrorErrorResponse)
+        }
+      }
+    }
+
+    "return InternalServerError response" when {
+      "HIP is experiencing some problem" in {
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPutWithResponseBody(
+          server,
+          url,
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+             |{
+             |  "error":
+             |    {
+             |      "errorId": "999",
+             |      "processingDate": "2001-12-17T09:30:47.0",
+             |      "text": "Technical System Error"
+             |    }
+             |}
+             |""".stripMargin
+        )
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(InternalServerErrorErrorResponse)
+        }
+      }
+    }
+
+    "return InvalidRequestErrorResponse response" when {
+      "HIP is experiencing an unknown problem" in {
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPutWithResponseBody(
+          server,
+          url,
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+             |{
+             |  "error":
+             |    {
+             |      "errorId": "000",
+             |      "processingDate": "2001-12-17T09:30:47.0",
+             |      "text": "Unknown"
+             |    }
+             |}
+             |""".stripMargin
+        )
+
+        val futureResult = connector.estateVariation(estateVariationsRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(InvalidRequestErrorResponse)
+        }
+      }
+    }
+
+    "return ErrorResponse  " when {
+      "HIP sends an unknown status " in {
+        val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
+
+        stubForPutWithResponseBody(
+          server,
+          url,
+          requestBody,
+          IM_A_TEAPOT,
+          "foo"
+        )
+
+        val futureResult = connector.estateVariation(Json.toJson(estateVariationsRequest))
+
+        whenReady(futureResult) { result =>
+          result mustBe VariationFailureResponse(
+            ErrorResponse(IM_A_TEAPOT.toString, s"Error response from DES: $IM_A_TEAPOT")
+          )
+        }
+      }
+    }
+
+  }
 
   ".checkExistingEstate" should {
 
@@ -353,18 +548,6 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       // TODO correct test when method has been implemented
       val result = intercept[NotImplementedError] {
         connector.getEstateInfo("XXTRN1234567890")
-      }
-
-      result.getMessage must be("an implementation is missing")
-    }
-  }
-
-  ".estateVariation" should {
-
-    "vary estate" in {
-      // TODO correct test when method has been implemented
-      val result = intercept[NotImplementedError] {
-        connector.estateVariation(Json.toJson("{}"))
       }
 
       result.getMessage must be("an implementation is missing")

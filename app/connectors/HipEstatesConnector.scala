@@ -21,15 +21,20 @@ import config.AppConfig
 import models.ExistingCheckResponse.{
   AlreadyRegistered, BadRequest, Matched, NotMatched, ServerError, ServiceUnavailable
 }
-import models.getEstate.GetEstateResponse
-import models.variation.VariationResponse
 import models._
+import models.getEstate.GetEstateResponse
+import models.variation.VariationResponse.failure
+import models.variation.{HipSuccessVariationTrnResponse, VariationResponse}
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json, OFormat}
 import services.Estates5MLDService
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import utils.ErrorResponses.{
+  DuplicateSubmissionErrorResponse, InternalServerErrorErrorResponse, InvalidRequestErrorResponse,
+  ServiceUnavailableErrorResponse
+}
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -54,7 +59,7 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
   private lazy val estateVariationsEndpoint: String =
-    s"${config.varyEstateBaseUrl}/etmp/RESTAdapter/trustsandestates/variation"
+    s"${config.varyEstateBaseUrl}/etmp/RESTAdapter/trustsandestates/registration"
 
   protected def hipHeaders: Seq[(String, String)] =
     Seq(
@@ -109,6 +114,52 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   override def getEstateInfo(utr: String): Future[GetEstateResponse] = ???
 
-  override def estateVariation(estateVariations: JsValue): Future[VariationResponse] = ???
+  override def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = hipHeaders)
+
+    logger.info(
+      s"[estateVariation] submitting estate variation for correlationid: ${hipHeaders.toMap.getOrElse("correlationid", "NOT FOUND")}"
+    )
+
+    val url                                     = estateVariationsEndpoint
+    val httpReads: HttpReads[VariationResponse] = new HttpReads[VariationResponse] {
+      override def read(method: String, url: String, response: HttpResponse): VariationResponse =
+        response.status match {
+          case OK                    =>
+            val hip = response.json.as[HipSuccessVariationTrnResponse]
+            hip.success
+          case BAD_REQUEST           =>
+            logger.error(s"[VariationResponse][httpReads] Bad Request response from hip")
+            failure(InvalidRequestErrorResponse)
+          case UNPROCESSABLE_ENTITY  =>
+            val code = response.json.as[HipCustomErrResponse].error.errorId
+            if (code === "004") {
+              logger.info("[VariationResponse] Duplicate submission response from HIP.")
+              failure(DuplicateSubmissionErrorResponse)
+            } else if (code === "003") {
+              logger.info("[VariationResponse] Request could not be processed response from hip")
+              failure(InvalidRequestErrorResponse)
+            } else if (code === "999") {
+              logger.error("[RegistrationResponse] Technical error response from HIP.")
+              failure(InternalServerErrorErrorResponse)
+            } else
+              failure(InvalidRequestErrorResponse)
+          case INTERNAL_SERVER_ERROR =>
+            logger.error(s"[VariationResponse][httpReads] Internal server error response from hip")
+            failure(InternalServerErrorErrorResponse)
+          case SERVICE_UNAVAILABLE   =>
+            failure(ServiceUnavailableErrorResponse)
+          case status                =>
+            logger.error(s"[VariationResponse][httpReads] $status response from hip.")
+            failure(ErrorResponse(status.toString, s"Error response from DES: $status"))
+        }
+    }
+
+    http
+      .put(url"$url")
+      .withBody(Json.toJson(estateVariations))
+      .execute[VariationResponse](using httpReads, ec)
+  }
 
 }

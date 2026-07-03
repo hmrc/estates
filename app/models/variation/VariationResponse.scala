@@ -27,6 +27,12 @@ sealed trait VariationResponse
 
 final case class VariationSuccessResponse(tvn: String) extends VariationResponse
 
+case class HipSuccessVariationTrnResponse(success: VariationSuccessResponse) extends VariationResponse
+
+object HipSuccessVariationTrnResponse {
+  implicit val formats: Format[HipSuccessVariationTrnResponse] = Json.format[HipSuccessVariationTrnResponse]
+}
+
 object VariationSuccessResponse {
   implicit val formats: Format[VariationSuccessResponse] = Json.format[VariationSuccessResponse]
 }
@@ -65,7 +71,7 @@ object VariationResponse extends Logging {
       }
     }
 
-  private def failure(errorResponse: ErrorResponse) = {
+  def failure(errorResponse: ErrorResponse): VariationFailureResponse = {
     logger.error(s"[failure] failed due to error: ${errorResponse.message}")
     VariationFailureResponse(errorResponse)
   }
