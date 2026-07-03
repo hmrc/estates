@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.transformers.variations
 
-import connectors.EstatesConnector
+import connectors.DesEstatesConnector
 import models.getEstate.GetEstateResponse
 import models.variation.{EstatePerRepIndType, PersonalRepresentativeType}
 import models.{AddressType, IdentificationType, NameType}
@@ -44,12 +44,12 @@ class AmendPersonalRepSpec extends AnyWordSpec with Matchers with MockitoSugar w
 
   "an amend personal rep call" should {
 
-    val stubbedEstatesConnector = mock[EstatesConnector]
+    val stubbedEstatesConnector = mock[DesEstatesConnector]
     when(stubbedEstatesConnector.getEstateInfo(any())).thenReturn(Future.successful(getEstateResponseFromDES))
 
     val application = appBuilder
       .overrides(
-        bind[EstatesConnector].toInstance(stubbedEstatesConnector)
+        bind[DesEstatesConnector].toInstance(stubbedEstatesConnector)
       )
       .build()
 

@@ -21,15 +21,25 @@ import models._
 import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
 import play.api.http.Status._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsError, Json}
 import utils.ErrorResponses._
 import utils.JsonRequests
 
-class EstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
+class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
 
-  lazy val connector: EstatesConnector = injector.instanceOf[EstatesConnector]
+  lazy val connector: DesEstatesConnector = injector.instanceOf[DesEstatesConnector]
 
   lazy val request: ExistingCheckRequest = ExistingCheckRequest("trust name", postcode = Some("NE65TA"), "1234567890")
+
+  override def applicationBuilder(): GuiceApplicationBuilder =
+    super
+      .applicationBuilder()
+      .configure(
+        Seq(
+          "microservice.services.des.registration.port" -> server.port()
+        ): _*
+      )
 
   def create5MLDTrustOrEstateEndpoint(utr: String) = s"/trusts/registration/UTR/$utr"
 

@@ -16,7 +16,8 @@
 
 package services
 
-import connectors.{EstatesConnector, SubscriptionConnector}
+import config.AppConfig
+import connectors.{DesEstatesConnector, HipEstatesConnector, SubscriptionConnector}
 import exceptions.InternalServerErrorException
 import models._
 import models.getEstate.{GetEstateProcessedResponse, GetEstateResponse}
@@ -31,11 +32,15 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EstatesService @Inject() (
-  val estatesConnector: EstatesConnector,
+  val desEstatesConnector: DesEstatesConnector,
+  val hipEstatesConnector: HipEstatesConnector,
   val subscriptionConnector: SubscriptionConnector,
-  repository: CacheRepository
+  repository: CacheRepository,
+  config: AppConfig
 )(implicit ec: ExecutionContext)
     extends Logging {
+
+  lazy val estatesConnector = if (config.useHipEstates) hipEstatesConnector else desEstatesConnector
 
   def getEstateInfoFormBundleNo(utr: String)(implicit hc: HeaderCarrier): Future[String] =
     estatesConnector.getEstateInfo(utr).map {

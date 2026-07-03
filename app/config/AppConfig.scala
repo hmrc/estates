@@ -19,6 +19,7 @@ package config
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.util.Base64
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -31,14 +32,21 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val ttlInSeconds: Int = config.getOptional[Int]("mongodb.ttlSeconds").getOrElse(4 * 60 * 60)
 
   val subscriptionBaseUrl: String = servicesConfig.baseUrl("subscription")
-  val registrationBaseUrl: String = servicesConfig.baseUrl("registration")
+
+  val useHipEstates: Boolean        = servicesConfig.getBoolean("features.hip.estates")
+  private val hipClientIdV1: String = config.get[String]("microservice.services.hip.registration.clientId")
+  private val hipSecretV1: String   = config.get[String]("microservice.services.hip.registration.secret")
+  def hipAuthorizationToken: String = Base64.getEncoder.encodeToString(s"$hipClientIdV1:$hipSecretV1".getBytes("UTF-8"))
+
+  val hipRegistrationBaseUrl: String = servicesConfig.baseUrl("hip.registration")
+  val desRegistrationBaseUrl: String = servicesConfig.baseUrl("des.registration")
 
   val getEstateBaseUrl: String    = servicesConfig.baseUrl("playback")
   val varyEstateBaseUrl: String   = servicesConfig.baseUrl("variation")
   val estatesStoreBaseUrl: String = servicesConfig.baseUrl("estates-store")
 
-  val registrationEnvironment: String = loadConfig("microservice.services.registration.environment")
-  val registrationToken: String       = loadConfig("microservice.services.registration.token")
+  val registrationEnvironment: String = loadConfig("microservice.services.des.registration.environment")
+  val registrationToken: String       = loadConfig("microservice.services.des.registration.token")
 
   val playbackEnvironment: String = loadConfig("microservice.services.playback.environment")
   val playbackToken: String       = loadConfig("microservice.services.playback.token")
