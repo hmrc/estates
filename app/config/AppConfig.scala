@@ -42,7 +42,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val desRegistrationBaseUrl: String = servicesConfig.baseUrl("des.registration")
 
   val getEstateBaseUrl: String    = servicesConfig.baseUrl("playback")
-  val varyEstateBaseUrl: String   = servicesConfig.baseUrl("variation")
+  val desVaryEstateBaseUrl: String   = servicesConfig.baseUrl("des.variation")
+  val hipVaryEstateBaseUrl: String   = servicesConfig.baseUrl("hip.variation")
   val estatesStoreBaseUrl: String = servicesConfig.baseUrl("estates-store")
 
   val registrationEnvironment: String = loadConfig("microservice.services.des.registration.environment")
@@ -51,8 +52,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val playbackEnvironment: String = loadConfig("microservice.services.playback.environment")
   val playbackToken: String       = loadConfig("microservice.services.playback.token")
 
-  val variationEnvironment: String = loadConfig("microservice.services.variation.environment")
-  val variationToken: String       = loadConfig("microservice.services.variation.token")
+  val variationEnvironment: String = loadConfig("microservice.services.des.variation.environment")
+  val variationToken: String       = loadConfig("microservice.services.des.variation.token")
 
   val subscriptionEnvironment: String = loadConfig("microservice.services.subscription.environment")
   val subscriptionToken: String       = loadConfig("microservice.services.subscription.token")
