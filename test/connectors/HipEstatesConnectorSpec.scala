@@ -39,7 +39,8 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       .applicationBuilder()
       .configure(
         Seq(
-          "microservice.services.hip.registration.port" -> server.port()
+          "microservice.services.hip.registration.port" -> server.port(),
+          "microservice.services.hip.variation.port" -> server.port()
         ): _*
       )
 
