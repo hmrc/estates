@@ -38,7 +38,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       .configure(
         Seq(
           "microservice.services.des.registration.port" -> server.port(),
-          "microservice.services.des.variation.port" -> server.port()
+          "microservice.services.des.variation.port"    -> server.port()
         ): _*
       )
 

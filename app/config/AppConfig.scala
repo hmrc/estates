@@ -41,10 +41,10 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val hipRegistrationBaseUrl: String = servicesConfig.baseUrl("hip.registration")
   val desRegistrationBaseUrl: String = servicesConfig.baseUrl("des.registration")
 
-  val getEstateBaseUrl: String    = servicesConfig.baseUrl("playback")
-  val desVaryEstateBaseUrl: String   = servicesConfig.baseUrl("des.variation")
-  val hipVaryEstateBaseUrl: String   = servicesConfig.baseUrl("hip.variation")
-  val estatesStoreBaseUrl: String = servicesConfig.baseUrl("estates-store")
+  val getEstateBaseUrl: String     = servicesConfig.baseUrl("playback")
+  val desVaryEstateBaseUrl: String = servicesConfig.baseUrl("des.variation")
+  val hipVaryEstateBaseUrl: String = servicesConfig.baseUrl("hip.variation")
+  val estatesStoreBaseUrl: String  = servicesConfig.baseUrl("estates-store")
 
   val registrationEnvironment: String = loadConfig("microservice.services.des.registration.environment")
   val registrationToken: String       = loadConfig("microservice.services.des.registration.token")
