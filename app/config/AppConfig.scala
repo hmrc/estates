@@ -34,8 +34,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val subscriptionBaseUrl: String = servicesConfig.baseUrl("subscription")
 
   val useHipEstates: Boolean        = servicesConfig.getBoolean("features.hip.estates")
-  private val hipClientIdV1: String = config.get[String]("microservice.services.hip.registration.clientId")
-  private val hipSecretV1: String   = config.get[String]("microservice.services.hip.registration.secret")
+  private val hipClientIdV1: String = config.get[String]("microservice.services.hip.clientId")
+  private val hipSecretV1: String   = config.get[String]("microservice.services.hip.secret")
   def hipAuthorizationToken: String = Base64.getEncoder.encodeToString(s"$hipClientIdV1:$hipSecretV1".getBytes("UTF-8"))
 
   val hipRegistrationBaseUrl: String = servicesConfig.baseUrl("hip.registration")
