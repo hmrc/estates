@@ -53,3 +53,9 @@ case class HipCustomErrResponse(error: HipCustomErr)
 object HipCustomErrResponse {
   implicit val formats: OFormat[HipCustomErrResponse] = Json.format[HipCustomErrResponse]
 }
+
+case class HipSuccessRegistrationTrnResponse(success: RegistrationTrnResponse)
+
+object HipSuccessRegistrationTrnResponse {
+  implicit val formats: OFormat[HipSuccessRegistrationTrnResponse] = Json.format[HipSuccessRegistrationTrnResponse]
+}
