@@ -48,7 +48,7 @@ class DesEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
-  private lazy val estateVariationsEndpoint: String = s"${config.varyEstateBaseUrl}/estates/variation"
+  private lazy val estateVariationsEndpoint: String = s"${config.desVaryEstateBaseUrl}/estates/variation"
 
   private val ENVIRONMENT_HEADER = "Environment"
   private val CORRELATION_HEADER = "CorrelationId"

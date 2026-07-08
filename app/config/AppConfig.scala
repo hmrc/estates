@@ -34,16 +34,17 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val subscriptionBaseUrl: String = servicesConfig.baseUrl("subscription")
 
   val useHipEstates: Boolean        = servicesConfig.getBoolean("features.hip.estates")
-  private val hipClientIdV1: String = config.get[String]("microservice.services.hip.registration.clientId")
-  private val hipSecretV1: String   = config.get[String]("microservice.services.hip.registration.secret")
+  private val hipClientIdV1: String = config.get[String]("microservice.services.hip.clientId")
+  private val hipSecretV1: String   = config.get[String]("microservice.services.hip.secret")
   def hipAuthorizationToken: String = Base64.getEncoder.encodeToString(s"$hipClientIdV1:$hipSecretV1".getBytes("UTF-8"))
 
   val hipRegistrationBaseUrl: String = servicesConfig.baseUrl("hip.registration")
   val desRegistrationBaseUrl: String = servicesConfig.baseUrl("des.registration")
 
-  val getEstateBaseUrl: String    = servicesConfig.baseUrl("playback")
-  val varyEstateBaseUrl: String   = servicesConfig.baseUrl("variation")
-  val estatesStoreBaseUrl: String = servicesConfig.baseUrl("estates-store")
+  val getEstateBaseUrl: String     = servicesConfig.baseUrl("playback")
+  val desVaryEstateBaseUrl: String = servicesConfig.baseUrl("des.variation")
+  val hipVaryEstateBaseUrl: String = servicesConfig.baseUrl("hip.variation")
+  val estatesStoreBaseUrl: String  = servicesConfig.baseUrl("estates-store")
 
   val registrationEnvironment: String = loadConfig("microservice.services.des.registration.environment")
   val registrationToken: String       = loadConfig("microservice.services.des.registration.token")
@@ -51,8 +52,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   val playbackEnvironment: String = loadConfig("microservice.services.playback.environment")
   val playbackToken: String       = loadConfig("microservice.services.playback.token")
 
-  val variationEnvironment: String = loadConfig("microservice.services.variation.environment")
-  val variationToken: String       = loadConfig("microservice.services.variation.token")
+  val variationEnvironment: String = loadConfig("microservice.services.des.variation.environment")
+  val variationToken: String       = loadConfig("microservice.services.des.variation.token")
 
   val subscriptionEnvironment: String = loadConfig("microservice.services.subscription.environment")
   val subscriptionToken: String       = loadConfig("microservice.services.subscription.token")
