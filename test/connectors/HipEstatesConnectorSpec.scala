@@ -18,11 +18,12 @@ package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
-import models.ExistingCheckRequest
 import models.ExistingCheckResponse._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
-import models.{ErrorResponse, ExistingCheckRequest}
-import models._
+import models.{
+  AlreadyRegisteredResponse, ErrorResponse, EstateRegistration, ExistingCheckRequest, NoMatchResponse,
+  RegistrationFailureResponse, RegistrationTrnResponse
+}
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json

@@ -28,35 +28,26 @@ import models.variation.{HipSuccessVariationTrnResponse, VariationResponse}
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json, OFormat}
-import services.Estates5MLDService
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import utils.ErrorResponses.{
   DuplicateSubmissionErrorResponse, InternalServerErrorErrorResponse, InvalidRequestErrorResponse,
   ServiceUnavailableErrorResponse
 }
-
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, estates5MLDService: Estates5MLDService)(
-  implicit ec: ExecutionContext
-) extends Logging with EstatesConnector {
+class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
+    extends Logging with EstatesConnector {
 
   private lazy val estatesServiceUrl: String = s"${config.hipRegistrationBaseUrl}/etmp/RESTAdapter/trustsandestates"
 
   private lazy val matchEstatesEndpoint: String = s"$estatesServiceUrl/match"
 
   private lazy val estateRegistrationEndpoint: String = s"$estatesServiceUrl/registration"
-
-  // When reading estates from DES, it's the same endpoint as for trusts.
-  // So this must remain "trusts" even though we're reading an estate.
-  private lazy val getEstateUrl: String = s"${config.getEstateBaseUrl}/trusts"
-
-  private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
   private lazy val estateVariationsEndpoint: String =
     s"${config.hipVaryEstateBaseUrl}/etmp/RESTAdapter/trustsandestates/registration"
