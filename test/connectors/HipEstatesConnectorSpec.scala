@@ -20,7 +20,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import models.ExistingCheckResponse._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
-import models.{ErrorResponse, ExistingCheckRequest}
+import models.{
+  AlreadyRegisteredResponse, ErrorResponse, EstateRegistration, ExistingCheckRequest, NoMatchResponse,
+  RegistrationFailureResponse, RegistrationTrnResponse
+}
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -557,14 +560,206 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
 
   ".registerEstate" should {
 
-    "create an estate" in {
-      // TODO correct test when method has been implemented
-      val result = intercept[NotImplementedError] {
-        connector.registerEstate(estateRegRequest)
-      }
+    "return TRN" when {
+      "valid request to HIP register an estate" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
 
-      result.getMessage must be("an implementation is missing")
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          CREATED,
+          """{"success": {"trn": "XTRN1234567"}}"""
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationTrnResponse("XTRN1234567")
+        }
+      }
     }
+
+    "return BadRequest response" when {
+      "payload sent to HIP is invalid" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          BAD_REQUEST,
+          s"""
+               |{
+               |  "error": {
+               |    "code": "400",
+               |    "message": "String",
+               |    "logID": "00000000000000000000000000000000"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationFailureResponse(BAD_REQUEST)
+        }
+      }
+    }
+
+    "return AlreadyRegisteredResponse" when {
+      "estate is already registered with provided details" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+               |{
+               |  "error": {
+               |    "errorId": "002",
+               |    "processingDate": "2001-12-17T09:30:47.0",
+               |    "text": "FAIL – ALREADY REGISTERED"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe AlreadyRegisteredResponse
+        }
+      }
+    }
+
+    "return NoMatch response" when {
+      "estate does not match HMRC records" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+               |{
+               |  "error": {
+               |    "errorId": "001",
+               |    "processingDate": "2001-12-17T09:30:47.0",
+               |    "text": "FAIL – NO MATCH"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe NoMatchResponse
+        }
+      }
+    }
+
+    "return RegistrationFailureResponse" when {
+      "HIP returns 422 999 technical system error" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          UNPROCESSABLE_ENTITY,
+          s"""
+               |{
+               |  "error": {
+               |    "errorId": "999",
+               |    "processingDate": "2001-12-17T09:30:47.0",
+               |    "text": "Technical System Error"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
+        }
+      }
+    }
+
+    "return ServiceUnavailable response" when {
+      "HIP dependent service is not responding" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          SERVICE_UNAVAILABLE,
+          s"""
+               |{
+               |  "error": {
+               |    "code": "503",
+               |    "message": "String",
+               |    "logID": "00000000000000000000000000000000"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationFailureResponse(SERVICE_UNAVAILABLE)
+        }
+      }
+    }
+
+    "return InternalServerError response" when {
+      "HIP is experiencing some problem" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(
+          server,
+          "/etmp/RESTAdapter/trustsandestates/registration",
+          requestBody,
+          INTERNAL_SERVER_ERROR,
+          s"""
+               |{
+               |  "error": {
+               |    "code": "500",
+               |    "message": "String",
+               |    "logID": "00000000000000000000000000000000"
+               |  }
+               |}
+               |""".stripMargin
+        )
+
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
+        }
+      }
+    }
+
+    "return Forbidden response" when {
+      "HIP is returning 403" in {
+        val requestBody = Json.stringify(Json.toJson(estateRegRequest)(EstateRegistration.estateRegistrationWriteToDes))
+
+        stubForPost(server, "/etmp/RESTAdapter/trustsandestates/registration", requestBody, FORBIDDEN, "{}")
+        val futureResult = connector.registerEstate(estateRegRequest)
+
+        whenReady(futureResult) { result =>
+          result mustBe RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
+        }
+      }
+    }
+
   }
 
 }
