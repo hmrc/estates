@@ -22,15 +22,16 @@ import models.ExistingCheckResponse.{
   AlreadyRegistered, BadRequest, Matched, NotMatched, ServerError, ServiceUnavailable
 }
 import models._
-import models.getEstate.GetEstateResponse
+import models.getEstate._
 import models.variation.VariationResponse.failure
 import models.variation.{HipSuccessVariationTrnResponse, VariationResponse}
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json, OFormat}
+import play.api.libs.json._
 import services.Estates5MLDService
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import utils.Constants._
 import utils.ErrorResponses.{
   DuplicateSubmissionErrorResponse, InternalServerErrorErrorResponse, InvalidRequestErrorResponse,
   ServiceUnavailableErrorResponse
@@ -52,9 +53,7 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   private lazy val estateRegistrationEndpoint: String = s"$estatesServiceUrl/registration"
 
-  // When reading estates from DES, it's the same endpoint as for trusts.
-  // So this must remain "trusts" even though we're reading an estate.
-  private lazy val getEstateUrl: String = s"${config.getEstateBaseUrl}/trusts"
+  private lazy val getEstateUrl: String = s"${config.hipGetEstateBaseUrl}/etmp/RESTAdapter/trustsandestates"
 
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
@@ -67,7 +66,8 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
       "X-Originating-System"  -> "TRS",
       "X-Receipt-Date"        -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
       "X-Transmitting-System" -> "HIP",
-      "Authorization"         -> s"Basic ${config.hipAuthorizationToken}"
+      "Authorization"         -> s"Basic ${config.hipAuthorizationToken}",
+      CONTENT_TYPE            -> CONTENT_TYPE_JSON
     )
 
   override def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest): Future[ExistingCheckResponse] = {
@@ -112,7 +112,67 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   override def registerEstate(registration: EstateRegistration): Future[RegistrationResponse] = ???
 
-  override def getEstateInfo(utr: String): Future[GetEstateResponse] = ???
+  override def getEstateInfo(utr: String): Future[GetEstateResponse] = {
+
+    implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = hipHeaders)
+
+    logger.info(
+      s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: " +
+        s"${hipHeaders.toMap.getOrElse("correlationid", "not found")}"
+    )
+
+    def httpReads(utr: String): HttpReads[GetEstateResponse] = (_: String, _: String, response: HttpResponse) =>
+      response.status match {
+        case OK                                                                                 =>
+          println(s"response: ${response.json}")
+          parseOkResponse(response, utr)
+        case BAD_REQUEST                                                                        =>
+          logger.warn(
+            s"[UTR: $utr]" +
+              s" bad request returned from des: ${response.body}"
+          )
+          BadRequestResponse
+        case UNPROCESSABLE_ENTITY if (response.json \ "error" \ "errorId").as[String] === "000" =>
+          notFoundResponse(UNPROCESSABLE_ENTITY, utr)
+        case NOT_FOUND                                                                          =>
+          notFoundResponse(NOT_FOUND, utr)
+        case SERVICE_UNAVAILABLE                                                                =>
+          logger.warn(
+            s"[UTR: $utr]" +
+              s" service is unavailable, unable to get trust"
+          )
+          ServiceUnavailableResponse
+        case status                                                                             =>
+          logger.error(
+            s"[UTR: $utr]" +
+              s" error occurred when getting trust, status: $status"
+          )
+          InternalServerErrorResponse
+      }
+
+    def notFoundResponse(status: Int, utr: String) = {
+      logger.info(
+        s"[UTR: $utr]" +
+          s" trust not found in ETMP for given identifier" +
+          s"with response code from HIP: $status"
+      )
+      ResourceNotFoundResponse
+    }
+
+    def parseOkResponse(response: HttpResponse, utr: String): GetEstateResponse =
+      response.json.validate[HipSuccessGetEstateResponseWrapper] match {
+        case JsSuccess(estateFound, _) => estateFound.success
+        case JsError(errors)           =>
+          logger.error(s"[UTR: $utr] Cannot parse as EstateFoundResponse due to ${JsError.toJson(errors)}")
+          NotEnoughDataResponse(response.json, JsError.toJson(errors))
+      }
+
+    val url = create5MLDEstateEndpointForUtr(utr)
+
+    http
+      .get(url"$url")
+      .execute(httpReads(utr), ec)
+  }
 
   override def estateVariation(estateVariations: JsValue): Future[VariationResponse] = {
 

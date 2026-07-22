@@ -44,7 +44,7 @@ class DesEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
   // When reading estates from DES, it's the same endpoint as for trusts.
   // So this must remain "trusts" even though we're reading an estate.
-  private lazy val getEstateUrl: String = s"${config.getEstateBaseUrl}/trusts"
+  private lazy val getEstateUrl: String = s"${config.desGetEstateBaseUrl}/trusts"
 
   private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 

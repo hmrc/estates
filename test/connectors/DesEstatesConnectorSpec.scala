@@ -38,7 +38,8 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       .configure(
         Seq(
           "microservice.services.des.registration.port" -> server.port(),
-          "microservice.services.des.variation.port"    -> server.port()
+          "microservice.services.des.variation.port"    -> server.port(),
+          "microservice.services.des.playback.port"     -> server.port()
         ): _*
       )
 
@@ -408,7 +409,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, get5MLDEstateResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGet5MLDEstateResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -435,7 +436,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstateProcessingResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstateProcessingResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -461,7 +462,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstatePendingClosureResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstatePendingClosureResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -487,7 +488,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstateClosedResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstateClosedResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -513,7 +514,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstateSuspendedResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstateSuspendedResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -539,7 +540,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstateParkedResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstateParkedResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -565,7 +566,7 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getTrustOrEstateObsoletedResponseJson)
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetTrustOrEstateObsoletedResponseJson)
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -622,13 +623,13 @@ class DesEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             )
           )
 
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, getEstateInvalidResponseJson.toString())
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, desGetEstateInvalidResponseJson.toString())
 
           val futureResult = connector.getEstateInfo(utr)
 
           whenReady(futureResult) { result =>
             result mustBe NotEnoughDataResponse(
-              getEstateInvalidResponseJson,
+              desGetEstateInvalidResponseJson,
               Json.parse(
                 "{\"obj.details.estate.entities.personalRepresentative\":[{\"msg\":[\"error.path.missing\"],\"args\":[]}]}"
               )
