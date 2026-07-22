@@ -25,46 +25,6 @@ import scala.language.implicitConversions
 
 trait GetEstateResponse
 
-case class HipSuccessGetEstateResponseWrapper(success: GetEstateResponse) extends GetEstateResponse
-
-case object HipSuccessGetEstateResponseWrapper {
-
-  implicit val reads: Reads[HipSuccessGetEstateResponseWrapper] = (json: JsValue) => {
-    val header = (json \ "success" \ "responseHeader").asOpt[ResponseHeader]
-
-    header match {
-      case Some(parsedHeader) =>
-        (json \ "success" \ "trustOrEstateDisplay").toOption match {
-          case None    =>
-            JsSuccess(HipSuccessGetEstateResponseWrapper(GetEstateStatusResponse(parsedHeader)))
-          case Some(x) =>
-            x.validate[GetEstate] match {
-              case JsSuccess(_, _) =>
-                JsSuccess(HipSuccessGetEstateResponseWrapper(GetEstateProcessedResponse(x, parsedHeader)))
-              case x: JsError      =>
-                JsSuccess(HipSuccessGetEstateResponseWrapper(NotEnoughDataResponse(json, JsError.toJson(x))))
-            }
-        }
-      case None               =>
-        JsSuccess(
-          HipSuccessGetEstateResponseWrapper(
-            NotEnoughDataResponse(json, JsError.toJson(JsError("responseHeader not defined on response")))
-          )
-        )
-    }
-  }
-
-//  implicit val writes: Writes[GetEstateResponse] = Writes {
-//    case GetEstateProcessedResponse(estate, header) =>
-//      Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
-//    case SuccessFoo(GetEstateProcessedResponse(estate, header)) =>
-//      Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
-//    case GetEstateStatusResponse(header)            => Json.obj("responseHeader" -> header)
-//    case NotEnoughDataResponse(_, errors)           => Json.obj("error" -> errors)
-//    case _                                          => Json.obj("error" -> "There was an internal server error parsing response as GetEstateResponse")
-//  }
-}
-
 object GetEstateResponse extends GetEstateHttpReads {
 
   implicit val reads: Reads[GetEstateResponse] = (json: JsValue) => {
@@ -89,13 +49,11 @@ object GetEstateResponse extends GetEstateHttpReads {
   }
 
   implicit val writes: Writes[GetEstateResponse] = Writes {
-    case GetEstateProcessedResponse(estate, header)                                     =>
+    case GetEstateProcessedResponse(estate, header) =>
       Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
-    case HipSuccessGetEstateResponseWrapper(GetEstateProcessedResponse(estate, header)) =>
-      Json.obj("responseHeader" -> header, "getEstate" -> Json.toJson(estate.as[GetEstate]))
-    case GetEstateStatusResponse(header)                                                => Json.obj("responseHeader" -> header)
-    case NotEnoughDataResponse(_, errors)                                               => Json.obj("error" -> errors)
-    case _                                                                              => Json.obj("error" -> "There was an internal server error parsing response as GetEstateResponse")
+    case GetEstateStatusResponse(header)            => Json.obj("responseHeader" -> header)
+    case NotEnoughDataResponse(_, errors)           => Json.obj("error" -> errors)
+    case _                                          => Json.obj("error" -> "There was an internal server error parsing response as GetEstateResponse")
   }
 
 }
