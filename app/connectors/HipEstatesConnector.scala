@@ -159,7 +159,6 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
     def httpReads(utr: String): HttpReads[GetEstateResponse] = (_: String, _: String, response: HttpResponse) =>
       response.status match {
         case OK                                                                                 =>
-          println(s"response: ${response.json}")
           parseOkResponse(response, utr)
         case BAD_REQUEST                                                                        =>
           logger.warn(
