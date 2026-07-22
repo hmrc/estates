@@ -36,16 +36,14 @@ import utils.ErrorResponses.{
   DuplicateSubmissionErrorResponse, InternalServerErrorErrorResponse, InvalidRequestErrorResponse,
   ServiceUnavailableErrorResponse
 }
-
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, estates5MLDService: Estates5MLDService)(
-  implicit ec: ExecutionContext
-) extends Logging with EstatesConnector {
+class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
+    extends Logging with EstatesConnector {
 
   private lazy val estatesServiceUrl: String = s"${config.hipRegistrationBaseUrl}/etmp/RESTAdapter/trustsandestates"
 
@@ -110,7 +108,44 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
       .execute[ExistingCheckResponse](using httpReads, ec)
   }
 
-  override def registerEstate(registration: EstateRegistration): Future[RegistrationResponse] = ???
+  override def registerEstate(registration: EstateRegistration): Future[RegistrationResponse] = {
+
+    implicit val hc: HeaderCarrier                                   = HeaderCarrier(extraHeaders = hipHeaders)
+    implicit val hipCustomErrResponse: OFormat[HipCustomErrResponse] = HipCustomErrResponse.formats
+
+    val httpReads: HttpReads[RegistrationResponse] =
+      (_: String, _: String, response: HttpResponse) =>
+        response.status match {
+          case CREATED                                =>
+            response.json.as[HipSuccessRegistrationTrnResponse].success
+          case UNPROCESSABLE_ENTITY                   =>
+            val code = response.json.as[HipCustomErrResponse].error.errorId
+            if (code === "001") {
+              NoMatchResponse
+            } else if (code === "002") {
+              AlreadyRegisteredResponse
+            } else if (code === "999") {
+              RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
+            } else {
+              RegistrationFailureResponse(UNPROCESSABLE_ENTITY)
+            }
+          case BAD_REQUEST | NOT_FOUND | UNAUTHORIZED =>
+            RegistrationFailureResponse(BAD_REQUEST)
+          case INTERNAL_SERVER_ERROR | FORBIDDEN      =>
+            RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
+          case _                                      =>
+            RegistrationFailureResponse(SERVICE_UNAVAILABLE)
+        }
+
+    logger.info(
+      s"[registerEstate] registering estate for correlationid: ${hipHeaders.toMap.getOrElse("correlationid", "NOT FOUND")}"
+    )
+
+    http
+      .post(url"$estateRegistrationEndpoint")
+      .withBody(Json.toJson(registration)(EstateRegistration.estateRegistrationWriteToDes))
+      .execute[RegistrationResponse](using httpReads, ec)
+  }
 
   override def getEstateInfo(utr: String): Future[GetEstateResponse] = {
 
