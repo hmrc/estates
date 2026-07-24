@@ -20,7 +20,7 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 
 case class HipSuccessGetEstateResponseWrapper(success: GetEstateResponse) extends GetEstateResponse
 
-case object HipSuccessGetEstateResponseWrapper {
+object HipSuccessGetEstateResponseWrapper {
 
   implicit val reads: Reads[HipSuccessGetEstateResponseWrapper] = (json: JsValue) => {
     val header = (json \ "success" \ "responseHeader").asOpt[ResponseHeader]

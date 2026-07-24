@@ -170,12 +170,6 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
           notFoundResponse(UNPROCESSABLE_ENTITY, utr)
         case NOT_FOUND                                                                          =>
           notFoundResponse(NOT_FOUND, utr)
-        case SERVICE_UNAVAILABLE                                                                =>
-          logger.warn(
-            s"[UTR: $utr]" +
-              s" service is unavailable, unable to get trust"
-          )
-          ServiceUnavailableResponse
         case status                                                                             =>
           logger.error(
             s"[UTR: $utr]" +

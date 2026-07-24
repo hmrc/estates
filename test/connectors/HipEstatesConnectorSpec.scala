@@ -632,138 +632,124 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             result mustBe GetEstateStatusResponse(ResponseHeader("Obsoleted", "1"))
           }
         }
+      }
 
-        "return NotEnoughData" when {
-          "no response header" in {
-            val utr           = "6666666666"
-            val emptyResponse = Json.obj()
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, emptyResponse.toString())
+      "return NotEnoughData" when {
+        "no response header" in {
+          val utr           = "6666666666"
+          val emptyResponse = Json.obj()
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, emptyResponse.toString())
 
-            val futureResult = connector.getEstateInfo(utr)
+          val futureResult = connector.getEstateInfo(utr)
 
-            whenReady(futureResult) { result =>
-              result mustBe NotEnoughDataResponse(
-                emptyResponse,
-                JsError.toJson(JsError("responseHeader not defined on response"))
-              )
-            }
-          }
-
-          "body does not validate as GetEstate" in {
-            val utr = "2000000000"
-
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetEstateInvalidResponseJson.toString())
-
-            val futureResult = connector.getEstateInfo(utr)
-
-            whenReady(futureResult) { result =>
-              result mustBe NotEnoughDataResponse(
-                hipGetEstateInvalidResponseJson,
-                Json.parse(
-                  "{\"obj.details.estate.entities.personalRepresentative\":[{\"msg\":[\"error.path.missing\"],\"args\":[]}]}"
-                )
-              )
-            }
+          whenReady(futureResult) { result =>
+            result mustBe NotEnoughDataResponse(
+              emptyResponse,
+              JsError.toJson(JsError("responseHeader not defined on response"))
+            )
           }
         }
 
-        "return BadRequestResponse" when {
+        "body does not validate as GetEstate" in {
+          val utr = "2000000000"
 
-          "hip has returned a 400" in {
-            val utr = "1234567891"
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), BAD_REQUEST, Json.stringify(jsonResponse4005mld))
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetEstateInvalidResponseJson.toString())
 
-            val futureResult = connector.getEstateInfo(utr)
+          val futureResult = connector.getEstateInfo(utr)
 
-            whenReady(futureResult) { result =>
-              result mustBe BadRequestResponse
-            }
+          whenReady(futureResult) { result =>
+            result mustBe NotEnoughDataResponse(
+              hipGetEstateInvalidResponseJson,
+              Json.parse(
+                "{\"obj.details.estate.entities.personalRepresentative\":[{\"msg\":[\"error.path.missing\"],\"args\":[]}]}"
+              )
+            )
+          }
+        }
+      }
+
+      "return BadRequestResponse" when {
+
+        "hip has returned a 400" in {
+          val utr = "1234567891"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), BAD_REQUEST, Json.stringify(jsonResponse4005mld))
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe BadRequestResponse
+          }
+        }
+      }
+
+      "return ResourceNotFoundResponse" when {
+
+        "hip has returned a 404" in {
+          val utr = "1234567892"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), NOT_FOUND, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe ResourceNotFoundResponse
           }
         }
 
-        "return ResourceNotFoundResponse" when {
-
-          "hip has returned a 404" in {
-            val utr = "1234567892"
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), NOT_FOUND, "")
-
-            val futureResult = connector.getEstateInfo(utr)
-
-            whenReady(futureResult) { result =>
-              result mustBe ResourceNotFoundResponse
-            }
-          }
-
-          "hip has returned a 422 000 - UTR or URN is invalid" in {
-            val utr = "1234567893"
-            stubForGet(
-              server,
-              create5MLDTrustOrEstateEndpoint(utr),
-              UNPROCESSABLE_ENTITY,
-              """{
+        "hip has returned a 422 with errorId: 000 and text: UTR or URN is invalid" in {
+          val utr = "1234567893"
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            UNPROCESSABLE_ENTITY,
+            """{
                 |  "error": {
                 |    "processingDate": "2001-12-17T09:30:47.0",
                 |    "errorId": "000",
                 |    "text": "UTR or URN is invalid"
                 |  }
                 |}""".stripMargin
-            )
+          )
 
-            val futureResult = connector.getEstateInfo(utr)
+          val futureResult = connector.getEstateInfo(utr)
 
-            whenReady(futureResult) { result =>
-              result mustBe ResourceNotFoundResponse
-            }
+          whenReady(futureResult) { result =>
+            result mustBe ResourceNotFoundResponse
+          }
+        }
+      }
+
+      "return InternalServerErrorResponse" when {
+
+        "hip has returned a 500 with the code SERVER_ERROR" in {
+          val utr = "1234567893"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), INTERNAL_SERVER_ERROR, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe InternalServerErrorResponse
           }
         }
 
-        "return InternalServerErrorResponse" when {
-
-          "hip has returned a 500 with the code SERVER_ERROR" in {
-            val utr = "1234567893"
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), INTERNAL_SERVER_ERROR, "")
-
-            val futureResult = connector.getEstateInfo(utr)
-
-            whenReady(futureResult) { result =>
-              result mustBe InternalServerErrorResponse
-            }
-          }
-
-          "hip has returned a 422 003" in {
-            val utr = "1234567003"
-            stubForGet(
-              server,
-              create5MLDTrustOrEstateEndpoint(utr),
-              UNPROCESSABLE_ENTITY,
-              """{
+        "hip has returned a 422 with errorId: 003 and text: Request could not be processed" in {
+          val utr = "1234567003"
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            UNPROCESSABLE_ENTITY,
+            """{
                 |  "error": {
                 |    "processingDate": "2001-12-17T09:30:47.0",
                 |    "errorId": "003",
                 |    "text": "Request could not be processed"
                 |  }
                 |}""".stripMargin
-            )
+          )
 
-            val futureResult = connector.getEstateInfo(utr)
+          val futureResult = connector.getEstateInfo(utr)
 
-            whenReady(futureResult) { result =>
-              result mustBe InternalServerErrorResponse
-            }
-          }
-        }
-
-        "return ServiceUnavailableResponse" when {
-
-          "hip has returned a 503 with the code SERVICE_UNAVAILABLE" in {
-            val utr = "1234567894"
-            stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), SERVICE_UNAVAILABLE, "")
-
-            val futureResult = connector.getEstateInfo(utr)
-
-            whenReady(futureResult) { result =>
-              result mustBe ServiceUnavailableResponse
-            }
+          whenReady(futureResult) { result =>
+            result mustBe InternalServerErrorResponse
           }
         }
       }

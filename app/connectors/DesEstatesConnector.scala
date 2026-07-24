@@ -46,7 +46,7 @@ class DesEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
   // So this must remain "trusts" even though we're reading an estate.
   private lazy val getEstateUrl: String = s"${config.desGetEstateBaseUrl}/trusts"
 
-  private def create5MLDEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
+  private def create5mldEstateEndpointForUtr(utr: String): String = s"$getEstateUrl/registration/UTR/$utr"
 
   private lazy val estateVariationsEndpoint: String = s"${config.desVaryEstateBaseUrl}/estates/variation"
 
@@ -112,7 +112,7 @@ class DesEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig, esta
 
     logger.info(s"[getEstateInfo][UTR: $utr] getting playback for estate for correlationId: $correlationId")
 
-    val url = create5MLDEstateEndpointForUtr(utr)
+    val url = create5mldEstateEndpointForUtr(utr)
     http
       .get(url"$url")
       .execute(GetEstateResponse.httpReads(utr), ec)
