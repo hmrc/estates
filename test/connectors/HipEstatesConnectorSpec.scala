@@ -753,6 +753,34 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           }
         }
       }
+      "return ServiceUnavailableResponse" when {
+        "des has returned a 503 with the code SERVICE_UNAVAILABLE" in {
+
+          stubForGet(
+            server,
+            "/estates-store/features/5mld",
+            OK,
+            Json.stringify(
+              Json.parse(
+                """
+                  |{
+                  | "name": "5mld",
+                  | "isEnabled": true
+                  |}""".stripMargin
+              )
+            )
+          )
+
+          val utr = "1234567894"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), SERVICE_UNAVAILABLE, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe ServiceUnavailableResponse
+          }
+        }
+      }
     }
   }
 
