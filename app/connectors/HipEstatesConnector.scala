@@ -30,7 +30,6 @@ import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
-import utils.Constants._
 import utils.ErrorResponses.{
   DuplicateSubmissionErrorResponse, InternalServerErrorErrorResponse, InvalidRequestErrorResponse,
   ServiceUnavailableErrorResponse
@@ -41,6 +40,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
     extends Logging with EstatesConnector {
@@ -157,31 +157,41 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
 
     def httpReads(utr: String): HttpReads[GetEstateResponse] = (_: String, _: String, response: HttpResponse) =>
       response.status match {
-        case OK                                                                                 =>
-          parseOkResponse(response, utr)
-        case BAD_REQUEST                                                                        =>
+        case OK                                                            =>
+          response.json.validate[HipSuccessGetEstateResponseWrapper] match {
+            case JsSuccess(estateFound, _) => estateFound.success
+            case JsError(errors)           =>
+              logger.error(s"[UTR: $utr] Cannot parse as EstateFoundResponse due to ${JsError.toJson(errors)}")
+              NotEnoughDataResponse(response.json, JsError.toJson(errors))
+          }
+        case BAD_REQUEST                                                   =>
           logger.warn(
             s"[UTR: $utr]" +
               s" bad request returned from des: ${response.body}"
           )
           BadRequestResponse
-        case UNPROCESSABLE_ENTITY if (response.json \ "error" \ "errorId").as[String] === "000" =>
+        case UNPROCESSABLE_ENTITY if jsonErrorIdIsEqualTo(response, "000") =>
           notFoundResponse(UNPROCESSABLE_ENTITY, utr)
-        case NOT_FOUND                                                                          =>
+        case NOT_FOUND                                                     =>
           notFoundResponse(NOT_FOUND, utr)
-        case SERVICE_UNAVAILABLE                                                                =>
+        case SERVICE_UNAVAILABLE                                           =>
           logger.warn(
             s"[UTR: $utr]" +
               s" service is unavailable, unable to get trust"
           )
           ServiceUnavailableResponse
-        case status                                                                             =>
+        case status                                                        =>
           logger.error(
             s"[UTR: $utr]" +
               s" error occurred when getting trust, status: $status"
           )
           InternalServerErrorResponse
       }
+
+    def jsonErrorIdIsEqualTo(response: HttpResponse, errorId: String): Boolean =
+      Try(response.json \ "error" \ "errorId").toOption
+        .flatMap(_.asOpt[String])
+        .contains(errorId)
 
     def notFoundResponse(status: Int, utr: String) = {
       logger.info(
@@ -191,14 +201,6 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
       )
       ResourceNotFoundResponse
     }
-
-    def parseOkResponse(response: HttpResponse, utr: String): GetEstateResponse =
-      response.json.validate[HipSuccessGetEstateResponseWrapper] match {
-        case JsSuccess(estateFound, _) => estateFound.success
-        case JsError(errors)           =>
-          logger.error(s"[UTR: $utr] Cannot parse as EstateFoundResponse due to ${JsError.toJson(errors)}")
-          NotEnoughDataResponse(response.json, JsError.toJson(errors))
-      }
 
     val url = create5MLDEstateEndpointForUtr(utr)
 
