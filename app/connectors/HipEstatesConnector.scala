@@ -64,8 +64,7 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
       "X-Originating-System"  -> "TRS",
       "X-Receipt-Date"        -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
       "X-Transmitting-System" -> "HIP",
-      "Authorization"         -> s"Basic ${config.hipAuthorizationToken}",
-      CONTENT_TYPE            -> CONTENT_TYPE_JSON
+      "Authorization"         -> s"Basic ${config.hipAuthorizationToken}"
     )
 
   override def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest): Future[ExistingCheckResponse] = {

@@ -18,6 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.ExistingCheckResponse._
 import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
@@ -45,6 +46,23 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "microservice.services.hip.playback.port"     -> server.port()
         ): _*
       )
+
+  override def stubForGet(
+    server: WireMockServer,
+    url: String,
+    returnStatus: Int,
+    responseBody: String,
+    delayResponse: Int = 0
+  ): StubMapping =
+    server.stubFor(
+      get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withStatus(returnStatus)
+            .withBody(responseBody)
+            .withFixedDelay(delayResponse)
+        )
+    )
 
   def create5MLDTrustOrEstateEndpoint(utr: String) = s"/etmp/RESTAdapter/trustsandestates/registration/UTR/$utr"
 
