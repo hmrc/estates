@@ -37,6 +37,7 @@ import utils.ErrorResponses.{
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -62,7 +63,7 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
     Seq(
       "correlationid"         -> UUID.randomUUID().toString,
       "X-Originating-System"  -> "TRS",
-      "X-Receipt-Date"        -> DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+      "X-Receipt-Date"        -> DateTimeFormatter.ISO_INSTANT.format(Instant.now().truncatedTo(ChronoUnit.SECONDS)),
       "X-Transmitting-System" -> "HIP",
       "Authorization"         -> s"Basic ${config.hipAuthorizationToken}"
     )
