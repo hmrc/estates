@@ -38,8 +38,9 @@ trait JsonRequests extends JsonUtils {
 
   lazy val get4MLDEstateResponse: JsValue = getJsonValueFromFile("etmp/valid-get-estate-4mld-response.json")
 
-  lazy val get5MLDEstateResponseJson: String = getJsonFromFile("etmp/valid-get-estate-5mld-response.json")
-  lazy val get5MLDEstateResponse: JsValue    = getJsonValueFromFile("etmp/valid-get-estate-5mld-response.json")
+  lazy val desGet5MLDEstateResponseJson: String = getJsonFromFile("etmp/des-valid-get-estate-5mld-response.json")
+  lazy val hipGet5MLDEstateResponseJson: String = getJsonFromFile("etmp/hip-valid-get-estate-5mld-response.json")
+  lazy val get5MLDEstateResponse: JsValue       = getJsonValueFromFile("etmp/des-valid-get-estate-5mld-response.json")
 
   lazy val getTransformedEstateResponse: JsValue = getJsonValueFromFile(
     "transformed/variations/valid-get-estate-response-transformed.json"
@@ -49,7 +50,13 @@ trait JsonRequests extends JsonUtils {
     "transformed/variations/valid-get-estate-response-transformed-personal-rep-only.json"
   )
 
-  lazy val getEstateInvalidResponseJson: JsValue = getJsonValueFromFile("etmp/valid-get-estate-invalid-response.json")
+  lazy val desGetEstateInvalidResponseJson: JsValue = getJsonValueFromFile(
+    "etmp/des-valid-get-estate-invalid-response.json"
+  )
+
+  lazy val hipGetEstateInvalidResponseJson: JsValue = getJsonValueFromFile(
+    "etmp/hip-valid-get-estate-invalid-response.json"
+  )
 
   lazy val get4MLDEstateExpectedResponse: JsValue = getJsonValueFromFile(
     "mdtp/valid-get-estate-expected-4mld-response.json"
@@ -59,52 +66,80 @@ trait JsonRequests extends JsonUtils {
     "mdtp/valid-get-estate-expected-5mld-response.json"
   )
 
-  lazy val getTrustOrEstateProcessingResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-in-processing-response.json"
+  lazy val desGetTrustOrEstateProcessingResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-in-processing-response.json"
+  )
+
+  lazy val hipGetTrustOrEstateProcessingResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-in-processing-response.json"
   )
 
   lazy val getTrustOrEstateProcessingResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-in-processing-response.json"
+    "etmp/des-valid-get-trust-or-estate-in-processing-response.json"
   )
 
-  lazy val getTrustOrEstatePendingClosureResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-pending-closure-response.json"
+  lazy val desGetTrustOrEstatePendingClosureResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-pending-closure-response.json"
+  )
+
+  lazy val hipGetTrustOrEstatePendingClosureResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-pending-closure-response.json"
   )
 
   lazy val getTrustOrEstatePendingClosureResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-pending-closure-response.json"
+    "etmp/des-valid-get-trust-or-estate-pending-closure-response.json"
   )
 
-  lazy val getTrustOrEstateClosedResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-closed-response.json"
+  lazy val desGetTrustOrEstateClosedResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-closed-response.json"
+  )
+
+  lazy val hipGetTrustOrEstateClosedResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-closed-response.json"
   )
 
   lazy val getTrustOrEstateClosedResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-closed-response.json"
+    "etmp/des-valid-get-trust-or-estate-closed-response.json"
   )
 
-  lazy val getTrustOrEstateSuspendedResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-suspended-response.json"
+  lazy val desGetTrustOrEstateSuspendedResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-suspended-response.json"
   )
 
-  lazy val getTrustOrEstateSuspendedResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-suspended-response.json"
+  lazy val hipGetTrustOrEstateSuspendedResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-suspended-response.json"
   )
 
-  lazy val getTrustOrEstateParkedResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-parked-response.json"
+  lazy val desGetTrustOrEstateSuspendedResponse: JsValue = getJsonValueFromFile(
+    "etmp/des-valid-get-trust-or-estate-suspended-response.json"
+  )
+
+  lazy val hipGetTrustOrEstateSuspendedResponse: JsValue = getJsonValueFromFile(
+    "etmp/hip-valid-get-trust-or-estate-suspended-response.json"
+  )
+
+  lazy val desGetTrustOrEstateParkedResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-parked-response.json"
+  )
+
+  lazy val hipGetTrustOrEstateParkedResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-parked-response.json"
   )
 
   lazy val getTrustOrEstateParkedResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-parked-response.json"
+    "etmp/des-valid-get-trust-or-estate-parked-response.json"
   )
 
-  lazy val getTrustOrEstateObsoletedResponseJson: String = getJsonFromFile(
-    "etmp/valid-get-trust-or-estate-obsoleted-response.json"
+  lazy val desGetTrustOrEstateObsoletedResponseJson: String = getJsonFromFile(
+    "etmp/des-valid-get-trust-or-estate-obsoleted-response.json"
+  )
+
+  lazy val hipGetTrustOrEstateObsoletedResponseJson: String = getJsonFromFile(
+    "etmp/hip-valid-get-trust-or-estate-obsoleted-response.json"
   )
 
   lazy val getTrustOrEstateObsoletedResponse: JsValue = getJsonValueFromFile(
-    "etmp/valid-get-trust-or-estate-obsoleted-response.json"
+    "etmp/des-valid-get-trust-or-estate-obsoleted-response.json"
   )
 
 }

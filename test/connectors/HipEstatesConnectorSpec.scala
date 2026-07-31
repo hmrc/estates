@@ -18,15 +18,14 @@ package connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.ExistingCheckResponse._
+import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
-import models.{
-  AlreadyRegisteredResponse, ErrorResponse, EstateRegistration, ExistingCheckRequest, NoMatchResponse,
-  RegistrationFailureResponse, RegistrationTrnResponse
-}
+import models._
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, Json}
 import play.api.test.Helpers.CONTENT_TYPE
 import utils.ErrorResponses._
 import utils.JsonRequests
@@ -43,9 +42,29 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       .configure(
         Seq(
           "microservice.services.hip.registration.port" -> server.port(),
-          "microservice.services.hip.variation.port"    -> server.port()
+          "microservice.services.hip.variation.port"    -> server.port(),
+          "microservice.services.hip.playback.port"     -> server.port()
         ): _*
       )
+
+  override def stubForGet(
+    server: WireMockServer,
+    url: String,
+    returnStatus: Int,
+    responseBody: String,
+    delayResponse: Int = 0
+  ): StubMapping =
+    server.stubFor(
+      get(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withStatus(returnStatus)
+            .withBody(responseBody)
+            .withFixedDelay(delayResponse)
+        )
+    )
+
+  def create5MLDTrustOrEstateEndpoint(utr: String) = s"/etmp/RESTAdapter/trustsandestates/registration/UTR/$utr"
 
   override def stubForPost(
     server: WireMockServer,
@@ -548,13 +567,238 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
 
   ".getEstateInfo" should {
 
-    "return estate info when utr|urn is valid" in {
-      // TODO correct test when method has been implemented
-      val result = intercept[NotImplementedError] {
-        connector.getEstateInfo("XXTRN1234567890")
+    "identifier is UTR" must {
+      "return EstateFoundResponse" when {
+
+        "HIP has returned a 200 with estate details" in {
+          val utr = "1234567890"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGet5MLDEstateResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            Json.toJson(result) mustBe get5MLDEstateExpectedResponse
+            result
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is still being processed" in {
+          val utr = "1234567800"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstateProcessingResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("In Processing", "1"))
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is pending closure" in {
+          val utr = "1234567800"
+
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstatePendingClosureResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("Pending Closure", "1"))
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is closed" in {
+          val utr = "1234567800"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstateClosedResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("Closed", "1"))
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is suspended" in {
+          val utr = "1234567800"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstateSuspendedResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("Suspended", "1"))
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is parked" in {
+          val utr = "1234567800"
+
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstateParkedResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("Parked", "1"))
+          }
+        }
+
+        "HIP has returned a 200 and indicated that the submission is obsoleted" in {
+          val utr = "1234567800"
+
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetTrustOrEstateObsoletedResponseJson)
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe GetEstateStatusResponse(ResponseHeader("Obsoleted", "1"))
+          }
+        }
       }
 
-      result.getMessage must be("an implementation is missing")
+      "return NotEnoughData" when {
+        "no response header" in {
+          val utr           = "6666666666"
+          val emptyResponse = Json.obj()
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, emptyResponse.toString())
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe NotEnoughDataResponse(
+              emptyResponse,
+              JsError.toJson(JsError("responseHeader not defined on response"))
+            )
+          }
+        }
+
+        "body does not validate as GetEstate" in {
+          val utr = "2000000000"
+
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), OK, hipGetEstateInvalidResponseJson.toString())
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe NotEnoughDataResponse(
+              hipGetEstateInvalidResponseJson,
+              Json.parse(
+                "{\"obj.details.estate.entities.personalRepresentative\":[{\"msg\":[\"error.path.missing\"],\"args\":[]}]}"
+              )
+            )
+          }
+        }
+      }
+
+      "return BadRequestResponse" when {
+
+        "hip has returned a 400" in {
+          val utr = "1234567891"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), BAD_REQUEST, Json.stringify(jsonResponse4005mld))
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe BadRequestResponse
+          }
+        }
+      }
+
+      "return ResourceNotFoundResponse" when {
+
+        "hip has returned a 404" in {
+          val utr = "1234567892"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), NOT_FOUND, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe ResourceNotFoundResponse
+          }
+        }
+
+        "hip has returned a 422 with errorId: 000 and text: UTR or URN is invalid" in {
+          val utr = "1234567893"
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            UNPROCESSABLE_ENTITY,
+            """{
+                |  "error": {
+                |    "processingDate": "2001-12-17T09:30:47.0",
+                |    "errorId": "000",
+                |    "text": "UTR or URN is invalid"
+                |  }
+                |}""".stripMargin
+          )
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe ResourceNotFoundResponse
+          }
+        }
+      }
+
+      "return InternalServerErrorResponse" when {
+
+        "hip has returned a 500 with the code SERVER_ERROR" in {
+          val utr = "1234567893"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), INTERNAL_SERVER_ERROR, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe InternalServerErrorResponse
+          }
+        }
+
+        "hip has returned a 422 with errorId: 003 and text: Request could not be processed" in {
+          val utr = "1234567003"
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            UNPROCESSABLE_ENTITY,
+            """{
+                |  "error": {
+                |    "processingDate": "2001-12-17T09:30:47.0",
+                |    "errorId": "003",
+                |    "text": "Request could not be processed"
+                |  }
+                |}""".stripMargin
+          )
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe InternalServerErrorResponse
+          }
+        }
+      }
+      "return ServiceUnavailableResponse" when {
+        "des has returned a 503 with the code SERVICE_UNAVAILABLE" in {
+
+          stubForGet(
+            server,
+            "/estates-store/features/5mld",
+            OK,
+            Json.stringify(
+              Json.parse(
+                """
+                  |{
+                  | "name": "5mld",
+                  | "isEnabled": true
+                  |}""".stripMargin
+              )
+            )
+          )
+
+          val utr = "1234567894"
+          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), SERVICE_UNAVAILABLE, "")
+
+          val futureResult = connector.getEstateInfo(utr)
+
+          whenReady(futureResult) { result =>
+            result mustBe ServiceUnavailableResponse
+          }
+        }
+      }
     }
   }
 
