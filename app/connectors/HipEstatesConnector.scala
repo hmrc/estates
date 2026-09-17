@@ -68,6 +68,9 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
       "Authorization"         -> s"Basic ${config.hipAuthorizationToken}"
     )
 
+  def standardErrorLoggerMessage(response: HttpResponse, apiCalled: String) =
+    logger.error(s"[$apiCalled] error status ${response.status}) returned from HIP with body: ${response.body}")
+
   override def checkExistingEstate(existingEstateCheckRequest: ExistingCheckRequest): Future[ExistingCheckResponse] = {
 
     implicit val hc: HeaderCarrier                                   = HeaderCarrier(extraHeaders = hipHeaders)
@@ -81,6 +84,7 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
               Matched
             case UNPROCESSABLE_ENTITY                               =>
               val code = response.json.as[HipCustomErrResponse].error.errorId
+              logger.warn(s"Unprocessable Entity(${response.status}) returned from HIP with body: ${response.body}")
               if (code === "001")
                 NotMatched
               else if (code === "002")
@@ -90,10 +94,13 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
               else
                 BadRequest
             case BAD_REQUEST | NOT_FOUND | UNAUTHORIZED | FORBIDDEN =>
+              standardErrorLoggerMessage(response, "ExistingCheckResponse")
               BadRequest
             case INTERNAL_SERVER_ERROR                              =>
+              standardErrorLoggerMessage(response, "ExistingCheckResponse")
               ServerError
             case _                                                  =>
+              standardErrorLoggerMessage(response, "ExistingCheckResponse")
               ServiceUnavailable
           }
       }
@@ -120,6 +127,8 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
             response.json.as[HipSuccessRegistrationTrnResponse].success
           case UNPROCESSABLE_ENTITY                   =>
             val code = response.json.as[HipCustomErrResponse].error.errorId
+            logger.warn(s"Unprocessable Entity(${response.status}) returned from HIP with body: ${response.body}")
+
             if (code === "001") {
               NoMatchResponse
             } else if (code === "002") {
@@ -130,10 +139,13 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
               RegistrationFailureResponse(UNPROCESSABLE_ENTITY)
             }
           case BAD_REQUEST | NOT_FOUND | UNAUTHORIZED =>
+            standardErrorLoggerMessage(response, "RegistrationResponse")
             RegistrationFailureResponse(BAD_REQUEST)
           case INTERNAL_SERVER_ERROR | FORBIDDEN      =>
+            standardErrorLoggerMessage(response, "RegistrationResponse")
             RegistrationFailureResponse(INTERNAL_SERVER_ERROR)
           case _                                      =>
+            standardErrorLoggerMessage(response, "RegistrationResponse")
             RegistrationFailureResponse(SERVICE_UNAVAILABLE)
         }
 
@@ -166,25 +178,26 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
               NotEnoughDataResponse(response.json, JsError.toJson(errors))
           }
         case BAD_REQUEST                                                   =>
-          logger.warn(
+          logger.error(
             s"[UTR: $utr]" +
-              s" bad request returned from des: ${response.body}"
+              s" bad request returned from hip: ${response.body}"
           )
           BadRequestResponse
         case UNPROCESSABLE_ENTITY if jsonErrorIdIsEqualTo(response, "000") =>
-          notFoundResponse(UNPROCESSABLE_ENTITY, utr)
+          notFoundResponse(response, utr)
         case NOT_FOUND                                                     =>
-          notFoundResponse(NOT_FOUND, utr)
+          notFoundResponse(response, utr)
         case SERVICE_UNAVAILABLE                                           =>
-          logger.warn(
+          logger.error(
             s"[UTR: $utr]" +
-              s" service is unavailable, unable to get trust"
+              s" service is unavailable, unable to get trust from hip: ${response.body}"
           )
           ServiceUnavailableResponse
         case status                                                        =>
           logger.error(
             s"[UTR: $utr]" +
-              s" error occurred when getting trust, status: $status"
+              s" error occurred when getting trust, status: $status" +
+              s"  and with response body: ${response.body}"
           )
           InternalServerErrorResponse
       }
@@ -194,11 +207,12 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
         .flatMap(_.asOpt[String])
         .contains(errorId)
 
-    def notFoundResponse(status: Int, utr: String) = {
-      logger.info(
+    def notFoundResponse(response: HttpResponse, utr: String) = {
+      logger.warn(
         s"[UTR: $utr]" +
           s" trust not found in ETMP for given identifier" +
-          s"with response code from HIP: $status"
+          s" with response code from HIP: ${response.status}" +
+          s" and response body from HIP: ${response.body}"
       )
       ResourceNotFoundResponse
     }
@@ -226,28 +240,27 @@ class HipEstatesConnector @Inject() (http: HttpClientV2, config: AppConfig)(impl
             val hip = response.json.as[HipSuccessVariationTrnResponse]
             hip.success
           case BAD_REQUEST           =>
-            logger.error(s"[VariationResponse][httpReads] Bad Request response from hip")
+            standardErrorLoggerMessage(response, "VariationResponse")
             failure(InvalidRequestErrorResponse)
           case UNPROCESSABLE_ENTITY  =>
             val code = response.json.as[HipCustomErrResponse].error.errorId
+            standardErrorLoggerMessage(response, "VariationResponse")
             if (code === "004") {
-              logger.info("[VariationResponse] Duplicate submission response from HIP.")
               failure(DuplicateSubmissionErrorResponse)
             } else if (code === "003") {
-              logger.info("[VariationResponse] Request could not be processed response from hip")
               failure(InvalidRequestErrorResponse)
             } else if (code === "999") {
-              logger.error("[RegistrationResponse] Technical error response from HIP.")
               failure(InternalServerErrorErrorResponse)
             } else
               failure(InvalidRequestErrorResponse)
           case INTERNAL_SERVER_ERROR =>
-            logger.error(s"[VariationResponse][httpReads] Internal server error response from hip")
+            standardErrorLoggerMessage(response, "VariationResponse")
             failure(InternalServerErrorErrorResponse)
           case SERVICE_UNAVAILABLE   =>
+            standardErrorLoggerMessage(response, "VariationResponse")
             failure(ServiceUnavailableErrorResponse)
           case status                =>
-            logger.error(s"[VariationResponse][httpReads] $status response from hip.")
+            standardErrorLoggerMessage(response, "VariationResponse")
             failure(ErrorResponse(status.toString, s"Error response from DES: $status"))
         }
     }
