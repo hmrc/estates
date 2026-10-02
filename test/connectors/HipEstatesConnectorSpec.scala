@@ -20,12 +20,12 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.ExistingCheckResponse._
+import models._
 import models.getEstate._
 import models.variation.{VariationFailureResponse, VariationSuccessResponse}
-import models._
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsError, Json}
+import play.api.libs.json.{JsError, JsValue, Json}
 import play.api.test.Helpers.CONTENT_TYPE
 import utils.ErrorResponses._
 import utils.JsonRequests
@@ -116,12 +116,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           url,
           requestBody,
           BAD_REQUEST,
-          s"""
-             |{
-             | "code": "400",
-             | "message": "String",
-             | "logID": "00000000000000000000000000000000"
-             |}""".stripMargin
+          badRequestResponse
         )
 
         val futureResult = connector.estateVariation(Json.toJson(variation))
@@ -166,10 +161,12 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       "HIP dependent service is not responding" in {
         val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
 
-        stubForPut(
+        stubForPutWithResponseBody(
           server,
           url,
-          SERVICE_UNAVAILABLE
+          requestBody,
+          SERVICE_UNAVAILABLE,
+          serviceUnavailableResponse
         )
 
         val futureResult = connector.estateVariation(estateVariationsRequest)
@@ -184,10 +181,12 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       "HIP returns 500" in {
         val requestBody = Json.stringify(Json.toJson(estateVariationsRequest))
 
-        stubForPut(
+        stubForPutWithResponseBody(
           server,
           url,
-          INTERNAL_SERVER_ERROR
+          requestBody,
+          INTERNAL_SERVER_ERROR,
+          internalServerErrorResponse
         )
 
         val futureResult = connector.estateVariation(estateVariationsRequest)
@@ -338,13 +337,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
           BAD_REQUEST,
-          """{
-            |  "error": {
-            |    "code": "400",
-            |    "message": "String",
-            |    "logID": "00000000000000000000000000000000"
-            |  }
-            |}""".stripMargin
+          badRequestResponse
         )
 
         val futureResult = connector.checkExistingEstate(wrongPayloadRequest)
@@ -441,14 +434,8 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           server,
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
-          BAD_REQUEST,
-          """{
-            |  "error": {
-            |    "code": "401",
-            |    "message": "String",
-            |    "logID": "00000000000000000000000000000000"
-            |  }
-            |}""".stripMargin
+          UNAUTHORIZED,
+          ""
         )
 
         val futureResult = connector.checkExistingEstate(request)
@@ -467,14 +454,8 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           server,
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
-          BAD_REQUEST,
-          """{
-            |  "error": {
-            |    "code": "403",
-            |    "message": "String",
-            |    "logID": "00000000000000000000000000000000"
-            |  }
-            |}""".stripMargin
+          FORBIDDEN,
+          ""
         )
 
         val futureResult = connector.checkExistingEstate(request)
@@ -493,14 +474,8 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           server,
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
-          BAD_REQUEST,
-          """{
-            |  "error": {
-            |    "code": "404",
-            |    "message": "String",
-            |    "logID": "00000000000000000000000000000000"
-            |  }
-            |}""".stripMargin
+          NOT_FOUND,
+          ""
         )
 
         val futureResult = connector.checkExistingEstate(request)
@@ -520,13 +495,19 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
           SERVICE_UNAVAILABLE,
-          """{
-                |  "error": {
-                |    "code": "503",
-                |    "message": "String",
-                |    "logID": "00000000000000000000000000000000"
-                |  }
-                |}""".stripMargin
+          s"""
+             |{
+             |  "origin": "HIP",
+             |  "response": {
+             |    "failures": [
+             |      {
+             |        "type": "Type of Failure",
+             |        "reason": "Reason for Failure"
+             |      }
+             |    ]
+             |  }
+             |}
+             |""".stripMargin
         )
 
         val futureResult = connector.checkExistingEstate(request)
@@ -546,13 +527,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/match",
           requestBody,
           INTERNAL_SERVER_ERROR,
-          """{
-            |  "error": {
-            |    "code": "500",
-            |    "message": "String",
-            |    "logID": "00000000000000000000000000000000"
-            |  }
-            |}""".stripMargin
+          internalServerErrorResponse
         )
 
         val futureResult = connector.checkExistingEstate(request)
@@ -689,7 +664,8 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       "return BadRequestResponse" when {
 
         "hip has returned a 400" in {
-          val utr = "1234567891"
+          val utr                          = "1234567891"
+          val jsonResponse4005mld: JsValue = Json.parse(badRequestResponse)
           stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), BAD_REQUEST, Json.stringify(jsonResponse4005mld))
 
           val futureResult = connector.getEstateInfo(utr)
@@ -720,12 +696,12 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             create5MLDTrustOrEstateEndpoint(utr),
             UNPROCESSABLE_ENTITY,
             """{
-                |  "error": {
-                |    "processingDate": "2001-12-17T09:30:47.0",
-                |    "errorId": "000",
-                |    "text": "UTR or URN is invalid"
-                |  }
-                |}""".stripMargin
+              |  "error": {
+              |    "processingDate": "2001-12-17T09:30:47.0",
+              |    "errorId": "000",
+              |    "text": "UTR or URN is invalid"
+              |  }
+              |}""".stripMargin
           )
 
           val futureResult = connector.getEstateInfo(utr)
@@ -739,8 +715,15 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
       "return InternalServerErrorResponse" when {
 
         "hip has returned a 500 with the code SERVER_ERROR" in {
-          val utr = "1234567893"
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), INTERNAL_SERVER_ERROR, "")
+          val utr                      = "1234567893"
+          val jsonResponse500: JsValue = Json.parse(internalServerErrorResponse)
+
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            INTERNAL_SERVER_ERROR,
+            Json.stringify(jsonResponse500)
+          )
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -756,12 +739,12 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
             create5MLDTrustOrEstateEndpoint(utr),
             UNPROCESSABLE_ENTITY,
             """{
-                |  "error": {
-                |    "processingDate": "2001-12-17T09:30:47.0",
-                |    "errorId": "003",
-                |    "text": "Request could not be processed"
-                |  }
-                |}""".stripMargin
+              |  "error": {
+              |    "processingDate": "2001-12-17T09:30:47.0",
+              |    "errorId": "003",
+              |    "text": "Request could not be processed"
+              |  }
+              |}""".stripMargin
           )
 
           val futureResult = connector.getEstateInfo(utr)
@@ -772,7 +755,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
         }
       }
       "return ServiceUnavailableResponse" when {
-        "des has returned a 503 with the code SERVICE_UNAVAILABLE" in {
+        "hip has returned a 503 with the code SERVICE_UNAVAILABLE" in {
 
           stubForGet(
             server,
@@ -790,7 +773,13 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           )
 
           val utr = "1234567894"
-          stubForGet(server, create5MLDTrustOrEstateEndpoint(utr), SERVICE_UNAVAILABLE, "")
+
+          stubForGet(
+            server,
+            create5MLDTrustOrEstateEndpoint(utr),
+            SERVICE_UNAVAILABLE,
+            Json.stringify(Json.parse(serviceUnavailableResponse))
+          )
 
           val futureResult = connector.getEstateInfo(utr)
 
@@ -832,15 +821,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/registration",
           requestBody,
           BAD_REQUEST,
-          s"""
-               |{
-               |  "error": {
-               |    "code": "400",
-               |    "message": "String",
-               |    "logID": "00000000000000000000000000000000"
-               |  }
-               |}
-               |""".stripMargin
+          badRequestResponse
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -861,14 +842,14 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           requestBody,
           UNPROCESSABLE_ENTITY,
           s"""
-               |{
-               |  "error": {
-               |    "errorId": "002",
-               |    "processingDate": "2001-12-17T09:30:47.0",
-               |    "text": "FAIL – ALREADY REGISTERED"
-               |  }
-               |}
-               |""".stripMargin
+             |{
+             |  "error": {
+             |    "errorId": "002",
+             |    "processingDate": "2001-12-17T09:30:47.0",
+             |    "text": "FAIL – ALREADY REGISTERED"
+             |  }
+             |}
+             |""".stripMargin
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -889,14 +870,14 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           requestBody,
           UNPROCESSABLE_ENTITY,
           s"""
-               |{
-               |  "error": {
-               |    "errorId": "001",
-               |    "processingDate": "2001-12-17T09:30:47.0",
-               |    "text": "FAIL – NO MATCH"
-               |  }
-               |}
-               |""".stripMargin
+             |{
+             |  "error": {
+             |    "errorId": "001",
+             |    "processingDate": "2001-12-17T09:30:47.0",
+             |    "text": "FAIL – NO MATCH"
+             |  }
+             |}
+             |""".stripMargin
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -917,14 +898,14 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           requestBody,
           UNPROCESSABLE_ENTITY,
           s"""
-               |{
-               |  "error": {
-               |    "errorId": "999",
-               |    "processingDate": "2001-12-17T09:30:47.0",
-               |    "text": "Technical System Error"
-               |  }
-               |}
-               |""".stripMargin
+             |{
+             |  "error": {
+             |    "errorId": "999",
+             |    "processingDate": "2001-12-17T09:30:47.0",
+             |    "text": "Technical System Error"
+             |  }
+             |}
+             |""".stripMargin
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -944,15 +925,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/registration",
           requestBody,
           SERVICE_UNAVAILABLE,
-          s"""
-               |{
-               |  "error": {
-               |    "code": "503",
-               |    "message": "String",
-               |    "logID": "00000000000000000000000000000000"
-               |  }
-               |}
-               |""".stripMargin
+          serviceUnavailableResponse
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -972,15 +945,7 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
           "/etmp/RESTAdapter/trustsandestates/registration",
           requestBody,
           INTERNAL_SERVER_ERROR,
-          s"""
-               |{
-               |  "error": {
-               |    "code": "500",
-               |    "message": "String",
-               |    "logID": "00000000000000000000000000000000"
-               |  }
-               |}
-               |""".stripMargin
+          internalServerErrorResponse
         )
 
         val futureResult = connector.registerEstate(estateRegRequest)
@@ -1005,5 +970,48 @@ class HipEstatesConnectorSpec extends BaseConnectorSpec with JsonRequests {
     }
 
   }
+
+  private val badRequestResponse =
+    s"""
+       |{
+       |  "origin": "HIP",
+       |  "response": {
+       |    "failures": [
+       |      {
+       |        "type": "Type of Failure",
+       |        "reason": "Reason for Failure"
+       |      }
+       |    ]
+       |  }
+       |}
+       |""".stripMargin
+
+  private val serviceUnavailableResponse =
+    s"""
+       |{
+       |  "origin": "HIP",
+       |  "response": {
+       |    "failures": [
+       |      {
+       |        "type": "string",
+       |        "reason": "string"
+       |      }
+       |    ]
+       |  }
+       |}
+       |""".stripMargin
+
+  private val internalServerErrorResponse =
+    s"""
+      |{
+      |  "origin": "HoD",
+      |  "response": {
+      |    "error": {
+      |      "code": "500",
+      |      "logID": "00000000000000000000000000000000",
+      |      "message": "String"
+      |    }
+      |  }
+      |}""".stripMargin
 
 }
