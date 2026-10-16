@@ -6,3 +6,4 @@ service-type: Backend
 test-repositories:
   - estates-acceptance-tests
   - estates-iv-ui-tests
+serviceNowMapping: SNSVC0005913
